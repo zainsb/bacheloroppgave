@@ -10,3 +10,15 @@ c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\D
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\DAL\obj\Debug\DAL.csprojResolveAssemblyReference.cache
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\DAL\obj\Debug\DAL.dll
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\DAL\obj\Debug\DAL.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\DAL.dll.config
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\DAL.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\DAL.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\EntityFramework.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\Model.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\Model.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\EntityFramework.xml
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\obj\Debug\DAL.csprojResolveAssemblyReference.cache
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\obj\Debug\DAL.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\obj\Debug\DAL.pdb

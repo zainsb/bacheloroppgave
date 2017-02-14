@@ -1,0 +1,26 @@
+﻿@model Studentparlamentet_28.Models.Admin
+
+@{
+    ViewBag.Title = "AdminLoggetInn";
+}
+
+<h2>AdminLoggetInn</h2>
+
+<div>
+    <h4>Admin</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.brukernavn)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.brukernavn)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -15,11 +15,20 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.hentEnBruker(id);
         }
-
+        public Admin hentEnAdmin(string id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.hentEnAdmin(id);
+        }
         public bool bruker_i_db(Bruker innPerson)
         {
             var brukerDal = new DbDal();
             return brukerDal.bruker_i_db(innPerson);
+        }
+        public bool admin_i_db(Bruker innAdmin)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.admin_i_db(innAdmin);
         }
     }
 }

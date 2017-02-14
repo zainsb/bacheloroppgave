@@ -9,3 +9,14 @@ c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\B
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\obj\Debug\BLL.csprojResolveAssemblyReference.cache
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\obj\Debug\BLL.dll
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\obj\Debug\BLL.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\BLL.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\BLL.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\DAL.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\Model.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\EntityFramework.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\DAL.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\Model.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\EntityFramework.xml
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.csprojResolveAssemblyReference.cache
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.pdb

@@ -28,6 +28,26 @@ namespace Studentparlamentet_28.DAL
                 return utBruker;
             }
         }
+        public Admin hentEnAdmin(string id)
+        {
+            var db = new BrukerContext();
+
+            var enDbAdmin = db.AdminBrukere.Find(id);
+
+            if (enDbAdmin == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utBruker = new Admin()
+                {
+                    brukernavn = enDbAdmin.Brukernavn,
+                    passwordhash = enDbAdmin.Passord
+                };
+                return utBruker;
+            }
+        }
 
 
         private static byte[] lagHash(string passord)
@@ -56,7 +76,25 @@ namespace Studentparlamentet_28.DAL
                 {
                     return true;
                 }
-            }//End of person_i_db(Person innPerson)
-        }
+            }
+
+        }//End of person_i_db(Person innPerson)
+        public bool admin_i_db(Bruker innAdmin)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innAdmin.passord);
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
+                if (funnetBruker == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }//End of Admin_i_db(Admin innAdmin)
     }
 }
