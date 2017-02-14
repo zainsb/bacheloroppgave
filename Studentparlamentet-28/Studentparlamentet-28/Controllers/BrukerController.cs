@@ -11,6 +11,7 @@ namespace Studentparlamentet_28.Controllers
     public class BrukerController : Controller
     {
         //Kommentar- Danish1
+        //zain
 
         public ActionResult Index()
         {
