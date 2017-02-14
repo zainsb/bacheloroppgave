@@ -10,7 +10,7 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
-        // GET: Bruker
+        
         public ActionResult Index()
         {
             Session.Abandon();
