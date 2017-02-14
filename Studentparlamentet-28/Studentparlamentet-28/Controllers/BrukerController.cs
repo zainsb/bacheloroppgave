@@ -12,6 +12,7 @@ namespace Studentparlamentet_28.Controllers
     {
         //Kommentar- Danish1
         //zain
+        //Danish
 
         public ActionResult Index()
         {
