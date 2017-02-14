@@ -1,0 +1,62 @@
+﻿using Studentparlamentet_28.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace Studentparlamentet_28.DAL
+{
+    public class DbDal
+    {
+        public Bruker hentEnBruker(string id)
+        {
+            var db = new BrukerContext();
+
+            var enDbBruker = db.Brukere.Find(id);
+
+            if (enDbBruker == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utBruker = new Bruker()
+                {
+                    brukernavn = enDbBruker.Brukernavn,
+                    passwordhash = enDbBruker.Passord
+                };
+                return utBruker;
+            }
+        }
+
+
+        private static byte[] lagHash(string passord)
+        {
+            byte[] inndata, utdata;
+
+            var algoritme = System.Security.Cryptography.SHA256.Create();
+
+            inndata = System.Text.Encoding.ASCII.GetBytes(passord);
+            utdata = algoritme.ComputeHash(inndata);
+            return utdata;
+        }
+
+        public bool bruker_i_db(Bruker innPerson)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innPerson.passord);
+                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innPerson.brukernavn);
+                if (funnetBruker == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }//End of person_i_db(Person innPerson)
+        }
+    }
+}

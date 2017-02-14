@@ -1,0 +1,25 @@
+﻿@model Studentparlamentet_28.Models.Bruker
+
+@{
+    ViewBag.Title = "BrukerLoggetInn";
+}
+
+<h2>BrukerLoggetInn</h2>
+
+<div>
+    <h4>Bruker</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.brukernavn)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.brukernavn)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

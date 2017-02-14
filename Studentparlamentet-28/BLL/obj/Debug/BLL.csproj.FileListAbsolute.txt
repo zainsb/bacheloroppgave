@@ -1,0 +1,11 @@
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\BLL.dll
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\BLL.pdb
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\DAL.dll
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\Model.dll
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\EntityFramework.dll
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\DAL.pdb
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\Model.pdb
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\bin\Debug\EntityFramework.xml
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\obj\Debug\BLL.csprojResolveAssemblyReference.cache
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\obj\Debug\BLL.dll
+c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\BLL\obj\Debug\BLL.pdb
