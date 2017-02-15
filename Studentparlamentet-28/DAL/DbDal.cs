@@ -68,7 +68,13 @@ namespace Studentparlamentet_28.DAL
 
                 byte[] passwordhash = lagHash(innPerson.passord);
                 Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innPerson.brukernavn);
-             
+
+
+                if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
+                {
+                    return false;
+                }
+
 
                 if (funnetBruker == null)
                 {
@@ -92,10 +98,13 @@ namespace Studentparlamentet_28.DAL
 
                 byte[] passwordhash = lagHash(innAdmin.passord);
                 Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
-                if (funnetBruker.Innlogget == (bool)true)
+
+                if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
                 {
                     return false;
                 }
+
+
 
                 if (funnetBruker == null)
                 {
