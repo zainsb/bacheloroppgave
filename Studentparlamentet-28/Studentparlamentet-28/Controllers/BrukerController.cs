@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace Studentparlamentet_28.Controllers
 {
@@ -16,8 +17,8 @@ namespace Studentparlamentet_28.Controllers
 
         public ActionResult Index()
         {
-            Session.Abandon();
-            return View();
+             Session.Abandon();
+             return View();
         }
 
         [HttpPost]
@@ -37,7 +38,7 @@ namespace Studentparlamentet_28.Controllers
             }
             else
             {
-                return View();
+                  return View();
             }
             
         }
@@ -47,6 +48,7 @@ namespace Studentparlamentet_28.Controllers
            
             if (Session["LoggetInn"] != null)
             {
+               
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
@@ -66,6 +68,7 @@ namespace Studentparlamentet_28.Controllers
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
+                                   
                     var db = new BrukerBLL();
                     var bruker = db.hentEnAdmin(id);
                     return View(bruker);
