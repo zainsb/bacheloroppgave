@@ -86,6 +86,7 @@ namespace Studentparlamentet_28.DAL
 
                 byte[] passwordhash = lagHash(innAdmin.passord);
                 Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
+                
                 if (funnetBruker == null)
                 {
                     return false;

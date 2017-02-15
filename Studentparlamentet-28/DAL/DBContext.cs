@@ -16,6 +16,8 @@ namespace Studentparlamentet_28.DAL
 
         public byte[] Passord { get; set; }
 
+        public bool Innlogget { get; set; }
+
     }
 
     public class Bruker_db
@@ -24,6 +26,8 @@ namespace Studentparlamentet_28.DAL
         public string Brukernavn { get; set; }
 
         public byte[] Passord { get; set; }
+
+        public bool Innlogget { get; set; }
     }
 
     public class BrukerContext : DbContext

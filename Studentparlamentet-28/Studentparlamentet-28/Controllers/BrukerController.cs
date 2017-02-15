@@ -54,7 +54,7 @@ namespace Studentparlamentet_28.Controllers
                 {
                     var db = new BrukerBLL();
                     var bruker = db.hentEnBruker(id);
-                    return View(bruker);
+                     return View(bruker);
                 }
             }
 
@@ -68,9 +68,10 @@ namespace Studentparlamentet_28.Controllers
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
-                                   
+                                 
                     var db = new BrukerBLL();
                     var bruker = db.hentEnAdmin(id);
+                    
                     return View(bruker);
                 }
             }

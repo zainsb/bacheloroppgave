@@ -15,6 +15,8 @@ namespace Studentparlamentet_28.Models
         [Required(ErrorMessage = "Passord må oppgis")]
         public string passord { get; set; }
 
+        public bool innlogget { get; set; }
+
         public byte[] passwordhash { get; set; }
     }
 }

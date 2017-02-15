@@ -2,3 +2,8 @@ c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\M
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Model\bin\Debug\Model.pdb
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Model\obj\Debug\Model.dll
 c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Model\obj\Debug\Model.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\Model.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\Model.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\obj\Debug\Model.csprojResolveAssemblyReference.cache
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\obj\Debug\Model.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\obj\Debug\Model.pdb
