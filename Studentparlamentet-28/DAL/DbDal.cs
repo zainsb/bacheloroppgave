@@ -69,21 +69,19 @@ namespace Studentparlamentet_28.DAL
                 byte[] passwordhash = lagHash(innPerson.passord);
                 Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innPerson.brukernavn);
 
-
-                if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
-                {
-                    return false;
-                }
-
-
                 if (funnetBruker == null)
                 {
                     return false;
                 }
+                else if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
+                {
+                    return false;
+                }                            
                 else
                 {
 
                     funnetBruker.Innlogget = (bool)true; // flagger bruker er innlogget
+
                     db.SaveChanges();
 
                     return true;
@@ -98,27 +96,49 @@ namespace Studentparlamentet_28.DAL
 
                 byte[] passwordhash = lagHash(innAdmin.passord);
                 Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
-
-                if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
-                {
-                    return false;
-                }
-
-
-
                 if (funnetBruker == null)
                 {
                     return false;
                 }
+                else if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
+                {
+                    return false;
+                }                            
                 else
                 {
 
                     funnetBruker.Innlogget = (bool)true; // flagger bruker er innlogget
                     db.SaveChanges();
-
                     return true;
                 }
             }
         }//End of Admin_i_db(Admin innAdmin)
+
+        public bool logg_ut_bruker(string id)
+        {
+            using (var db = new BrukerContext())
+            {
+                Bruker_db funnetBruker = db.Brukere.Find(id);
+
+                if (funnetBruker != null)
+                {
+                    funnetBruker.Innlogget = (bool)false;
+                    db.SaveChanges();
+                    return true;
+                }
+                else if (funnetBruker == null)
+                {
+                    Admin_db funnetAdmin = db.AdminBrukere.Find(id);
+                    if (funnetAdmin != null)
+                    {
+                        funnetAdmin.Innlogget = (bool)false;
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+        }
     }
 }

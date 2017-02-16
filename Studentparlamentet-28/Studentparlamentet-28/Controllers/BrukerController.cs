@@ -26,15 +26,16 @@ namespace Studentparlamentet_28.Controllers
         {
             
             var db = new BrukerBLL();
-            if (db.bruker_i_db(innlogget))
-            {
-                Session["LoggetInn"] = true;
-                return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
-            }
-            else if (db.admin_i_db(innlogget))
+
+            if (db.admin_i_db(innlogget))
             {
                 Session["LoggetInn"] = true;
                 return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
+            }
+            else if (db.bruker_i_db(innlogget))
+            {
+                Session["LoggetInn"] = true;
+                return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
             }
             else
             {
@@ -78,6 +79,12 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
-
+        public ActionResult LoggUt(string id)
+        {
+            var db = new BrukerBLL();
+            db.logg_ut_bruker(id);
+            Session.Abandon();
+            return RedirectToAction("index");
+        }
     }
 }
