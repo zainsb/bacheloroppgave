@@ -26,7 +26,7 @@ namespace Studentparlamentet_28.Controllers
         {
             
             var db = new BrukerBLL();
-
+            
             if (db.admin_i_db(innlogget))
             {
                 Session["LoggetInn"] = true;
@@ -39,6 +39,7 @@ namespace Studentparlamentet_28.Controllers
             }
             else
             {
+                Session.Abandon();
                   return View();
             }
             

@@ -75,20 +75,21 @@ namespace Studentparlamentet_28.DAL
                 }
                 else if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
                 {
+                    funnetBruker.Innlogget = (bool)false;
+                    db.SaveChanges();
                     return false;
                 }                            
                 else
                 {
 
                     funnetBruker.Innlogget = (bool)true; // flagger bruker er innlogget
-
                     db.SaveChanges();
 
                     return true;
                 }
             }
 
-        }//End of person_i_db(Person innPerson)
+        }//End of person_i__db(Person innPerson)
         public bool admin_i_db(Bruker innAdmin)
         {
             using (var db = new BrukerContext())
@@ -102,6 +103,8 @@ namespace Studentparlamentet_28.DAL
                 }
                 else if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
                 {
+                    funnetBruker.Innlogget = (bool)false;
+                    db.SaveChanges();
                     return false;
                 }                            
                 else
