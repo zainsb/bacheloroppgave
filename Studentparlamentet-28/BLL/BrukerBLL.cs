@@ -10,6 +10,7 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
+        
         public Bruker hentEnBruker(string id)
         {
             var brukerDal = new DbDal();
@@ -20,6 +21,17 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.hentEnAdmin(id);
         }
+        public Admin hentRolleAdmin(string rolle)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.hentRolleAdmin(rolle);
+        }
+        public Bruker hentRolleBruker(string rolle)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.hentRolleBruker(rolle);
+        }
+
         public bool bruker_i_db(Bruker innPerson)
         {
             var brukerDal = new DbDal();

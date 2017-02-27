@@ -1,25 +1,16 @@
 ﻿@model Studentparlamentet_28.Models.Bruker
 
-@{
-    ViewBag.Title = "BrukerLoggetInn";
-}
 
-<h2>BrukerLoggetInn</h2>
 
-<div>
-    <h4>Bruker</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.brukernavn)
-        </dt>
+<div class="panel-body" id="panelBrukerIndex">
 
-        <dd>
-            @Html.DisplayFor(model => model.brukernavn)
-        </dd>
+    <h3 class="brukerHeader">Valg og votering</h3>
 
-    </dl>
+    <div id="txtBruker">
+        <p>Vennligst forbli innlogget</p>
+        <p>Venter på valg...</p>
+    </div>
+
+    @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
+
 </div>
-<p>
-    @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn })
-</p>

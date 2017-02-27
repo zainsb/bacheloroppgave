@@ -14,37 +14,103 @@ namespace Studentparlamentet_28.Controllers
         //Kommentar- Danish1
         //zain
         //Danish
+        // DONTpain
+        public ActionResult LeggTilBruker()
+        {
+            return View();
+        }
 
+        public ActionResult Votering()
+        {
+            return View();
+        }
+
+        public ActionResult Preferansevalg()
+        {
+            return View();
+        }
+
+        public ActionResult Personvalg()
+        {
+            return View();
+        }
+
+        public ActionResult Resultat()
+        {
+            return View();
+        }
         public ActionResult Index()
         {
-             Session.Abandon();
-             return View();
+        return View();
         }
 
         [HttpPost]
-        public ActionResult Index(Bruker innlogget)
+        public ActionResult Index(Bruker innlogget, string returnUrl)
         {
-            
-            var db = new BrukerBLL();
-            
-            if (db.admin_i_db(innlogget))
+            // Ser om Model er valid or not
+
+            if (ModelState.IsValid)
             {
-                Session["LoggetInn"] = true;
-                return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
-            }
-            else if (db.bruker_i_db(innlogget))
-            {
-                Session["LoggetInn"] = true;
-                return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
+
+                var db = new BrukerBLL();
+                
+                if (db.admin_i_db(innlogget) == (bool)true)
+                {
+                    String brukernavn = innlogget.brukernavn;
+                    Session["LoggetInn"] = true;
+
+                    FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
+                    else
+                    {
+                        return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
+                    }
+
+                        
+                }
+                else if (db.bruker_i_db(innlogget) == (bool)true)
+                {
+                    String brukernavn = innlogget.brukernavn;
+                    Session["LoggetInn"] = true;
+
+                    FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
+                    }
+                    
+                }
+                else
+                {
+                    return View();
+                }
             }
             else
             {
-                Session.Abandon();
-                  return View();
+                return View();
             }
-            
+
         }
 
+        public ActionResult LogOff()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Index", "Bruker");
+        }
+
+        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon
         public ActionResult BrukerLoggetInn(string id)
         {
            
@@ -62,6 +128,8 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon
         public ActionResult AdminLoggetInn(string id)
         {
 

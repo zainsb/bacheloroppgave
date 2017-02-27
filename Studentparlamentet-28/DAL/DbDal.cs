@@ -48,6 +48,49 @@ namespace Studentparlamentet_28.DAL
                 return utBruker;
             }
         }
+        public Admin hentRolleAdmin(string rolle)
+        {
+            var db = new BrukerContext();
+            var enDbAdmin = db.AdminBrukere.Find(rolle);
+            if (enDbAdmin == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utRolle = new Admin()
+                {
+                    administrator = enDbAdmin.Administrator
+                };
+
+
+            return utRolle;
+               
+            }
+            
+       }
+
+        public Bruker hentRolleBruker(string rolle)
+        {
+            var db = new BrukerContext();
+            var enDbAdmin = db.Brukere.Find(rolle);
+            if (enDbAdmin == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utRolle = new Bruker()
+                {
+                    administrator = enDbAdmin.Administrator
+                };
+
+
+                return utRolle;
+
+            }
+
+        }
 
 
         private static byte[] lagHash(string passord)
@@ -69,23 +112,20 @@ namespace Studentparlamentet_28.DAL
                 byte[] passwordhash = lagHash(innPerson.passord);
                 Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innPerson.brukernavn);
 
-                if (funnetBruker == null)
+                if (funnetBruker == null || funnetBruker.Innlogget == (bool)true)
                 {
-                    return false;
+                    return false; // return bruker er ikke i systemet, kontakt systemansvarlig
                 }
-                else if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
+                else if (funnetBruker.Administrator == (bool)false) // sjekker om bruker er innlogget allerede
                 {
-                    funnetBruker.Innlogget = (bool)false;
+                    funnetBruker.Innlogget = (bool)true; // flagger at bruker er innlogget
                     db.SaveChanges();
-                    return false;
+                    return true;
                 }                            
                 else
                 {
 
-                    funnetBruker.Innlogget = (bool)true; // flagger bruker er innlogget
-                    db.SaveChanges();
-
-                    return true;
+                   return false; // ikke en vanlig bruker
                 }
             }
 
@@ -97,23 +137,26 @@ namespace Studentparlamentet_28.DAL
 
                 byte[] passwordhash = lagHash(innAdmin.passord);
                 Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
-                if (funnetBruker == null)
+                if(funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
+                {
+                   return false;
+                }
+                else if(funnetBruker.Innlogget == (bool)true)
                 {
                     return false;
                 }
-                else if (funnetBruker.Innlogget == (bool)true) // sjekker om bruker er innlogget allerede
+                               
+                else if (funnetBruker.Administrator == (bool)true)
                 {
-                    funnetBruker.Innlogget = (bool)false;
-                    db.SaveChanges();
-                    return false;
-                }                            
-                else
-                {
-
-                    funnetBruker.Innlogget = (bool)true; // flagger bruker er innlogget
+                    funnetBruker.Innlogget = (bool)true;// flagger at bruker er innlogget
                     db.SaveChanges();
                     return true;
                 }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
             }
         }//End of Admin_i_db(Admin innAdmin)
 

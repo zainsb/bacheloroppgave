@@ -17,6 +17,8 @@ namespace Studentparlamentet_28.Models
 
         public bool innlogget { get; set; }
 
+        public bool administrator { get; set; }
+
         public byte[] passwordhash { get; set; }
     }
 }

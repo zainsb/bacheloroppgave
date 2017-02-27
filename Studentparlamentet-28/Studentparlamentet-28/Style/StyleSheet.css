@@ -1,0 +1,80 @@
+﻿body {
+   
+}
+
+#LoginForm {
+    background-color: #fff;
+    max-width: 400px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 2px solid rgba(0,0,0,0.1); 
+}
+
+#LoginForm .LoginHeader {
+    margin-bottom: 30px;
+    text-align:left;
+}
+
+#LoginForm #LogginnBtn{
+    margin-top: 30px;
+    text-align: left;
+}
+
+
+
+#panelAdminIndex {
+    background-color: #fff;
+    max-width: 400px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+   
+}
+
+#panelAdminIndex li {
+    border: none;
+    text-align: center;
+}
+
+#borderListGroup {
+    border: 1px solid  rgba(0,0,0,0.1); 
+}
+
+#borderListGroup a:hover {
+    background-color: beige;
+}
+
+#borderListGroup a:hover h5{
+    color: black;
+}
+#borderListGroup a:hover small{
+    color: black;
+}
+
+
+#panelBrukerIndex {
+    background-color: #fff;
+    max-width: 400px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 2px solid rgba(0,0,0,0.1); 
+}
+
+#panelBrukerIndex .brukerHeader {
+    margin-bottom: 30px;
+    text-align:center;
+}
+
+#panelBrukerIndex h4{
+    font-size:12px;
+    text-align:center;
+}
+
+#panelBrukerIndex p {
+    text-align: center;
+}
+
+#loggUtBtn{
+    margin-top: 30px;
+    margin-left: 22%;
+    width: 150px;
+}
