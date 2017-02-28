@@ -1,11 +1,10 @@
 ﻿html, body {
     height: 100%;
-    background: #ededed; 
 }
 
 body {
     
-    
+    background: #ededed; 
     background: -webkit-linear-gradient(#ededed, lightgrey); 
     background: -o-linear-gradient(#ededed, lightgrey);
     background: -moz-linear-gradient(#ededed, lightgrey);
