@@ -41,7 +41,35 @@ namespace Studentparlamentet_28.Controllers
         }
         public ActionResult Index()
         {
-        return View();
+
+            if (Session["LoggetInn"] != null)
+
+            {
+                String iD = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                var db = new BrukerBLL();
+                var roles = db.hentRolleAdmin(iD);
+                if(roles != null)
+                {
+                    return RedirectToAction("AdminLoggetInn", new { id = iD });
+                }
+                else
+                {
+                    return RedirectToAction("BrukerLoggetInn", new { id = iD });
+                }
+                //finn admin
+                // if admin
+                // else if bruker 
+
+
+                return RedirectToAction("AdminLoggetInn", new { id = iD });
+            }
+            else
+            {
+                           return View();
+
+            }
+
+                
         }
 
         [HttpPost]
