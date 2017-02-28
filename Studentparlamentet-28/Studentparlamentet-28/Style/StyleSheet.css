@@ -1,13 +1,26 @@
-﻿body {
-   
+﻿html, body {
+    height: 100%;
+}
+
+body {
+    
+    background: #ededed; 
+    background: -webkit-linear-gradient(#ededed, lightgrey); 
+    background: -o-linear-gradient(#ededed, lightgrey);
+    background: -moz-linear-gradient(#ededed, lightgrey);
+    background: linear-gradient(#ededed, lightgrey); 
+    background-size: 100%;
+    width: 100%;
+    
 }
 
 #LoginForm {
-    background-color: #fff;
+    background-color: whitesmoke;
+    border-radius: 25px;
     max-width: 400px;
     padding: 15px 35px 45px;
     margin: 0 auto;
-    border: 2px solid rgba(0,0,0,0.1); 
+     
 }
 
 #LoginForm .LoginHeader {
@@ -21,9 +34,8 @@
 }
 
 
-
 #panelAdminIndex {
-    background-color: #fff;
+   
     max-width: 400px;
     padding: 15px 35px 45px;
     margin: 0 auto;
@@ -37,6 +49,7 @@
 
 #borderListGroup {
     border: 1px solid  rgba(0,0,0,0.1); 
+    border-radius: 25px;
 }
 
 #borderListGroup a:hover {
@@ -78,3 +91,4 @@
     margin-left: 22%;
     width: 150px;
 }
+
