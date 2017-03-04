@@ -16,11 +16,7 @@ namespace Studentparlamentet_28.Controllers
         //Danish
         // DONTpain
 
-        public ActionResult IndexEng()
-        {
-            return View();
-        }
-
+    
         public ActionResult LeggTilBruker()
         {
             return View();
@@ -74,7 +70,70 @@ namespace Studentparlamentet_28.Controllers
 
                 
         }
+        public ActionResult IndexEng()
+        {
+            return View();
+        }
 
+        [HttpPost]
+        public ActionResult IndexEng(Bruker innlogget, string returnUrl)
+        {
+            // Ser om Model er valid or not
+
+            if (ModelState.IsValid)
+            {
+
+                var db = new BrukerBLL();
+
+                if (db.admin_i_db(innlogget) == (bool)true)
+                {
+                    String brukernavn = innlogget.brukernavn;
+                    Session["LoggetInn"] = true;
+
+                    FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
+                    else
+                    {
+                        return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
+                    }
+
+
+                }
+                else if (db.bruker_i_db(innlogget) == (bool)true)
+                {
+                    String brukernavn = innlogget.brukernavn;
+                    Session["LoggetInn"] = true;
+
+                    FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
+                    }
+
+                }
+                else
+                {
+                    return View();
+                }
+            }
+            else
+            {
+                return View();
+            }
+
+        }
         [HttpPost]
         public ActionResult Index(Bruker innlogget, string returnUrl)
         {
