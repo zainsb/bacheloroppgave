@@ -1,10 +1,28 @@
 ﻿@model Studentparlamentet_28.Models.Bruker
 
+
+<br /><br />
+
+
 <div class="col-sm-12" id="LoginForm">
 
-        <h2 class="LoginHeader">Velkommen til møte</h2>
-        <h3 class="LoginHeader">Logg inn</h3>
+    <div class="dropdown" style="float:right;">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            Norsk
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("IndexEng", "Bruker")">English</a></li>
+        </ul>
+    </div>
 
+    <br />
+    <h2 style="text-align:left;">Velkommen</h2>   
+    <h4 class="LoginHeader">Vennligst logg inn</h4>
+
+
+        <br /><br />
+        
         @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
         {
             @Html.AntiForgeryToken()

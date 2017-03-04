@@ -1,59 +1,3 @@
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\ApplicationInsights.config
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\csc.exe
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.CodeAnalysis.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.CSharp.Core.targets
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.VisualBasic.Core.targets
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\System.Collections.Immutable.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\System.Reflection.Metadata.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\vbc.exe
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\VBCSCompiler.exe
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\VBCSCompiler.exe.config
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Studentparlamentet-28.dll.config
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Studentparlamentet-28.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Studentparlamentet-28.pdb
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\BLL.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\EntityFramework.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\EntityFramework.SqlServer.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.Agent.Intercept.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.DependencyCollector.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.PerfCounterCollector.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.ServerTelemetryChannel.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.Web.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.WindowsServer.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.ApplicationInsights.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.Web.Infrastructure.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Model.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Helpers.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Mvc.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Razor.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.Deployment.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.Razor.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\DAL.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\BLL.pdb
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Model.pdb
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\EntityFramework.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\EntityFramework.SqlServer.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.DependencyCollector.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.ServerTelemetryChannel.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.Web.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.WindowsServer.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.ApplicationInsights.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Razor.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.Deployment.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.Razor.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Helpers.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Mvc.xml
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\bin\DAL.pdb
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.csprojResolveAssemblyReference.cache
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.dll
-c:\users\dani9_000\documents\visual studio 2015\Projects\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.pdb
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\ApplicationInsights.config
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\csc.exe
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
@@ -100,12 +44,12 @@ C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparl
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.AI.WindowsServer.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.ApplicationInsights.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Mvc.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Razor.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.Deployment.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Webpages.Razor.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Helpers.xml
-C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\System.Web.Mvc.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\DAL.pdb
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.csprojResolveAssemblyReference.cache
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.dll

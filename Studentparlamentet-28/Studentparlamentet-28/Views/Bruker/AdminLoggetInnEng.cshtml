@@ -1,68 +1,60 @@
 ﻿@model Studentparlamentet_28.Models.Admin
-
 <br /><br />
-
 
 <div class="panel-body" id="panelAdminIndex">
 
     <div class="dropdown" style="float:right;">
         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            Norsk
+            English
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-            <li><a href="@Url.Action("AdminLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
+            <li><a href="@Url.Action("AdminLoggetInn", "Bruker", new { id = Model.brukernavn })">Norsk</a></li>
         </ul>
     </div>
 
     <br /><br />
     <div class="list-group">
-
         <div id="borderListGroup">
             <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Legg til bruker</h5>
+                    <h5 class="mb-1">Add new user</h5>
                 </div>
-                <small>Klikk her for å legge til brukere for møte.</small>
+                <small>Click here to add users.</small>
             </a>
         </div>
-
         <div id="borderListGroup">
             <a href="@Url.Action("Votering", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Votering</h5>
+                    <h5 class="mb-1">Vote</h5>
                 </div>
-                <small>Klikk her for å starte en votering.</small>
+                <small>Click here to start a vote.</small>
             </a>
         </div>
-
         <div id="borderListGroup">
             <a href="@Url.Action("Preferansevalg", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Preferansevalg</h5>
+                    <h5 class="mb-1">Single Transferable Vote</h5>
                 </div>
-                <small>Klikk her for å starte et preferansevalg.</small>
+                <small>Click here to start a S.T.V</small>
             </a>
         </div>
-
         <div id="borderListGroup">
             <a href="@Url.Action("Personvalg", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Personvalg</h5>
+                    <h5 class="mb-1">Person Selection</h5>
                 </div>
-                <small>Klikk her for å starte et personvalg</small>
+                <small>Click here to start a "Person Selection?"</small>
             </a>
         </div>
-
         <div id="borderListGroup">
             <a href="@Url.Action("Resultat", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Hent resultat</h5>
+                    <h5 class="mb-1">Get results</h5>
                 </div>
-                <small>Klikk her for å hente rapporter av resultat.</small>
+                <small>Click here to get results from the meeting.</small>
             </a>
         </div>
     </div>
-
-    @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger" })
+    @Html.ActionLink("Sign out", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger" })
 </div>

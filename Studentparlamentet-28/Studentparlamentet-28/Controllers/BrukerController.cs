@@ -15,6 +15,12 @@ namespace Studentparlamentet_28.Controllers
         //zain
         //Danish
         // DONTpain
+
+        public ActionResult IndexEng()
+        {
+            return View();
+        }
+
         public ActionResult LeggTilBruker()
         {
             return View();
@@ -59,9 +65,6 @@ namespace Studentparlamentet_28.Controllers
                 //finn admin
                 // if admin
                 // else if bruker 
-
-
-                return RedirectToAction("AdminLoggetInn", new { id = iD });
             }
             else
             {
@@ -156,6 +159,24 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon
+        public ActionResult BrukerLoggetInnEng(string id)
+        {
+
+            if (Session["LoggetInn"] != null)
+            {
+
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    var bruker = db.hentEnBruker(id);
+                    return View(bruker);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
 
         [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon
         public ActionResult AdminLoggetInn(string id)
@@ -170,6 +191,25 @@ namespace Studentparlamentet_28.Controllers
                     var db = new BrukerBLL();
                     var bruker = db.hentEnAdmin(id);
                     
+                    return View(bruker);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon
+        public ActionResult AdminLoggetInnEng(string id)
+        {
+
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    var db = new BrukerBLL();
+                    var bruker = db.hentEnAdmin(id);
+
                     return View(bruker);
                 }
             }
