@@ -29,7 +29,7 @@ namespace Studentparlamentet_28.Controllers
         {
             var db = new BrukerBLL();
             
-            System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("~/pdf") + "\\" + "BrukernavnOgPassord.pdf", System.IO.FileMode.Create);
+            System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("~/pdf") + "\\" + "BrukernavnOgPassord2.pdf", System.IO.FileMode.Create);
             Document document = new Document(PageSize.A4, 25, 25, 30, 30);
             PdfWriter writer = PdfWriter.GetInstance(document, fs);
             List<Bruker> tabell = db.hentData();
@@ -55,8 +55,8 @@ namespace Studentparlamentet_28.Controllers
             document.Add(table);
             document.Close();
             fs.Close();
-            String path = Server.MapPath("~/pdf/BrukernavnOgPassord.pdf");
-            return File(path, "application/pdf", "BrukernavnOgPassord.pdf"); 
+            String path = Server.MapPath("~/pdf/BrukernavnOgPassord2.pdf");
+            return File(path, "application/pdf", "BrukernavnOgPassord2.pdf"); 
 
 
         }
