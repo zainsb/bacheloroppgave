@@ -29,7 +29,7 @@ namespace Studentparlamentet_28.Controllers
         {
             var db = new BrukerBLL();
             
-            System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("/pdf") + "\\" + "BrukernavnOgPassord.pdf", System.IO.FileMode.Create);
+            System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("~/pdf") + "\\" + "BrukernavnOgPassord.pdf", System.IO.FileMode.Create);
             Document document = new Document(PageSize.A4, 25, 25, 30, 30);
             PdfWriter writer = PdfWriter.GetInstance(document, fs);
             List<Bruker> tabell = db.hentData();
