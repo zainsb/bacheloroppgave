@@ -1,7 +1,26 @@
-﻿
-@{
-    ViewBag.Title = "LeggTilBruker";
-}
+﻿<div class="col-sm-12" id="LoginForm">
 
-<h2>LeggTilBruker</h2>
+    <div class="dropdown" style="float:right;">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            Norsk
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("LeggTilBrukerEng", "Bruker")">English</a></li>
+        </ul>
+    </div>
 
+    <br />
+    <h2 style="text-align:left;">Legg til deltakere</h2>
+    <br />
+     <div class="form-group">
+        <label for="usr">Velg antall:</label>
+        <input type="text" class="form-control" id="antall">
+     </div>
+    <button type="button" class="btn btn-success">Lag Liste</button>
+    <button type="button" class="btn btn-success">Se Liste</button>
+    <button type="button" class="btn btn-success">Last ned liste</button>      
+    
+    </div>
+
+    

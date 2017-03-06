@@ -182,6 +182,7 @@
     <Content Include="Views\Bruker\AdminLoggetInnEng.cshtml" />
     <Content Include="Views\Bruker\BrukerLoggetInnEng.cshtml" />
     <Content Include="Views\Bruker\IndexEng.cshtml" />
+    <Content Include="Views\Bruker\LeggTilBrukerEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

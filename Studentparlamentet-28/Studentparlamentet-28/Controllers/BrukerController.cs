@@ -21,6 +21,10 @@ namespace Studentparlamentet_28.Controllers
         {
             return View();
         }
+        public ActionResult LeggTilBrukerEng()
+        {
+            return View();
+        }
 
         public ActionResult Votering()
         {
