@@ -55,7 +55,7 @@ namespace Studentparlamentet_28.Controllers
             document.Add(table);
             document.Close();
             fs.Close();
-            String path = Server.MapPath("/Studentparlamentet-28/Studentparlamentet-28/pdf/BrukernavnOgPassord.pdf");
+            String path = Server.MapPath("~//pdf/BrukernavnOgPassord.pdf");
             return File(path, "application/pdf", "BrukernavnOgPassord.pdf"); 
 
 
