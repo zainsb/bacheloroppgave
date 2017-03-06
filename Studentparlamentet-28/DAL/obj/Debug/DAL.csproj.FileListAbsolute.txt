@@ -22,3 +22,5 @@ C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Deb
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\obj\Debug\DAL.csprojResolveAssemblyReference.cache
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\obj\Debug\DAL.dll
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\obj\Debug\DAL.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\itextsharp.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\DAL\bin\Debug\itextsharp.xml

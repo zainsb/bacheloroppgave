@@ -27,7 +27,7 @@ namespace Studentparlamentet_28.DAL
         [Key]
         public string Brukernavn { get; set; }
 
-        public byte[] Passord { get; set; }
+        public string Passord { get; set; }
 
         public bool Innlogget { get; set; }
 

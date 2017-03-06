@@ -2,6 +2,7 @@
 using Studentparlamentet_28.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,17 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
-        
+        public List<Bruker> hentData()
+        {
+            var brukerDal = new DbDal();
+            List<Bruker> tabell = brukerDal.hentData();
+            return tabell;
+        }
+        public Bruker lastNedListe()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.lastNedListe();
+        }
         public Bruker hentEnBruker(string id)
         {
             var brukerDal = new DbDal();

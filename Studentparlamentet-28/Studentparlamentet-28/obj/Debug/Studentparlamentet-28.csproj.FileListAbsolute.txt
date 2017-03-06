@@ -54,3 +54,5 @@ C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparl
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.csprojResolveAssemblyReference.cache
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.dll
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\obj\Debug\Studentparlamentet-28.pdb
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\itextsharp.dll
+C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Studentparlamentet-28\bin\itextsharp.xml

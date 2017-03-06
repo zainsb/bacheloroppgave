@@ -3,11 +3,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using iTextSharp;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public List<Bruker> hentData()
+        {
+
+            using (var db = new BrukerContext())
+            {
+                var listeAvBrukere = db.Brukere.Select(k => new Bruker()
+                {
+                    brukernavn = k.Brukernavn,
+                    passord = k.Passord
+                }).ToList();
+                return listeAvBrukere;
+            } 
+        }
+        public Bruker lastNedListe()
+        {
+            return null;
+        }
         public Bruker hentEnBruker(string id)
         {
             var db = new BrukerContext();
@@ -23,7 +45,7 @@ namespace Studentparlamentet_28.DAL
                 var utBruker = new Bruker()
                 {
                     brukernavn = enDbBruker.Brukernavn,
-                    passwordhash = enDbBruker.Passord
+                    passord = enDbBruker.Passord
                 };
                 return utBruker;
             }
@@ -109,8 +131,8 @@ namespace Studentparlamentet_28.DAL
             using (var db = new BrukerContext())
             {
 
-                byte[] passwordhash = lagHash(innPerson.passord);
-                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innPerson.brukernavn);
+                
+                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == innPerson.passord && b.Brukernavn == innPerson.brukernavn);
 
                 if (funnetBruker == null || funnetBruker.Innlogget == (bool)true)
                 {

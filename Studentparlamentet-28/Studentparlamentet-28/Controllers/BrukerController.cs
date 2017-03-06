@@ -6,6 +6,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using iTextSharp;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.Data.SqlClient;
 
 namespace Studentparlamentet_28.Controllers
 {
@@ -21,12 +25,52 @@ namespace Studentparlamentet_28.Controllers
         {
             return View();
         }
-        public ActionResult LeggTilBrukerEng()
+        public ActionResult LastNedListe()
+        {
+            var db = new BrukerBLL();
+            
+            System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("/pdf") + "\\" + "BrukernavnOgPassord.pdf", System.IO.FileMode.Create);
+            Document document = new Document(PageSize.A4, 25, 25, 30, 30);
+            PdfWriter writer = PdfWriter.GetInstance(document, fs);
+            List<Bruker> tabell = db.hentData();
+            PdfPTable table = new PdfPTable(3);
+            PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
+            cell.Colspan = 3;
+            cell.HorizontalAlignment = 1;
+
+            table.AddCell(cell);
+            int teller = 0;
+            for(int i = 0; i < tabell.Count; i++ )
+            {
+                teller++;
+                // nummer
+                table.AddCell(teller.ToString());
+                // brukernavn
+                table.AddCell(tabell[i].brukernavn.ToString());
+                // passord
+                table.AddCell(tabell[i].passord.ToString());
+
+            }                                  
+            document.Open();
+            document.Add(table);
+            document.Close();
+            fs.Close();
+            String path = Server.MapPath("/pdf/First2PDFdocument.pdf");
+            return File(path, "application/pdf", "BrukernavnOgPassord.pdf"); 
+
+
+        }
+
+        public ActionResult LeggTilBrukerEng()  
         {
             return View();
         }
 
         public ActionResult Votering()
+        {
+            return View();
+        }
+        public ActionResult VoteringEng()
         {
             return View();
         }
