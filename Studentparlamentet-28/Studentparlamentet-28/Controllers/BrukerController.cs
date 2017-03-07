@@ -31,6 +31,41 @@ namespace Studentparlamentet_28.Controllers
         }
         public ActionResult LastNedListe()
         {
+           // Lokal løsning med memoryStream
+
+            var db = new BrukerBLL();
+            List<Bruker> tabell = db.hentData();
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (var doc = new iTextSharp.text.Document())
+                {
+                    PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                    PdfPTable table = new PdfPTable(3);
+                    PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
+                    cell.Colspan = 3;
+                    cell.HorizontalAlignment = 1;
+                    table.AddCell(cell);
+                    int teller = 0;
+                    for (int i = 0; i < tabell.Count; i++)
+                    {
+                        teller++;
+                        // nummer
+                        table.AddCell(teller.ToString());
+                        // brukernavn
+                        table.AddCell(tabell[i].brukernavn.ToString());
+                        // passord
+                        table.AddCell(tabell[i].passord.ToString());
+
+                    }
+                    doc.Open();
+                    doc.Add(table);
+                    doc.Close();
+                }
+
+                return File(ms.ToArray(), "application/pdf");
+            }
+
             // Azure løsning med cloud
             /*
            // Retrieve storage account from connection string.
@@ -86,86 +121,9 @@ namespace Studentparlamentet_28.Controllers
            return File(memStream.ToArray(), blockBlob.Properties.ContentType);
            */
 
-
-            var db = new BrukerBLL();
-            List<Bruker> tabell = db.hentData();
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (var doc = new iTextSharp.text.Document())
-                {
-                    PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                    PdfPTable table = new PdfPTable(3);
-                    PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
-                    cell.Colspan = 3;
-                    cell.HorizontalAlignment = 1;
-                    table.AddCell(cell);
-                    int teller = 0;
-                    for (int i = 0; i < tabell.Count; i++)
-                    {
-                        teller++;
-                        // nummer
-                        table.AddCell(teller.ToString());
-                        // brukernavn
-                        table.AddCell(tabell[i].brukernavn.ToString());
-                        // passord
-                        table.AddCell(tabell[i].passord.ToString());
-
-                    }
-                    doc.Open();
-                    doc.Add(table);
-                    doc.Close();
-                }
-
-                return File(ms.ToArray(), "application/pdf");
-
-            /*
-           // Lokal løsning
-           System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("~/pdf") + "\\" + "BrukernavnOgPassord2.pdf", System.IO.FileMode.Create);
-           PdfWriter writer = PdfWriter.GetInstance(document, fs);
-           fs.Close();
-           */
-
-            /*
-           // Løsning med lagring i MemoryStream
-           var db = new BrukerBLL();
-           MemoryStream memStream = new MemoryStream();
-           return File(memStream.ToArray(), "application/pdf");
-             Document document = new Document(PageSize.A4, 25, 25, 30, 30);
-
-             PdfWriter writer = PdfWriter.GetInstance(document, storageAccount );
-             List<Bruker> tabell = db.hentData();
-             PdfPTable table = new PdfPTable(3);
-             PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
-             cell.Colspan = 3;
-             cell.HorizontalAlignment = 1;
-
-             table.AddCell(cell);
-             int teller = 0;
-             for(int i = 0; i < tabell.Count; i++ )
-             {
-                teller++;
-                // nummer
-                table.AddCell(teller.ToString());
-                // brukernavn
-                table.AddCell(tabell[i].brukernavn.ToString());
-                // passord
-                table.AddCell(tabell[i].passord.ToString());
-
-             }                                  
-             document.Open();
-             document.Add(table);
-             document.Close();
-
-
-             String path = Server.MapPath("~/pdf/BrukernavnOgPassord2.pdf");
-             return File(path, "application/pdf", "BrukernavnOgPassord2.pdf"); 
-             */
-
-
         }
 
-        public ActionResult LeggTilBrukerEng()  
+ public ActionResult LeggTilBrukerEng()  
  {
  return View();
  }
