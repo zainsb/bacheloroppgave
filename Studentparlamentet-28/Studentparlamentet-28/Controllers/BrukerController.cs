@@ -31,24 +31,65 @@ namespace Studentparlamentet_28.Controllers
         }
         public ActionResult LastNedListe()
         {
-             // Azure løsning med cloud
+            // Azure løsning med cloud
+            /*
+           // Retrieve storage account from connection string.
+           CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+               CloudConfigurationManager.GetSetting("StorageConnectionString"));
 
-            // Retrieve storage account from connection string.
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+           // Create the blob client.
+           CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
-            // Create the blob client.
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+           // Retrieve reference to a previously created container.
+           CloudBlobContainer container = blobClient.GetContainerReference("myprivatecontainer");
 
-            // Retrieve reference to a previously created container.
-            CloudBlobContainer container = blobClient.GetContainerReference("myprivatecontainer");
+           // Retrieve reference to a blob named "myblob.txt".
+           CloudBlockBlob blockBlob = container.GetBlockBlobReference("BrukernavnOgPassord.pdf");
 
-            // Retrieve reference to a blob named "myblob.txt".
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference("BrukernavnOgPassord.pdf");
+           var db = new BrukerBLL();
+           List<Bruker> tabell = db.hentData();
+
+           using (MemoryStream ms = new MemoryStream())
+           {
+               using (var doc = new iTextSharp.text.Document())
+               {
+                   PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                   PdfPTable table = new PdfPTable(3);
+                   PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
+                   cell.Colspan = 3;
+                   cell.HorizontalAlignment = 1;
+                   table.AddCell(cell);
+                   int teller = 0;
+                   for (int i = 0; i < tabell.Count; i++)
+                   {
+                       teller++;
+                       // nummer
+                       table.AddCell(teller.ToString());
+                       // brukernavn
+                       table.AddCell(tabell[i].brukernavn.ToString());
+                       // passord
+                       table.AddCell(tabell[i].passord.ToString());
+
+                   }
+                   doc.Open();
+                   doc.Add(table);
+                   doc.Close();
+               }
+               var byteArray = ms.ToArray();
+               var blobName = "BrukernavnOgPassord.pdf";
+               var blob = container.GetBlockBlobReference(blobName);
+               blob.Properties.ContentType = "application/pdf";
+               blob.UploadFromByteArray(byteArray, 0, byteArray.Length);
+           }
+           var memStream = new MemoryStream();
+           blockBlob.DownloadToStream(memStream);
+           return File(memStream.ToArray(), blockBlob.Properties.ContentType);
+           */
+
 
             var db = new BrukerBLL();
             List<Bruker> tabell = db.hentData();
-                      
+
             using (MemoryStream ms = new MemoryStream())
             {
                 using (var doc = new iTextSharp.text.Document())
@@ -75,18 +116,8 @@ namespace Studentparlamentet_28.Controllers
                     doc.Add(table);
                     doc.Close();
                 }
-                var byteArray = ms.ToArray();
-                var blobName = "BrukernavnOgPassord.pdf";
-                var blob = container.GetBlockBlobReference(blobName);
-                blob.Properties.ContentType = "application/pdf";
-                blob.UploadFromByteArray(byteArray, 0, byteArray.Length);
-            }
-            var memStream = new MemoryStream();
-            blockBlob.DownloadToStream(memStream);
-            return File(memStream.ToArray(), blockBlob.Properties.ContentType);
 
-           
-
+                return File(ms.ToArray(), "application/pdf");
 
             /*
            // Lokal løsning
