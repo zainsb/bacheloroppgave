@@ -62,8 +62,8 @@ namespace Studentparlamentet_28.Controllers
                     doc.Add(table);
                     doc.Close();
                 }
-
-                return File(ms.ToArray(), "application/pdf");
+                byte[] filedata = ms.ToArray();
+                return File(filedata, "application/pdf" , "LastNedListe.pdf");
             }
 
             // Azure løsning med cloud
