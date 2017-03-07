@@ -38,10 +38,12 @@ namespace Studentparlamentet_28.Controllers
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (var doc = new iTextSharp.text.Document())
+                using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
                 {
                     PdfWriter writer = PdfWriter.GetInstance(doc, ms);
                     PdfPTable table = new PdfPTable(3);
+                    
+
                     PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
                     cell.Colspan = 3;
                     cell.HorizontalAlignment = 1;
@@ -63,7 +65,7 @@ namespace Studentparlamentet_28.Controllers
                     doc.Close();
                 }
                 byte[] filedata = ms.ToArray();
-                return File(filedata, "application/pdf" , "LastNedListe.pdf");
+                return File(filedata, "application/pdf" , "BrukernavnOgPassord.pdf");
             }
 
             // Azure løsning med cloud
