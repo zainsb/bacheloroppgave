@@ -117,6 +117,10 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PasswordGenerator, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PasswordGenerator.1.1.2\lib\net45\PasswordGenerator.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
@@ -164,6 +168,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\DatabaseSP7.mdf" />
+    <Content Include="App_Data\DatabaseSP7_log.ldf">
+      <DependentUpon>DatabaseSP7.mdf</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\JavaScript.js" />
@@ -210,7 +218,6 @@
     <Content Include="Views\Bruker\Index.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Bruker\AdminLoggetInn.cshtml" />
-    <Content Include="Views\Bruker\LeggTilBruker.cshtml" />
     <Content Include="Views\Bruker\Votering.cshtml" />
     <Content Include="Views\Bruker\Preferansevalg.cshtml" />
     <Content Include="Views\Bruker\Personvalg.cshtml" />
@@ -222,6 +229,8 @@
     <Content Include="Views\Bruker\VoteringEng.cshtml" />
     <Content Include="Views\Bruker\VoteringAdmin.cshtml" />
     <Content Include="Views\Bruker\VoteringAdminEng.cshtml" />
+    <Content Include="Views\Bruker\LeggTilBruker.cshtml" />
+    <Content Include="Views\Bruker\VisListe.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -240,7 +249,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Models\" />
     <Folder Include="pdf\" />
   </ItemGroup>

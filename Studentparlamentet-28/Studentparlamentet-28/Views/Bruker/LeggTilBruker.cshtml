@@ -1,4 +1,7 @@
-﻿<div class="col-sm-12" id="LoginForm">
+﻿
+
+
+<div class="col-sm-12" id="LoginForm">
 
     <div class="dropdown" style="float:right;">
         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -9,18 +12,38 @@
             <li><a href="@Url.Action("LeggTilBrukerEng", "Bruker")">English</a></li>
         </ul>
     </div>
-
     <br />
+    
     <h2 style="text-align:left;">Legg til deltakere</h2>
-    <br />
-     <div class="form-group">
-        <label for="usr">Velg antall:</label>
-        <input type="text" class="form-control" id="antall">
-     </div>
-    <button type="button" class="btn btn-success">Lag Liste</button>
-    <button type="button" class="btn btn-success">Se Liste</button>
-    @Html.ActionLink("Last ned liste", "LastNedListe", new { tom="" }, new { @class = "btn btn-success" })     
-    
-    </div>
+    <br /><br />
 
+    @using (Html.BeginForm("GenererListe", "Bruker"))
+    {
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="usr">Velg antall:</label>
+                @Html.TextBox("antall", null, new { @class = "form-control" })
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Generer liste" class="btn btn-primary" />
+            </div>
+        </div>
+
+    }
+    <br /><br />
     
+
+
+    <br /><br /><br /><br />
+    @Html.ActionLink("Vis Liste", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
+    @Html.ActionLink("Last ned liste", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
+
+</div>
+
+
+
+
+
+
+

@@ -1,0 +1,52 @@
+﻿@model List<Studentparlamentet_28.Models.Bruker>
+
+
+
+<div class="col-sm-12" id="box">
+    <br />
+
+    <table class="table  table-responsive">
+        <thead class="thead-default">
+            <tr>
+                <th>
+                    Brukernavn
+                </th>
+                <th>
+                    Passord
+                </th>
+                <th>
+                    Innlogget
+                </th>
+
+                <th></th>
+            </tr>
+        </thead>
+       
+
+        <tbody class="table-bordered">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.brukernavn)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.passord)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.innlogget)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-success" }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-danger" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+        
+    </table>
+
+    @Html.ActionLink("Tilbake", "LeggTilBruker", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-danger" })
+
+</div>
+

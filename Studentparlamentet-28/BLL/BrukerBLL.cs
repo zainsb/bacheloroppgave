@@ -11,6 +11,12 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
+        public bool GenererBrukere(int antallBrukere)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.GenererBrukere(antallBrukere);
+        }
+
         public List<Bruker> hentData()
         {
             var brukerDal = new DbDal();

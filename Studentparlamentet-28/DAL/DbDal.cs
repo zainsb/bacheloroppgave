@@ -13,6 +13,37 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+
+
+        public bool GenererBrukere(int antallBrukere)
+        {
+            var db = new BrukerContext();
+
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Bruker_db]");
+            db.SaveChanges();
+
+            PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
+            String brukernavn = "SP";
+            String passord = "";
+            
+
+            for (int i = 0; i < antallBrukere; i++)
+            {
+                passord = randPassord.Next();
+
+                var nyBruker = new Bruker_db()
+                {
+                    Brukernavn = brukernavn + i,
+                    Passord = passord
+                };
+
+                db.Brukere.Add(nyBruker);
+                db.SaveChanges();
+            }
+
+            return true;
+        }
+
         public List<Bruker> hentData()
         {
 

@@ -234,6 +234,17 @@ body {
     text-align: center;
 }
 
+#box {
+    background-color: #fff;
+    border-radius: 25px;
+    max-width: 600px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 2px solid rgba(0,0,0,0.1); 
+
+}
+
+
 #loggUtBtn{
     margin-top: 30px;
     margin-left: 22%;
@@ -242,4 +253,14 @@ body {
 #antall
 {
     width: 80px;
+}
+
+#msg {
+	padding: 15px;
+	margin-bottom: 20px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	color: #31708f;
+	background-color: #d9edf7;
+	border-color: #bce8f1;
 }
