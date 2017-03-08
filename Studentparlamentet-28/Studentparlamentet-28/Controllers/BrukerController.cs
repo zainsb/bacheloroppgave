@@ -23,8 +23,15 @@ namespace Studentparlamentet_28.Controllers
         //zain
         //Danish
         // DONTpain
+        public ActionResult VoteringAdmin()
+        {
+            return View();
+        }
+        public ActionResult VoteringAdminEng()
+        {
+            return View();
+        }
 
-    
         public ActionResult LeggTilBruker()
         {
             return View();

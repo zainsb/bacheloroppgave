@@ -220,6 +220,8 @@
     <Content Include="Views\Bruker\IndexEng.cshtml" />
     <Content Include="Views\Bruker\LeggTilBrukerEng.cshtml" />
     <Content Include="Views\Bruker\VoteringEng.cshtml" />
+    <Content Include="Views\Bruker\VoteringAdmin.cshtml" />
+    <Content Include="Views\Bruker\VoteringAdminEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
