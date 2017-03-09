@@ -1,8 +1,7 @@
-﻿
+﻿@model Studentparlamentet_28.Models.Leggtilbruker
 
 
 <div class="col-sm-12" id="LoginForm">
-
     <div class="dropdown" style="float:right;">
         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
             Norsk
@@ -13,33 +12,31 @@
         </ul>
     </div>
     <br />
-    
-    <h2 style="text-align:left;">Legg til deltakere</h2>
-    <br /><br />
 
+
+    <h2 style="text-align:left;">Legg til deltakere</h2>
+    <br />
     @using (Html.BeginForm("GenererListe", "Bruker"))
     {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-inline">
             <div class="form-group">
-                <label for="usr">Velg antall:</label>
-                @Html.TextBox("antall", null, new { @class = "form-control" })
-            </div>
+                @Html.EditorFor(model => model.antall, new { htmlAttributes = new { @class = "form-control", placeholder = "Antall" } })
+                @Html.ValidationMessageFor(model => model.antall, "", new { @class = "text-danger" })
 
+            </div>
             <div class="form-group">
                 <input type="submit" value="Generer liste" class="btn btn-primary" />
             </div>
-        </div>
-
-    }
-    <br /><br />
-    
-
-
-    <br /><br /><br /><br />
-    @Html.ActionLink("Vis Liste", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
-    @Html.ActionLink("Last ned liste", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
-
+            <br/> <br/>
+                       
+            <div class="form-group">
+                @Html.ActionLink("Vis Liste", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
+                @Html.ActionLink("Last ned liste", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
+            </div>
+      
 </div>
+    }
 
 
 

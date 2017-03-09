@@ -37,8 +37,10 @@
                         @Html.DisplayFor(modelItem => item.innlogget)
                     </td>
                     <td>
-                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-success" }) |
                         @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-danger" })
+                    </td>
+                    <td>
+                        @Html.ActionLink("Logg ut", "Delete", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-danger" })
                     </td>
                 </tr>
             }

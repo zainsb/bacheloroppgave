@@ -33,7 +33,7 @@ namespace Studentparlamentet_28.DAL
 
                 var nyBruker = new Bruker_db()
                 {
-                    Brukernavn = brukernavn + i,
+                    Brukernavn = brukernavn + (i+1),
                     Passord = passord
                 };
 

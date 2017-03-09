@@ -1,0 +1,47 @@
+﻿@model Studentparlamentet_28.Models.Leggtilbruker
+
+
+<div class="col-sm-12" id="LoginForm">
+    <div class="dropdown" style="float:right;">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            Norsk
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("LeggTilBruker", "Bruker")">Norsk</a></li>
+        </ul>
+    </div>
+    <br />
+
+
+    <h2 style="text-align:left;">Add users</h2>
+    <br />
+    @using (Html.BeginForm("GenererListe", "Bruker"))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-inline">
+            <div class="form-group">
+                @Html.EditorFor(model => model.antall, new { htmlAttributes = new { @class = "form-control", placeholder = "Number" } })
+                @Html.ValidationMessageFor(model => model.antall, "", new { @class = "text-danger" })
+
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Generate list" class="btn btn-primary" />
+            </div>
+            <br /> <br />
+
+            <div class="form-group">
+                @Html.ActionLink("View list", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
+                @Html.ActionLink("Download list", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
+            </div>
+
+        </div>
+    }
+
+
+
+
+
+
+
+

@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Voting";
+}
+
+<div class="col-sm-12" id="LoginForm">
+    <div class="dropdown" style="float:right;">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            Norsk
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("Votering", "Bruker")">Norsk</a></li>
+        </ul>
+    </div>
+    <h2 align="center">Voting</h2>
+    <div class="funkyradio">
+        <div class="funkyradio-success">
+            <input type="radio" name="radio" id="radio1" />
+            <label for="radio1">For</label>
+        </div>
+        <div class="funkyradio-success">
+            <input type="radio" name="radio" id="radio2" />
+            <label for="radio2">Against</label>
+        </div>
+        <div class="funkyradio-success">
+            <input type="radio" name="radio" id="radio3" />
+            <label for="radio3">Blank</label>
+        </div>
+    </div>
+    <div id="stemBtn">
+        <button type="submit" class="btn btn-success">Vote</button>
+    </div>
+</div>

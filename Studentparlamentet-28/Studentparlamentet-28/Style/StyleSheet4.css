@@ -14,6 +14,27 @@ body {
     
     
 }
+/*LoginForm*/
+#LoginForm {
+    background-color: whitesmoke;
+    border-radius: 25px;
+    max-width: 400px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+     
+}
+
+#LoginForm .LoginHeader {
+    margin-bottom: 30px;
+    text-align:left;
+}
+
+#LoginForm #LogginnBtn{
+    margin-top: 30px;
+    text-align: left;
+}
+
+/*Knapper*/
 .button1 {
   display: inline-block;
   border-radius: 4px;
@@ -61,6 +82,8 @@ body {
     padding: 10px;
 }
 
+/*Votering*/
+
 .funkyradio div {
 
 	clear: both;
@@ -68,8 +91,6 @@ body {
 	overflow: hidden;
 
 }
-
-
 
 .funkyradio label {
 
@@ -83,15 +104,11 @@ body {
 
 }
 
-
-
 .funkyradio input[type="radio"]:empty{
 
 	display: none;	
 
 }
-
-
 
 .funkyradio input[type="radio"]:empty ~ label {
   
@@ -104,8 +121,6 @@ body {
 	margin-top: 2em;
   
 }
-
-
 
 .funkyradio input[type="radio"]:empty ~ label:before {
   
@@ -129,15 +144,11 @@ body {
 
 }
 
-
-
 .funkyradio input[type="radio"]:checked ~ label {
   
 	color: #777;
 
 }
-
-
 
 .funkyradio input[type="radio"]:checked ~ label:before {
   
@@ -151,9 +162,6 @@ body {
 
 }
 
-
-
-
 .funkyradio-success input[type="radio"]:checked ~ label:before {
   
 	color: #fff;
@@ -161,26 +169,8 @@ body {
 	background-color: #5cb85c;
 
 }
-#LoginForm {
-    background-color: whitesmoke;
-    border-radius: 25px;
-    max-width: 400px;
-    padding: 15px 35px 45px;
-    margin: 0 auto;
-     
-}
 
-#LoginForm .LoginHeader {
-    margin-bottom: 30px;
-    text-align:left;
-}
-
-#LoginForm #LogginnBtn{
-    margin-top: 30px;
-    text-align: left;
-}
-
-
+/*AdminIndex Panel*/
 #panelAdminIndex {
    
     max-width: 400px;
@@ -210,7 +200,7 @@ body {
     color: black;
 }
 
-
+/*BrukerIndex Panel*/
 #panelBrukerIndex {
     background-color: #fff;
     border-radius: 25px;
@@ -250,6 +240,8 @@ body {
     margin-left: 22%;
     width: 150px;
 }
+
+/*LeggTilBruker*/
 #antall
 {
     width: 80px;
