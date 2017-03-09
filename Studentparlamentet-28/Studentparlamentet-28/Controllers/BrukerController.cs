@@ -135,7 +135,7 @@ namespace Studentparlamentet_28.Controllers
             }
 
         }
-        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon + funksjonalitet som sjekker sessionID
+        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult AdminLoggetInn(string id)
         {
 
@@ -154,7 +154,7 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon
+        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult BrukerLoggetInn(string id)
         {
 
@@ -172,32 +172,67 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult LeggTilBruker()
         {
-            return View();
-        }
-        public ActionResult Votering()
-        {
-            return View();
-        }
-        
-        //Funksjonalitet for Norsk og Engelsk views
-
-        public ActionResult VisListe()
-        {
-            var db = new BrukerBLL();
-            List<Bruker> tabell = db.hentData();
-
-            return View(tabell);
-        }
-        [HttpPost]
-        public ActionResult GenererListe(int antall)
-        {
-            var db = new BrukerBLL();
-
             if (Session["LoggetInn"] != null)
             {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    return View();
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+        public ActionResult Votering()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    return View();
+                }
+            }
+
+            return RedirectToAction("Index");
+            
+        }
+
+        //Funksjonalitet for Norsk og Engelsk views
+
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+        public ActionResult VisListe()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    var db = new BrukerBLL();
+                    List<Bruker> tabell = db.hentData();
+
+                    return View(tabell);
+                }
+            }
+
+            return RedirectToAction("Index");
+            
+        }
+        [HttpPost]
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+        public ActionResult GenererListe(int antall)
+        {
+                
+           if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
@@ -214,44 +249,55 @@ namespace Studentparlamentet_28.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult LastNedListe()
         {
-           // Lokal løsning med memoryStream
-
-            var db = new BrukerBLL();
-            List<Bruker> tabell = db.hentData();
-
-            using (MemoryStream ms = new MemoryStream())
+            // Lokal løsning med memoryStream
+            if (Session["LoggetInn"] != null)
             {
-                using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
                 {
-                    PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                    PdfPTable table = new PdfPTable(3);
-                    BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
-                    Font tablefont = new Font(bfTimes, 24);
-                    Font tablefont2 = new Font(bfTimes, 16);
-                    PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
-                    cell.Colspan = 3;
-                    cell.HorizontalAlignment = 1;
-                    table.AddCell(cell);
-                    int teller = 0;
-                    for (int i = 0; i < tabell.Count; i++)
+
+                    var db = new BrukerBLL();
+                    List<Bruker> tabell = db.hentData();
+
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        teller++;
-                        // nummer
-                        table.AddCell(new PdfPCell(new Paragraph(teller.ToString(), tablefont2)));
-                        // brukernavn
-                        table.AddCell(new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2)));
-                        // passord
-                        table.AddCell(new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2)));
+                        using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                        {
+                            PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                            PdfPTable table = new PdfPTable(3);
+                            BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                            Font tablefont = new Font(bfTimes, 24);
+                            Font tablefont2 = new Font(bfTimes, 16);
+                            PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
+                            cell.Colspan = 3;
+                            cell.HorizontalAlignment = 1;
+                            table.AddCell(cell);
+                            int teller = 0;
+                            for (int i = 0; i < tabell.Count; i++)
+                            {
+                                teller++;
+                                // nummer
+                                table.AddCell(new PdfPCell(new Paragraph(teller.ToString(), tablefont2)));
+                                // brukernavn
+                                table.AddCell(new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2)));
+                                // passord
+                                table.AddCell(new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2)));
+                            }
+                            doc.Open();
+                            doc.Add(table);
+                            doc.Close();
+                        }
+                        byte[] filedata = ms.ToArray();
+                        return File(filedata, "application/pdf", "BrukernavnOgPassord.pdf");
                     }
-                    doc.Open();
-                    doc.Add(table);
-                    doc.Close();
                 }
-                byte[] filedata = ms.ToArray();
-                return File(filedata, "application/pdf" , "BrukernavnOgPassord.pdf");
             }
+
+            return RedirectToAction("Index");
+            
 
             // Azure løsning med cloud
             /*
@@ -403,7 +449,7 @@ namespace Studentparlamentet_28.Controllers
             }
 
         }
-        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon
+        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult AdminLoggetInnEng(string id)
         {
 
@@ -422,7 +468,7 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("IndexEng");
         }
-        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon
+        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult BrukerLoggetInnEng(string id)
         {
 
@@ -440,14 +486,37 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("IndexEng");
         }
-        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult LeggTilBrukerEng()
         {
-            return View("../User/LeggTilBrukerEng");
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    return View("../User/LeggTilBrukerEng");
+                }
+            }
+
+            return RedirectToAction("Index");
+            
         }
+        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult VoteringEng()
         {
-            return View("../User/VoteringEng");
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    return View("../User/VoteringEng");
+                }
+            }
+
+            return RedirectToAction("Index");
+            
         }
     }
 }
