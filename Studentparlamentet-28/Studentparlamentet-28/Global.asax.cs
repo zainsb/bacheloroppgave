@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
+using System.Web.SessionState;
 
 namespace Studentparlamentet_28
 {
@@ -17,15 +18,47 @@ namespace Studentparlamentet_28
         {
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            /*
+            HttpSessionState session = HttpContext.Current.Session;
+            if (session == null)
+            {
+                ()
+                string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                var db = new BrukerBLL();
+                var loggut = db.logg_ut_bruker(id);
+            }
+            */
         }
 
-        protected void Page_Load(object sender, EventArgs e)
+        protected void Application_AcquireRequestState(object sender, EventArgs e)
         {
+          
+           /* HttpSessionState session = HttpContext.Current.Session;
+           if (session == null)
+            {
+                string id = "Admin";
+                var db = new BrukerBLL();
+                var loggut = db.logg_ut_bruker(id);
 
+
+                if (System.Web.HttpContext.Current.Session["LoggetInn"] != null)
+                {
+                    var db = new BrukerBLL();
+                    string id = "SP1";
+                    var loggut = db.loggUtBruker(id);
+                }
+                else
+                {
+
+                }
+                }
+                */
         }
+
         protected void Application_PostAuthenticateRequest(Object sender, EventArgs e)
         {
-            if (FormsAuthentication.CookiesSupported == true)
+           if (FormsAuthentication.CookiesSupported == true)
             {
                 if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
                 {
@@ -63,8 +96,10 @@ namespace Studentparlamentet_28
                 }
             
             }
+
+
         }
-    
+
 
 
     }

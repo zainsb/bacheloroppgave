@@ -125,7 +125,19 @@ namespace Studentparlamentet_28.Controllers
                 }
                 else
                 {
-                    return View();
+                    string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    if (db.hentEnAdmin(id) != null)
+                    {
+                        Session.Abandon();
+                        db.logg_ut_bruker(id);
+                        return View();
+                        
+                    }
+                    else
+                    {
+                        return View();
+                    }
+                                                      
                 }
             }
             else

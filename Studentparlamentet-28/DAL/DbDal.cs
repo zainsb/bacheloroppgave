@@ -9,6 +9,7 @@ using iTextSharp.text.pdf;
 using System.Data.SqlClient;
 using System.Data;
 
+
 namespace Studentparlamentet_28.DAL
 {
     public class DbDal
@@ -234,6 +235,13 @@ namespace Studentparlamentet_28.DAL
                 else if(funnetBruker.Innlogget == (bool)true)
                 {
                     return false;
+                    
+                    
+                    // session.abonden
+                    // funnetBruker.Innlogget = (bool)false;
+                    // db.SaveChanges();
+                    // return false;
+                    // else return false;
                 }
                                
                 else if (funnetBruker.Administrator == (bool)true)
@@ -276,5 +284,6 @@ namespace Studentparlamentet_28.DAL
                 return false;
             }
         }
+
     }
 }
