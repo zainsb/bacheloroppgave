@@ -2,19 +2,22 @@
 
 
 <div class="col-sm-12" id="LoginForm">
-    <div class="dropdown" style="float:right;">
-        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            Norsk
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a href="@Url.Action("LeggTilBrukerEng", "Bruker")">English</a></li>
-        </ul>
-    </div>
+    <div class="form-inline" style="float:right;">
+    @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        <div class="dropdown" style="float:right;">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                Norsk
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("LeggTilBrukerEng", "Bruker")">English</a></li>
+            </ul>
+        </div>
+     </div>
+   
     <br />
-
-
-    <h2 style="text-align:left;">Legg til deltakere</h2>
+    <h2 style="text-align:left;">Legg til deltakere for valg og votering</h2>
+  
     <br />
     @using (Html.BeginForm("GenererListe", "Bruker"))
     {
@@ -34,6 +37,7 @@
                 @Html.ActionLink("Vis Liste", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
                 @Html.ActionLink("Last ned liste", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
             </div>
+           
             
         </div>
     }

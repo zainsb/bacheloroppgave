@@ -20,7 +20,6 @@ namespace Studentparlamentet_28.Controllers
     public class BrukerController : Controller
     {
         //Uferdig Norske view
-        
         public ActionResult Preferansevalg()
         {
             return View();
@@ -209,7 +208,30 @@ namespace Studentparlamentet_28.Controllers
             }
             return RedirectToAction("LeggTilBruker");
         }
-
+        public ActionResult Tilbake()
+        {
+            string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+            if (brukernavn != null)
+            {
+                return RedirectToAction("AdminLoggetInn", new { id = brukernavn });
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+        }
+        public ActionResult TilbakeEng()
+        {
+            string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+            if (brukernavn != null)
+            {
+                return RedirectToAction("AdminLoggetInnEng", new { id = brukernavn });
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+        }
         [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult Votering()
         {
@@ -378,7 +400,7 @@ namespace Studentparlamentet_28.Controllers
            */
 
         }
-        public ActionResult LoggUt(string id)
+        public ActionResult LoggUt(String id)
          {
          var db = new BrukerBLL();
          db.logg_ut_bruker(id);

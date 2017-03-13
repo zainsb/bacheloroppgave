@@ -71,7 +71,7 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.admin_i_db(innAdmin);
         }
-        public bool logg_ut_bruker(string id)
+        public bool logg_ut_bruker(String id)
         {
             var brukerDal = new DbDal();
 

@@ -56,7 +56,7 @@ namespace Studentparlamentet_28.DAL
                 {
                     brukernavn = k.Brukernavn,
                     passord = k.Passord,
-                    innlogget = k.Innlogget //Retta opp her si - ifra imorgen
+                    innlogget = k.Innlogget 
                 }).ToList();
                 return listeAvBrukere;
             } 
@@ -155,7 +155,7 @@ namespace Studentparlamentet_28.DAL
             var db = new BrukerContext();
             try
             {
-                Bruker_db slettBruker = db.Brukere.Find(id);
+                Bruker_db slettBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
                 db.Brukere.Remove(slettBruker);
                 db.SaveChanges();
                 return true;
@@ -171,7 +171,7 @@ namespace Studentparlamentet_28.DAL
             var db = new BrukerContext();
             try
             {
-                Bruker_db bruker = db.Brukere.Find(id);
+                Bruker_db bruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
                 bruker.Innlogget = (bool)false;
                 db.SaveChanges();
                 return true;
@@ -250,11 +250,11 @@ namespace Studentparlamentet_28.DAL
             }
         }//End of Admin_i_db(Admin innAdmin)
 
-        public bool logg_ut_bruker(string id)
+        public bool logg_ut_bruker(String id)
         {
             using (var db = new BrukerContext())
             {
-                Bruker_db funnetBruker = db.Brukere.Find(id);
+                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
 
                 if (funnetBruker != null)
                 {
