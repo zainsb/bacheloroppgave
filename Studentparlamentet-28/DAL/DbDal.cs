@@ -24,6 +24,7 @@ namespace Studentparlamentet_28.DAL
 
             PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
             String brukernavn = "SP";
+            int teller = 1;
             String passord = "";
             
 
@@ -31,14 +32,16 @@ namespace Studentparlamentet_28.DAL
             {
                 passord = randPassord.Next();
 
-                var nyBruker = new Bruker_db()
-                {
-                    Brukernavn = brukernavn + (i+1),
-                    Passord = passord
-                };
+                 var nyBruker = new Bruker_db()
+                 {
+                     Brukernavn = brukernavn + "" + teller,
+                     Passord = passord
+                 };
 
+                teller++;
                 db.Brukere.Add(nyBruker);
                 db.SaveChanges();
+                
             }
 
             return true;
@@ -52,7 +55,8 @@ namespace Studentparlamentet_28.DAL
                 var listeAvBrukere = db.Brukere.Select(k => new Bruker()
                 {
                     brukernavn = k.Brukernavn,
-                    passord = k.Passord
+                    passord = k.Passord,
+                    innlogget = k.Innlogget //Retta opp her si - ifra imorgen
                 }).ToList();
                 return listeAvBrukere;
             } 
@@ -143,6 +147,39 @@ namespace Studentparlamentet_28.DAL
 
             }
 
+        }
+
+
+        public bool slettBruker(String id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Bruker_db slettBruker = db.Brukere.Find(id);
+                db.Brukere.Remove(slettBruker);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+
+        public bool loggUtBruker(String id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Bruker_db bruker = db.Brukere.Find(id);
+                bruker.Innlogget = (bool)false;
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
         }
 
 

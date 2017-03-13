@@ -187,6 +187,29 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
+
+        public ActionResult SlettBruker(String id)
+        {
+            var db = new BrukerBLL();
+            bool slettOK = db.slettBruker(id);
+            if (slettOK)
+            {
+                return RedirectToAction("VisListe");
+            }
+            return RedirectToAction("VisListe");
+        }
+
+        public ActionResult LoggUtBruker(String id)
+        {
+            var db = new BrukerBLL();
+            bool ok = db.loggUtBruker(id);
+            if(ok)
+            {
+                return RedirectToAction("VisListe");
+            }
+            return RedirectToAction("LeggTilBruker");
+        }
+
         [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult Votering()
         {

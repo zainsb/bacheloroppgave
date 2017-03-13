@@ -8,6 +8,8 @@ namespace Studentparlamentet_28.Models
 {
     public class Bruker
     {
+        public int id { get; set; }
+
         [Required(ErrorMessage = "Brukernavn må oppgis")]
         public string brukernavn { get; set; }
 

@@ -25,6 +25,8 @@ namespace Studentparlamentet_28.DAL
     public class Bruker_db
     {
         [Key]
+        public int id { get; set; }
+
         public string Brukernavn { get; set; }
 
         public string Passord { get; set; }

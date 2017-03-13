@@ -49,6 +49,18 @@ namespace Studentparlamentet_28.BLL
             return brukerDal.hentRolleBruker(rolle);
         }
 
+        public bool slettBruker(String id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.slettBruker(id);
+        }
+
+        public bool loggUtBruker(String id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.loggUtBruker(id);
+        }
+
         public bool bruker_i_db(Bruker innPerson)
         {
             var brukerDal = new DbDal();

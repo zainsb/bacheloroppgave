@@ -256,3 +256,16 @@ body {
 	background-color: #d9edf7;
 	border-color: #bce8f1;
 }
+
+
+/*VisListe*/
+#tableContainer {
+    height: 400px;
+    overflow: auto;
+
+}
+
+#tableID {
+    max-width: 99%;
+}
+

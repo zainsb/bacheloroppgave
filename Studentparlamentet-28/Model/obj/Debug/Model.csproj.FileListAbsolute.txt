@@ -23,3 +23,8 @@ C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\D
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\PasswordGenerator.dll
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.xml
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\Model.dll.config
+C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.dll
+C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.xml
+C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.xml
