@@ -129,8 +129,7 @@ namespace Studentparlamentet_28.Controllers
                     if (db.hentEnAdmin(id) != null)
                     {
                         Session.Abandon();
-                        Session.Remove("LoggetInn");
-                        
+                                              
                         db.logg_ut_bruker(id);
                         return View();
                         
@@ -144,6 +143,7 @@ namespace Studentparlamentet_28.Controllers
             }
             else
             {
+                Session.Abandon();
                 return View();
             }
 
