@@ -128,7 +128,9 @@ namespace Studentparlamentet_28.Controllers
                     string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
                     if (db.hentEnAdmin(id) != null)
                     {
+                        Session.Abandon();
                         Session.Remove("LoggetInn");
+                        
                         db.logg_ut_bruker(id);
                         return View();
                         
