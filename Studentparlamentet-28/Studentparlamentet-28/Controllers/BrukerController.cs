@@ -67,14 +67,31 @@ namespace Studentparlamentet_28.Controllers
                 }
               
             }
-            else
+
+            else if(FormsAuthentication.CookiesSupported == true)
             {
-                return View();
-
-            }
-
-
+                
+                    if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
+                    {
+                        string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                        var db = new BrukerBLL();
+                        var loggut = db.logg_ut_bruker(id);
+                             return View();
+                     }
+                     else
+                    {
+                        return View();
+                    }
+                    }
+                else
+                {
+                    return View();
+                }
+            
         }
+
+
+        
         [HttpPost]
         public ActionResult Index(Bruker innlogget, string returnUrl)
         {
@@ -89,7 +106,6 @@ namespace Studentparlamentet_28.Controllers
                 {
                     String brukernavn = innlogget.brukernavn;
                     Session["LoggetInn"] = true;
-
                     FormsAuthentication.SetAuthCookie(brukernavn, false);
 
                     if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
@@ -102,14 +118,14 @@ namespace Studentparlamentet_28.Controllers
                     {
                         return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
                     }
-
+                   
+                    
 
                 }
                 else if (db.bruker_i_db(innlogget) == (bool)true)
                 {
                     String brukernavn = innlogget.brukernavn;
                     Session["LoggetInn"] = true;
-
                     FormsAuthentication.SetAuthCookie(brukernavn, false);
 
                     if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
@@ -117,36 +133,24 @@ namespace Studentparlamentet_28.Controllers
                     {
                         return Redirect(returnUrl);
                     }
+
                     else
                     {
                         return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
                     }
 
+                    
+                    
                 }
                 else
                 {
-                    string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-                    if (db.hentEnAdmin(id) != null)
-                    {
-                        Session.Abandon();
-                                              
-                        db.logg_ut_bruker(id);
-                        return View();
-                        
-                    }
-                    else
-                    {
-                        return View();
-                    }
-                                                      
+                    return View();
                 }
             }
             else
             {
-                Session.Abandon();
                 return View();
             }
-
         }
         [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult AdminLoggetInn(string id)
@@ -163,11 +167,17 @@ namespace Studentparlamentet_28.Controllers
 
                     return View(bruker);
                 }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
             }
-
-            return RedirectToAction("Index");
-        }
-        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+            else
+            {
+                return RedirectToAction("Index");
+            }
+            }
+       
         public ActionResult BrukerLoggetInn(string id)
         {
 
@@ -185,7 +195,7 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult LeggTilBruker()
         {
             if (Session["LoggetInn"] != null)

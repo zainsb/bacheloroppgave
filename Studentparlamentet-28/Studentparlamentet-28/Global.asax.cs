@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -19,41 +20,18 @@ namespace Studentparlamentet_28
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            /*
-            HttpSessionState session = HttpContext.Current.Session;
-            if (session == null)
-            {
-                ()
-                string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-                var db = new BrukerBLL();
-                var loggut = db.logg_ut_bruker(id);
-            }
-            */
         }
-
+        protected void Page_Load(object sender, EventArgs e)
+        {
+         
+        }
+        protected void Session_End(object sender, EventArgs e)
+        {
+            
+        }
         protected void Application_AcquireRequestState(object sender, EventArgs e)
         {
-          
-           /* HttpSessionState session = HttpContext.Current.Session;
-           if (session == null)
-            {
-                string id = "Admin";
-                var db = new BrukerBLL();
-                var loggut = db.logg_ut_bruker(id);
-
-
-                if (System.Web.HttpContext.Current.Session["LoggetInn"] != null)
-                {
-                    var db = new BrukerBLL();
-                    string id = "SP1";
-                    var loggut = db.loggUtBruker(id);
-                }
-                else
-                {
-
-                }
-                }
-                */
+                            
         }
 
         protected void Application_PostAuthenticateRequest(Object sender, EventArgs e)
@@ -67,8 +45,11 @@ namespace Studentparlamentet_28
                         //let us take out the username now                                       
                         string username = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
                         var db = new BrukerBLL();
+                        // if brukernavn finnes i admin, return true
+                        // if brukernavn finnes i bruker, return false
+
                         var roles = db.hentRolleAdmin(username);
-                        if (roles != null)
+                        if (roles != null) // admin
                         {
                             string rolle = Convert.ToString(roles.administrator);
                             //let us extract the roles from our own custom cookie
@@ -77,9 +58,8 @@ namespace Studentparlamentet_28
                             new System.Security.Principal.GenericIdentity(username, "Forms"), rolle.Split(';'));
 
                         }
-                       else
+                       else // bruker
                         {
-                            var db2 = new BrukerBLL();
                             var roles2 = db.hentRolleBruker(username);
                             string rolle2 = Convert.ToString(roles2.administrator);
                             //let us extract the roles from our own custom cookie
@@ -96,7 +76,7 @@ namespace Studentparlamentet_28
                 }
             
             }
-
+ 
 
         }
 

@@ -70,7 +70,7 @@ namespace Studentparlamentet_28.DAL
         {
             var db = new BrukerContext();
 
-            var enDbBruker = db.Brukere.Find(id);
+            var enDbBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
 
             if (enDbBruker == null)
             {
@@ -90,7 +90,7 @@ namespace Studentparlamentet_28.DAL
         {
             var db = new BrukerContext();
 
-            var enDbAdmin = db.AdminBrukere.Find(id);
+            var enDbAdmin = db.AdminBrukere.FirstOrDefault(b => b.Brukernavn == id);
 
             if (enDbAdmin == null)
             {
@@ -203,11 +203,15 @@ namespace Studentparlamentet_28.DAL
                 
                 Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == innPerson.passord && b.Brukernavn == innPerson.brukernavn);
 
-                if (funnetBruker == null || funnetBruker.Innlogget == (bool)true)
+                if (funnetBruker == null)
                 {
                     return false; // return bruker er ikke i systemet, kontakt systemansvarlig
                 }
-                else if (funnetBruker.Administrator == (bool)false) // sjekker om bruker er innlogget allerede
+                else if (funnetBruker.Innlogget == (bool)true) // sjekker om en bruker en innlogget
+                {
+                    return false; 
+                }
+                else if (funnetBruker.Administrator == (bool)false) // sjekker om bruker er administrator
                 {
                     funnetBruker.Innlogget = (bool)true; // flagger at bruker er innlogget
                     db.SaveChanges();
@@ -215,7 +219,6 @@ namespace Studentparlamentet_28.DAL
                 }                            
                 else
                 {
-
                    return false; // ikke en vanlig bruker
                 }
             }
@@ -236,12 +239,6 @@ namespace Studentparlamentet_28.DAL
                 {
                     return false;
                     
-                    
-                    // session.abonden
-                    // funnetBruker.Innlogget = (bool)false;
-                    // db.SaveChanges();
-                    // return false;
-                    // else return false;
                 }
                                
                 else if (funnetBruker.Administrator == (bool)true)
