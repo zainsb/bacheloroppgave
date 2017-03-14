@@ -109,7 +109,8 @@ namespace Studentparlamentet_28.DAL
         public Admin hentRolleAdmin(string rolle)
         {
             var db = new BrukerContext();
-            var enDbAdmin = db.AdminBrukere.Find(rolle);
+            var enDbAdmin = db.AdminBrukere.FirstOrDefault(b=> b.Brukernavn == rolle);
+           // var enDbAdmin = db.AdminBrukere.Find(rolle);
             if (enDbAdmin == null)
             {
                 return null;
@@ -131,7 +132,8 @@ namespace Studentparlamentet_28.DAL
         public Bruker hentRolleBruker(string rolle)
         {
             var db = new BrukerContext();
-            var enDbAdmin = db.Brukere.Find(rolle);
+            var enDbAdmin = db.Brukere.FirstOrDefault(b => b.Brukernavn == rolle);
+            //  var enDbAdmin = db.Brukere.Find(rolle);
             if (enDbAdmin == null)
             {
                 return null;

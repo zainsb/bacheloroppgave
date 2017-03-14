@@ -177,7 +177,7 @@ namespace Studentparlamentet_28.Controllers
                 return RedirectToAction("Index");
             }
             }
-       
+        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon og sessionID
         public ActionResult BrukerLoggetInn(string id)
         {
 
