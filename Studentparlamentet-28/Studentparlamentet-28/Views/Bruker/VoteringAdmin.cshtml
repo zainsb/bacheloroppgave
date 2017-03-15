@@ -1,5 +1,13 @@
 ﻿<div class="col-sm-12" id="LoginForm">
-
+    <div class="dropdown" style="float:right;">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            Norsk
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("VoteringEng", "Bruker")">English</a></li>
+        </ul>
+    </div>
     <h2>Votering</h2>
     <label>Antall stemmer</label>
     <div class="progress">
@@ -8,6 +16,6 @@
         </div>
     </div>
 
-    <button class="button1" style="vertical-align:middle"><span>Stopp valget</span></button>
-    <button class="button1" style="vertical-align:middle"><span>Vis resultat</span></button>
+    @Html.ActionLink("Stopp valg", "stoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+    @Html.ActionLink("Vis resultat", "StoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
 </div>

@@ -283,6 +283,74 @@ namespace Studentparlamentet_28.DAL
                 return false;
             }
         }
+        public bool startVotering()
+        {
+            var db = new BrukerContext();
+            var start = new Valgtyper_db()
+            {
+                Valgtype = "Votering",
+                Start = true
+            };
+            db.Valgtyper.Add(start);
+            db.SaveChanges();
+            return true;
+
+        }
+        public bool stopVotering()
+        {
+            var db = new BrukerContext();
+            int antall = db.Valgtyper.Where(b => b.Start == true && b.Valgtype == "Votering").Count();
+            for (int i = 0; i < antall; i++)
+            {
+                Valgtyper_db stop = db.Valgtyper.FirstOrDefault(b => b.Start == true && b.Valgtype == "Votering");
+                if (stop != null)
+                {
+                    stop.Start = false;
+                    db.SaveChanges();
+                }
+            }
+            return true;
+
+        }
+        public bool voteringsvar(String svar)
+        {
+            var db = new BrukerContext();
+            if (svar == "for")
+            {
+                var svarvalg = new Votering_db()
+                {
+                    svarFor = svar
+                };
+                db.Voteringer.Add(svarvalg);
+                db.SaveChanges();
+                return true;
+            }
+            else if (svar == "mot")
+            {
+                var svarvalg = new Votering_db()
+                {
+                    svarMot = svar
+                };
+                db.Voteringer.Add(svarvalg);
+                db.SaveChanges();
+                return true;
+            }
+            else if (svar == "blank")
+            {
+                var svarvalg = new Votering_db()
+                {
+                    svarBlank = svar
+                };
+                db.Voteringer.Add(svarvalg);
+                db.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
 
     }
 }

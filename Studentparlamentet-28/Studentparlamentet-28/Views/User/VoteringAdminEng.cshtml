@@ -7,6 +7,6 @@
         </div>
     </div>
 
-    <button class="button1" style="vertical-align:middle"><span>Stop the voting</span></button>
-    <button class="button1" style="vertical-align:middle"><span>View results</span></button>
+@Html.ActionLink("Stop voting", "stoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+@Html.ActionLink("Show result", "StoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
 </div>

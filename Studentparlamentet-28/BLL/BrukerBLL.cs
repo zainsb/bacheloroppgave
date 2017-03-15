@@ -77,6 +77,20 @@ namespace Studentparlamentet_28.BLL
 
             return brukerDal.logg_ut_bruker(id);
         }
-
+        public bool startVotering()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.startVotering();
+        }
+        public bool stoppVotering()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.stopVotering();
+        }
+        public bool voteringsvar(String svar)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.voteringsvar(svar);
+        }
     }
 }

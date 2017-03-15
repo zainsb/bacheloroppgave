@@ -19,7 +19,7 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
-        //Uferdig Norske view
+        //Uferdig views
         public ActionResult Preferansevalg()
         {
             return View();
@@ -32,22 +32,119 @@ namespace Studentparlamentet_28.Controllers
         {
             return View();
         }
-        public ActionResult VoteringAdmin()
+
+
+        // Voterings Views og metoder
+
+        public ActionResult Votering()
         {
-            return View();
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                 return View();
+                  
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        public ActionResult VoteringEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    return View("../User/VoteringEng");
+                }
+            }
+
+            return RedirectToAction("Index");
+
         }
 
+        public ActionResult stoppValg()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    bool ok = db.stoppVotering();
+                    if (ok == true)
+                    {
+                        return RedirectToAction("Index");
+                    }
 
-        //Uferdig Engelske view
-        
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public ActionResult Voteringsvar()
+        {
+            var RadioButton = Request.Form["radio"];
+            var db = new BrukerBLL();
+            if (RadioButton != null)
+            {
+                string svar = RadioButton.ToString();
+                bool ok = db.voteringsvar(svar);
+                if (ok == true)
+                {
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            return RedirectToAction("Votering");
+        }
         public ActionResult VoteringAdminEng()
         {
-            return View();
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    var ok = db.startVotering();
+                    if (ok)
+                    {
+                        return View("../User/VoteringAdminEng");
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        public ActionResult VoteringAdmin()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    var ok = db.startVotering();
+                    if (ok)
+                    {
+                        return View();
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
         }
 
-
         //Norske Views
-        
+
         public ActionResult Index()
         {
 
@@ -89,9 +186,7 @@ namespace Studentparlamentet_28.Controllers
                 }
             
         }
-
-
-        
+                
         [HttpPost]
         public ActionResult Index(Bruker innlogget, string returnUrl)
         {
@@ -221,7 +316,6 @@ namespace Studentparlamentet_28.Controllers
             }
             return RedirectToAction("VisListe");
         }
-
         public ActionResult LoggUtBruker(String id)
         {
             var db = new BrukerBLL();
@@ -256,22 +350,7 @@ namespace Studentparlamentet_28.Controllers
                 return RedirectToAction("Index");
             }
         }
-        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
-        public ActionResult Votering()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
 
-                    return View();
-                }
-            }
-
-            return RedirectToAction("Index");
-            
-        }
 
         //Funksjonalitet for Norsk og Engelsk views
 
@@ -571,22 +650,7 @@ namespace Studentparlamentet_28.Controllers
             return RedirectToAction("Index");
             
         }
-        [Authorize(Roles = "True")] // sikkerhetsmekanisme med cookie informasjon og sessionID
-        public ActionResult VoteringEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
 
-                    return View("../User/VoteringEng");
-                }
-            }
-
-            return RedirectToAction("Index");
-            
-        }
     }
 }
  

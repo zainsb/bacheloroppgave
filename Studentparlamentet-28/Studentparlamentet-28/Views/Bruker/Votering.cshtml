@@ -13,21 +13,25 @@
         </ul>
     </div>
     <h2 align="center">Votering</h2>
-    <div class="funkyradio">
+@using (Html.BeginForm("Voteringsvar", "Bruker"))
+{
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="funkyradio">
         <div class="funkyradio-success">
-            <input type="radio" name="radio" id="radio1" />
+            <input type="radio" name="radio" id="radio1" value="for"/>
             <label for="radio1">For</label>
         </div>
         <div class="funkyradio-success">
-            <input type="radio" name="radio" id="radio2" />
+            <input type="radio" name="radio" id="radio2" value="mot" />
             <label for="radio2">Mot</label>
         </div>
         <div class="funkyradio-success">
-            <input type="radio" name="radio" id="radio3" />
+            <input type="radio" name="radio" id="radio3" value="blank" />
             <label for="radio3">Blank</label>
         </div>
     </div>
     <div id="stemBtn">
         <button type="submit" class="btn btn-success">Stem</button>
     </div>
+}
 </div>
