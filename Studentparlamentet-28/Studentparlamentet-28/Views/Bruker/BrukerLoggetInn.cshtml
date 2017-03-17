@@ -1,24 +1,81 @@
 ﻿@model Studentparlamentet_28.Models.Bruker
+<!DOCTYPE html>
 
-<div class="panel-body" id="panelBrukerIndex">
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
 
-    <div class="dropdown" style="float:right;">
-        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            Norsk
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a href="@Url.Action("BrukerLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
-        </ul>
+        $(function () {
+
+            var ajax_kall = function () {
+                $.ajax({
+                    url: '/Bruker/VoteringMelding',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        //VisVoteringView(melding);
+                        if(melding == "Votering")
+                        {
+                            window.location = "@Url.Action("Votering", "Bruker")";
+                        }
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            };
+
+            setInterval(ajax_kall, 1000 * 3);
+            
+        })
+
+        /*function VisVoteringView(melding) {
+            
+            if (melding == "Votering")
+            {
+                
+            }
+            else
+            {
+                
+            }
+        }*/
+
+
+    </script>
+</head>
+<body>
+    <div class="panel-body" id="panelBrukerIndex">
+
+        
+        <div id="mainBrukerContainer">
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("BrukerLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
+                </ul>
+            </div>
+            <h3 class="brukerHeader">Valg og votering</h3>
+            <div id="txtBruker">
+                <p>Vennligst forbli innlogget</p>
+                <p>Venter på valg...</p>
+            </div>
+        </div>
+
+        <div id="VoteringBruker">
+
+
+        </div>
+        
+
+        @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
+
     </div>
 
-    <h3 class="brukerHeader">Valg og votering</h3>
-
-    <div id="txtBruker">
-        <p>Vennligst forbli innlogget</p>
-        <p>Venter på valg...</p>
-    </div>
-
-    @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
-
-</div>
+    
+</body>
+</html>

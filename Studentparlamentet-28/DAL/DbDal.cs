@@ -15,6 +15,8 @@ namespace Studentparlamentet_28.DAL
     public class DbDal
     {
 
+        
+
 
         public bool GenererBrukere(int antallBrukere)
         {
@@ -351,6 +353,27 @@ namespace Studentparlamentet_28.DAL
             }
             
         }
+
+        public string voteringBrukerStart()
+        {
+            var db = new BrukerContext();
+            string melding = "";
+
+            var valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Votering" && v.Start == true);
+
+            if(valg != null)
+            {
+                melding = "Votering";
+            }
+            else
+            {
+                melding = "Feil";
+            }
+
+            return melding;
+        }
+
+
 
     }
 }

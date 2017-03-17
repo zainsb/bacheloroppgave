@@ -59,7 +59,7 @@ namespace Studentparlamentet_28.DAL
         {
             Database.CreateIfNotExists();
         }
-
+        
         public DbSet<Admin_db> AdminBrukere { get; set; }
         public DbSet<Bruker_db> Brukere { get; set; }
         public DbSet<Votering_db> Voteringer { get; set; }

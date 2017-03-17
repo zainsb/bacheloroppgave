@@ -14,6 +14,7 @@ using Microsoft.Azure; // Namespace for CloudConfigurationManager
 using Microsoft.WindowsAzure.Storage; // Namespace for CloudStorageAccount
 using Microsoft.WindowsAzure.Storage.Blob; // Namespace for Blob storage types
 using System.IO;
+using System.Web.Script.Serialization;
 
 namespace Studentparlamentet_28.Controllers
 {
@@ -36,21 +37,7 @@ namespace Studentparlamentet_28.Controllers
 
         // Voterings Views og metoder
 
-        public ActionResult Votering()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                 return View();
-                  
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
+        
         public ActionResult VoteringEng()
         {
             if (Session["LoggetInn"] != null)
@@ -141,6 +128,36 @@ namespace Studentparlamentet_28.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        public string VoteringMelding()
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.voteringBrukerStart();
+            // check om bruker har stemt
+            var jsonSerializer = new JavaScriptSerializer();
+            if (melding == "Votering")
+            {
+                return jsonSerializer.Serialize(melding);
+            }
+
+            return jsonSerializer.Serialize(melding);
+        }
+
+        public ActionResult Votering()
+        {
+            //if (Session["LoggetInn"] != null)
+            //{
+              //  bool loggetinn = (bool)Session["LoggetInn"];
+                //if (loggetinn)
+                //{
+                    return View();
+                //}
+            //}
+
+  //          return RedirectToAction("Index");
+
         }
 
         //Norske Views

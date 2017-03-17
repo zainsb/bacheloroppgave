@@ -92,5 +92,11 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.voteringsvar(svar);
         }
+
+        public string voteringBrukerStart()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.voteringBrukerStart();
+        }
     }
 }
