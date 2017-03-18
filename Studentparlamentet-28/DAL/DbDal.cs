@@ -8,7 +8,8 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.Data.SqlClient;
 using System.Data;
-
+using System.Web.Security;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Studentparlamentet_28.DAL
 {
@@ -373,7 +374,57 @@ namespace Studentparlamentet_28.DAL
             return melding;
         }
 
+        public List<Valgtyper> hentValgTyper()
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
+                {
+                    id = k.Id,
+                    valgtype = k.Valgtype,
+                    start = k.Start,
 
+                }).ToList();
+                return listeAvValgTyper;
+            }
+        }
 
+        public bool slettValg(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Valgtyper_db valgtyper = db.Valgtyper.FirstOrDefault(b => b.Id == id);
+                // slett også 
+                db.Valgtyper.Remove(valgtyper);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool admin_i_db_innlogget(Bruker innAdmin, String Id)
+        {
+            using (var db = new BrukerContext())
+            {
+                
+                byte[] passwordhash = lagHash(innAdmin.passord);
+                
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == Id);
+                if (funnetBruker != null) // Sjekker om bruker finnes i systemet
+                {
+                    //slettValg(valgnr);
+                    return true;
+                }
+         
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }//End of Admin_i_db(Admin innAdmin)
     }
 }

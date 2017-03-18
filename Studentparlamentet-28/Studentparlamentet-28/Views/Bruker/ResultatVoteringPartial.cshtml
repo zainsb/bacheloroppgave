@@ -1,0 +1,27 @@
+﻿@model Studentparlamentet_28.Models.Valgtyper
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <th>ValgNr</th>
+                <th>Valgtype</th>
+                <th>Kjører </th>
+            </tr>
+            <tr>
+                <td>@Model.id</td>
+                <td>@Model.valgtype</td>
+                <td>@Model.start</td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel-footer clearfix">
+        <div class="pull-left">
+
+
+            <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+               data-navn="ValgNr: @Model.id"
+               data-id="@Model.id" data-toggle="modal" data-sletteModal="true">Slett</a>
+        </div>
+    </div>
+</div>

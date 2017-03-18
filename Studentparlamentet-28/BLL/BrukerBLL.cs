@@ -98,5 +98,24 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.voteringBrukerStart();
         }
+        public List<Valgtyper> hentValgTyper()
+        {
+            var brukerDal = new DbDal();
+            List<Valgtyper> valgtyper = brukerDal.hentValgTyper();
+            return valgtyper;
+        }
+        public bool slettValg(int id)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.slettValg(id);
+            return ok;
+        }
+        public bool admin_i_db_innlogget(Bruker innAdmin, String Id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.admin_i_db_innlogget(innAdmin, Id);
+        }
+
+
     }
 }

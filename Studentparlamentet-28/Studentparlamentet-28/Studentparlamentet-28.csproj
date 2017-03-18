@@ -231,6 +231,8 @@
     <Content Include="Views\User\VoteringAdminEng.cshtml" />
     <Content Include="Views\Bruker\LeggTilBruker.cshtml" />
     <Content Include="Views\Bruker\VisListe.cshtml" />
+    <Content Include="Views\Bruker\ResultatVoteringPartial.cshtml" />
+    <Content Include="Views\Bruker\sletteModal.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

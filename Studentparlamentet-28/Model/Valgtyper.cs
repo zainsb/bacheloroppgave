@@ -11,5 +11,7 @@ namespace Studentparlamentet_28.Models
         public int id { get; set; }
         public string valgtype { get; set; }
         public bool start { get; set; }
+
     }
+
 }

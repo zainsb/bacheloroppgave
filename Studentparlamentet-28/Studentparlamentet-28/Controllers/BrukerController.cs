@@ -29,15 +29,49 @@ namespace Studentparlamentet_28.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public ActionResult Resultat(Bruker innAdmin)
+        {
+    
+      
+                var db = new BrukerBLL();
+                String Id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+
+                if (db.admin_i_db_innlogget(innAdmin, Id) == (bool)true)
+                {
+
+                    //sletter valg trenger ID for valgnr
+                    //db.slettValg(21);
+                    // test if OK == true
+
+                    return RedirectToAction("Resultat");
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            
+            }
+
+                
+        
         public ActionResult Resultat()
         {
-            return View();
+            var db = new BrukerBLL();
+            List<Valgtyper> alleValgTyper = db.hentValgTyper();
+            return View(alleValgTyper);
         }
 
 
         // Voterings Views og metoder
+        public void slettValg(int id)
+        {
+            var db = new BrukerBLL();
+            db.slettValg(id);
 
-        
+        }
+
         public ActionResult VoteringEng()
         {
             if (Session["LoggetInn"] != null)

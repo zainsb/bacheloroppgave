@@ -1,21 +1,43 @@
-﻿<div class="col-sm-12" id="LoginForm">
-    <div class="dropdown" style="float:right;">
-        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            Norsk
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a href="@Url.Action("VoteringEng", "Bruker")">English</a></li>
-        </ul>
-    </div>
-    <h2>Votering</h2>
-    <label>Antall stemmer</label>
-    <div class="progress">
-        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-            <span>60% har stemt</span>
-        </div>
-    </div>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Liste</title>
+    <script type="text/javascript">
+        $(document).ready(function () {
+               $("#VisResultat").click(function () {
+                    // id som skal slettes ligger i data_id
+                    $.ajax({
+                        url: '@Url.Action("LoggUtTest", "Bruker")',
 
-    @Html.ActionLink("Stopp valg", "stoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-    @Html.ActionLink("Vis resultat", "StoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-</div>
+                });
+                })
+
+        });
+    </script>
+</head>
+<body>
+    <div class="col-sm-12" id="LoginForm">
+        <div class="dropdown" style="float:right;">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                Norsk
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("VoteringEng", "Bruker")">English</a></li>
+            </ul>
+        </div>
+        <h2>Votering</h2>
+        <label>Antall stemmer</label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                <span>60% har stemt</span>
+            </div>
+        </div>
+
+        @Html.ActionLink("Stopp valg", "stoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        @Html.ActionLink("Vis Resultat", "Resultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+
+    </div>
+</body>
+</html>
