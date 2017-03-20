@@ -8,7 +8,7 @@ namespace Studentparlamentet_28.Models
 {
     public class Valgtyper
     {
-        public int id { get; set; }
+        public int valgtypeid { get; set; }
         public string valgtype { get; set; }
         public bool start { get; set; }
 

@@ -8,7 +8,7 @@ namespace Studentparlamentet_28.Models
 {
     public class Votering
     {
-        public int id { get; set; }
+        public int voteringid { get; set; }
         public string svarfor { get; set; }
         public string svarmot { get; set; }
         public string svarblank { get; set; }

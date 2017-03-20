@@ -38,7 +38,7 @@ namespace Studentparlamentet_28.DAL
     public class Votering_db
     {
         [Key]
-        public int Id { get; set; }
+        public int VoteringID { get; set; }
         public string svarFor { get; set; }
         public string svarMot { get; set; }
         public string svarBlank { get; set; }
@@ -46,7 +46,7 @@ namespace Studentparlamentet_28.DAL
     public class Valgtyper_db
     {
         [Key]
-        public int Id { get; set; }
+        public int ValgtypeID { get; set; }
         public string Valgtype { get; set; }
         public bool Start { get; set; }
 

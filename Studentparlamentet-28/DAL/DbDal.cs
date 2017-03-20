@@ -380,7 +380,7 @@ namespace Studentparlamentet_28.DAL
             {
                 var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
                 {
-                    id = k.Id,
+                    valgtypeid = k.ValgtypeID,
                     valgtype = k.Valgtype,
                     start = k.Start,
 
@@ -394,7 +394,7 @@ namespace Studentparlamentet_28.DAL
             var db = new BrukerContext();
             try
             {
-                Valgtyper_db valgtyper = db.Valgtyper.FirstOrDefault(b => b.Id == id);
+                Valgtyper_db valgtyper = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
                 // slett også 
                 db.Valgtyper.Remove(valgtyper);
                 db.SaveChanges();
