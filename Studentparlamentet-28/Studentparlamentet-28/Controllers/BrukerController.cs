@@ -43,8 +43,8 @@ namespace Studentparlamentet_28.Controllers
                 }
                 else
                 {
-                    return View();
-                }
+                return RedirectToAction("Resultat");
+            }
 
          }
 
@@ -370,6 +370,18 @@ namespace Studentparlamentet_28.Controllers
                 return RedirectToAction("VisListe");
             }
             return RedirectToAction("LeggTilBruker");
+        }
+        public ActionResult Tilbake_VoteringAdmin()
+        {
+            string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+            if (brukernavn != null)
+            {
+                return RedirectToAction("VoteringAdmin");
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
         public ActionResult Tilbake()
         {

@@ -17,9 +17,9 @@
     </div>
     <div class="panel-footer clearfix">
         <div class="pull-left">
-
+            <a href="@Url.Action("Votering_Resultat", "Kunde", new { /* id=item.PrimaryKey */ })" class="btn btn-success ">Vis Resultat</a>
             <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
-               data-navn="ValgNr: @Model.valgtypeid"
+               data-navn="ValgNr: @Model.valgtypeid ValgType: @Model.valgtype"
                data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
         </div>
     </div>

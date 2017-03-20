@@ -18,14 +18,17 @@
 </head>
 <body>
     <div class="col-sm-12" id="LoginForm">
-        <div class="dropdown" style="float:right;">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                Norsk
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a href="@Url.Action("VoteringEng", "Bruker")">English</a></li>
-            </ul>
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("VoteringEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
         </div>
         <h2>Votering</h2>
         <label>Antall stemmer</label>
