@@ -43,13 +43,20 @@
 </head>
 <body>
 
-    <!-- Det er ikke nødvendig å bruke partial-view's her. Dette er bare for å illustrere dette -->
-   @foreach (var valgtyper in Model)
-    {
-        @Html.Partial("ResultatVoteringPartial", valgtyper)
-    }
+    
 
-    @Html.Partial("sletteModal", new Studentparlamentet_28.Models.Bruker())
+    <div class="col-sm-12" id="box2">
+        <div class="containerResultat">
 
+                    @foreach (var valgtyper in Model)
+                    {
+                        @Html.Partial("ResultatVoteringPartial", valgtyper)
+                    }
+        </div>
+     </div>
+        <br /><br />
+        @Html.Partial("sletteModal", new Studentparlamentet_28.Models.Bruker())
 </body>
 </html>
+
+

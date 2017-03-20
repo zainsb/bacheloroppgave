@@ -269,3 +269,21 @@ body {
     max-width: 99%;
 }
 
+
+#box2 {
+    background-color: #fff;
+    border-radius: 25px;
+    max-width: 900px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 2px solid rgba(0,0,0,0.1); 
+
+}
+
+.containerResultat {
+    height: 500px;
+    overflow: auto;
+}
+.containerResultat h1{
+    color: red;
+}
