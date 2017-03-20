@@ -110,10 +110,10 @@ namespace Studentparlamentet_28.BLL
             bool ok = brukerDal.slettValg(id);
             return ok;
         }
-        public bool admin_i_db_innlogget(Bruker innAdmin, String Id)
+        public bool admin_i_db_innlogget(Bruker innAdmin, string brukernavn)
         {
             var brukerDal = new DbDal();
-            return brukerDal.admin_i_db_innlogget(innAdmin, Id);
+            return brukerDal.admin_i_db_innlogget(innAdmin, brukernavn);
         }
 
 

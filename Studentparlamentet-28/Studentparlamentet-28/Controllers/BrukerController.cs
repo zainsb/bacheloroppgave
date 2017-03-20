@@ -30,28 +30,21 @@ namespace Studentparlamentet_28.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult Resultat(Bruker innAdmin)
+        public ActionResult Resultat(Bruker innAdmin, int id)
         {
-    
-      
+                    
                 var db = new BrukerBLL();
-                String Id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
 
-
-                if (db.admin_i_db_innlogget(innAdmin, Id) == (bool)true)
+                if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
                 {
-
-                    //sletter valg trenger ID for valgnr
-                    //db.slettValg(21);
-                    // test if OK == true
-
+                    db.slettValg(id);
                     return RedirectToAction("Resultat");
                 }
                 else
                 {
-                    return RedirectToAction("Index");
+                    return View();
                 }
-            
             }
 
                 

@@ -12,8 +12,12 @@
 {
             <div class="modal-body">
                 <p>Vennligst skriv inn passord at følgende valg og resultat skal slettes :</p>
-                <div class="alert alert-danger" id="slettNavn">
-                </div>
+
+                <input type="text" id="slettNavn" name="id" />
+
+               <!--<div class="alert alert-danger" id="slettNavn">
+
+                </div>-->
           
            
             @Html.AntiForgeryToken()
@@ -32,7 +36,7 @@
               
                 </div>
             <div class="modal-footer">
-                <input name="submit" type="submit" value="Slett" class="btn btn-danger" id="slettNavn"/>
+                <input name="submit" type="submit" value="Slett" class="btn btn-danger"/>
                 <button type="button" class="btn btn-success" data-dismiss="modal">Lukk</button>
            </div>
            }

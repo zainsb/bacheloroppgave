@@ -9,7 +9,7 @@
                 <th>Kjører </th>
             </tr>
             <tr>
-                <td>@Model.id</td>
+                <td>@Model.valgtypeid</td>
                 <td>@Model.valgtype</td>
                 <td>@Model.start</td>
             </tr>
@@ -20,8 +20,8 @@
 
 
             <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
-               data-navn="ValgNr: @Model.id"
-               data-id="@Model.id" data-toggle="modal" data-sletteModal="true">Slett</a>
+               data-navn="ValgNr: @Model.valgtypeid"
+               data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
         </div>
     </div>
 </div>

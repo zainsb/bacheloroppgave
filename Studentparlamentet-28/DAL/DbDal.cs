@@ -405,20 +405,19 @@ namespace Studentparlamentet_28.DAL
                 return false;
             }
         }
-        public bool admin_i_db_innlogget(Bruker innAdmin, String Id)
+        public bool admin_i_db_innlogget(Bruker innAdmin, string brukernavn)
         {
             using (var db = new BrukerContext())
             {
                 
                 byte[] passwordhash = lagHash(innAdmin.passord);
                 
-                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == Id);
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
                 if (funnetBruker != null) // Sjekker om bruker finnes i systemet
                 {
                     //slettValg(valgnr);
                     return true;
                 }
-         
                 else
                 {
                     return false; // ikke en administrator bruker 

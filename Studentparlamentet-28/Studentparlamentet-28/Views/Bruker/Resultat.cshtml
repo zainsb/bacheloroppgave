@@ -1,7 +1,6 @@
 ﻿@model List<Studentparlamentet_28.Models.Valgtyper>
 
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,7 +16,7 @@
                 
 
                 // legg ut dataene i div'en i modal-view'et
-                $('#slettNavn').html(data_navn);
+                $('#slettNavn').val(data_navn);
 
                 // lag en hendelse for knappen for å slette via ajax, knappen ligger i modal-view'et
                 // må ligge inne i denne overordnede funksjonen for at id'én som er valgt kan brukes
