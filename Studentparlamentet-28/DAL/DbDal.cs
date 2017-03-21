@@ -425,5 +425,76 @@ namespace Studentparlamentet_28.DAL
 
             }
         }//End of Admin_i_db(Admin innAdmin)
+
+        public Valgtyper VoteringPågår()
+        {
+            var db = new BrukerContext();
+
+            Valgtyper_db valgtype_db = db.Valgtyper.FirstOrDefault(b => b.Start == true && b.Valgtype == "Votering");
+
+            if (valgtype_db == null)
+            {
+                return null;
+            }
+            else
+            {
+                var valgtype = new Valgtyper()
+                {
+                    valgtypeid = valgtype_db.ValgtypeID,
+                    valgtype = valgtype_db.Valgtype,
+                    start = valgtype_db.Start
+                };
+
+                return valgtype;
+            }
+        }
+
+        //Ny
+        public string HarBrukerStemt(string brukernavn)
+        {
+            var db = new BrukerContext();
+            Valgtyper valg = VoteringPågår();
+            if (valg != null)
+            {
+                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == valg.valgtype);
+
+                if (brukerStemt != null)
+                {
+                    return "JA";
+                }
+                else
+                {
+                    return "NEI";
+                }
+            }
+            else
+            {
+                return "";
+            }
+            
+        }
+        //Ny
+        public void LagreBrukerStemt(Valgtyper valg, string brukernavn)
+        {
+            var db = new BrukerContext();
+
+            if (valg == null || brukernavn == null)
+            {
+                return;
+            }
+            else
+            {
+                var brukerStemt = new BrukereStemt_db()
+                {
+                    Brukernavn = brukernavn,
+                    ValgtypeID = valg.valgtypeid,
+                    Valgtype = valg.valgtype
+                };
+
+                db.BrukereStemt.Add(brukerStemt);
+                db.SaveChanges();
+            }
+        }
+
     }
 }

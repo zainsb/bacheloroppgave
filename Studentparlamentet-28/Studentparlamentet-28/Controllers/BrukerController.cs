@@ -128,7 +128,16 @@ namespace Studentparlamentet_28.Controllers
             {
                 string svar = RadioButton.ToString();
                 bool ok = db.voteringsvar(svar);
-                // legg brukernavn og voteringID og Valgtype i en egen tabell
+                Valgtyper valg = db.VoteringPågår();
+                string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                if (valg != null)
+                {
+                    // legg brukernavn og valgtypeid og Valgtype i en egen tabell
+                    db.LagreBrukerStemt(valg, brukernavn);
+                }
+
+                //Må se på det her etterpå
                 if (ok == true)
                 {
                     return RedirectToAction("Index");
@@ -140,6 +149,7 @@ namespace Studentparlamentet_28.Controllers
             }
             return RedirectToAction("Votering");
         }
+
         public ActionResult VoteringAdminEng()
         {
             if (Session["LoggetInn"] != null)
@@ -158,6 +168,7 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
+
         public ActionResult VoteringAdmin()
         {
             if (Session["LoggetInn"] != null)
@@ -185,6 +196,15 @@ namespace Studentparlamentet_28.Controllers
             }
 
             return jsonSerializer.Serialize(melding);
+        }
+
+        public string BrukerStemtMld()
+        {
+            var db = new BrukerBLL();
+            string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+            string mld = db.HarBrukerStemt(brukernavn);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(mld);
         }
 
         public ActionResult Votering()

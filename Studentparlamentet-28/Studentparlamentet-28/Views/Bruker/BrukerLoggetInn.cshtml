@@ -14,12 +14,21 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function (melding) {
-                        //VisVoteringView(melding);
                         if(melding == "Votering")
                         {
-                            // sjekke om brukernavn, voteringid og valgtype finnes i tabellen
-                            // if true så -> 
-                            window.location = "@Url.Action("Votering", "Bruker")";
+                            // sjekke om brukernavn, valgtypeid og valgtype finnes i tabellen
+                            $.ajax({
+                                url: '/Bruker/BrukerStemtMld',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (mld) {
+                                    if(mld == "NEI")
+                                    {
+                                        window.location = "@Url.Action("Votering", "Bruker")";
+                                    }
+                                }
+                            });
+
                         }
                     },
                     error: function (x, y, z) {
@@ -29,20 +38,8 @@
             };
 
             setInterval(ajax_kall, 1000 * 3);
-            
-        })
 
-        /*function VisVoteringView(melding) {
-            
-            if (melding == "Votering")
-            {
-                
-            }
-            else
-            {
-                
-            }
-        }*/
+        })
 
 
     </script>

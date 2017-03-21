@@ -52,6 +52,15 @@ namespace Studentparlamentet_28.DAL
 
     }
 
+    public class BrukereStemt_db
+    {
+        [Key]
+        public string Brukernavn { get; set; }
+        public int ValgtypeID { get; set; }
+        public string Valgtype { get; set; }
+
+    }
+
     public class BrukerContext : DbContext
     {
         public BrukerContext()
@@ -63,7 +72,8 @@ namespace Studentparlamentet_28.DAL
         public DbSet<Admin_db> AdminBrukere { get; set; }
         public DbSet<Bruker_db> Brukere { get; set; }
         public DbSet<Votering_db> Voteringer { get; set; }
-        public DbSet<Valgtyper_db> Valgtyper { get; set; } 
+        public DbSet<Valgtyper_db> Valgtyper { get; set; }
+        public DbSet<BrukereStemt_db> BrukereStemt { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
