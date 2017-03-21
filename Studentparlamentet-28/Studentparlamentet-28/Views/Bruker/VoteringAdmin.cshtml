@@ -37,7 +37,7 @@
                 <span>60% har stemt</span>
             </div>
         </div>
-
+        @Html.ActionLink("Start valg", "startVotering", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
         @Html.ActionLink("Stopp valg", "stoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
         @Html.ActionLink("Vis Resultat", "Resultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
 

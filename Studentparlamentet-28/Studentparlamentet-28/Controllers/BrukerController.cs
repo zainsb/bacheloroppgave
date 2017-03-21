@@ -81,7 +81,25 @@ namespace Studentparlamentet_28.Controllers
             return RedirectToAction("Index");
 
         }
+        public ActionResult startVotering()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    bool ok = db.stoppVotering();
+                    if (ok == true)
+                    {
+                        return RedirectToAction("VoteringAdmin");
+                    }
 
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
         public ActionResult stoppValg()
         {
             if (Session["LoggetInn"] != null)
@@ -93,7 +111,7 @@ namespace Studentparlamentet_28.Controllers
                     bool ok = db.stoppVotering();
                     if (ok == true)
                     {
-                        return RedirectToAction("Index");
+                        return RedirectToAction("VoteringAdmin");
                     }
 
                 }
@@ -110,6 +128,7 @@ namespace Studentparlamentet_28.Controllers
             {
                 string svar = RadioButton.ToString();
                 bool ok = db.voteringsvar(svar);
+                // legg brukernavn og voteringID og Valgtype i en egen tabell
                 if (ok == true)
                 {
                     return RedirectToAction("Index");
@@ -146,12 +165,7 @@ namespace Studentparlamentet_28.Controllers
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
-                    var db = new BrukerBLL();
-                    var ok = db.startVotering();
-                    if (ok)
-                    {
-                        return View();
-                    }
+                 return View();
                 }
             }
 
