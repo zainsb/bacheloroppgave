@@ -12,5 +12,6 @@ namespace Studentparlamentet_28.Models
         public string svarfor { get; set; }
         public string svarmot { get; set; }
         public string svarblank { get; set; }
+        public int valgtypeid { get; set; }
     }
 }

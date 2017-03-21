@@ -318,11 +318,14 @@ namespace Studentparlamentet_28.DAL
         public bool voteringsvar(String svar)
         {
             var db = new BrukerContext();
+            var valgType = VoteringPågår();
+           
             if (svar == "for")
             {
                 var svarvalg = new Votering_db()
                 {
-                    svarFor = svar
+                    svarFor = svar,
+                    ValgtypeID = valgType.valgtypeid
                 };
                 db.Voteringer.Add(svarvalg);
                 db.SaveChanges();
@@ -332,7 +335,8 @@ namespace Studentparlamentet_28.DAL
             {
                 var svarvalg = new Votering_db()
                 {
-                    svarMot = svar
+                    svarMot = svar,
+                    ValgtypeID = valgType.valgtypeid
                 };
                 db.Voteringer.Add(svarvalg);
                 db.SaveChanges();
@@ -342,7 +346,8 @@ namespace Studentparlamentet_28.DAL
             {
                 var svarvalg = new Votering_db()
                 {
-                    svarBlank = svar
+                    svarBlank = svar,
+                    ValgtypeID = valgType.valgtypeid
                 };
                 db.Voteringer.Add(svarvalg);
                 db.SaveChanges();
@@ -495,6 +500,22 @@ namespace Studentparlamentet_28.DAL
                 db.SaveChanges();
             }
         }
+        public bool VoteringKjorer()
+        {
+            using (var db = new BrukerContext())
+            {
+                Valgtyper_db voteringkjorer = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Votering" && b.Start == true);
+                if (voteringkjorer != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
 
     }
 }

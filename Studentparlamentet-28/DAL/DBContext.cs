@@ -42,6 +42,7 @@ namespace Studentparlamentet_28.DAL
         public string svarFor { get; set; }
         public string svarMot { get; set; }
         public string svarBlank { get; set; }
+        public int ValgtypeID { get; set; }
     }
     public class Valgtyper_db
     {

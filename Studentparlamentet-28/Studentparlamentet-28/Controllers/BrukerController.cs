@@ -65,6 +65,21 @@ namespace Studentparlamentet_28.Controllers
             db.slettValg(id);
 
         }
+        public string VoteringKjorer()
+        {
+
+            var db = new BrukerBLL();
+            bool ok = db.VoteringKjorer();
+            if (ok == true)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+
+        }
 
         public ActionResult VoteringEng()
         {
@@ -81,7 +96,7 @@ namespace Studentparlamentet_28.Controllers
             return RedirectToAction("Index");
 
         }
-        public ActionResult startVotering()
+        public void startVotering()
         {
             if (Session["LoggetInn"] != null)
             {
@@ -89,18 +104,15 @@ namespace Studentparlamentet_28.Controllers
                 if (loggetinn)
                 {
                     var db = new BrukerBLL();
-                    bool ok = db.stoppVotering();
-                    if (ok == true)
-                    {
-                        return RedirectToAction("VoteringAdmin");
-                    }
+                    bool ok = db.startVotering();
+
 
                 }
             }
 
-            return RedirectToAction("Index");
+
         }
-        public ActionResult stoppValg()
+        public void stopVotering()
         {
             if (Session["LoggetInn"] != null)
             {
@@ -109,15 +121,11 @@ namespace Studentparlamentet_28.Controllers
                 {
                     var db = new BrukerBLL();
                     bool ok = db.stoppVotering();
-                    if (ok == true)
-                    {
-                        return RedirectToAction("VoteringAdmin");
-                    }
 
                 }
             }
 
-            return RedirectToAction("Index");
+
         }
         [HttpPost]
         public ActionResult Voteringsvar()

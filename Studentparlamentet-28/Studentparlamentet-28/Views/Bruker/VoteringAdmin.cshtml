@@ -4,19 +4,57 @@
     <meta name="viewport" content="width=device-width" />
     <title>Liste</title>
     <script type="text/javascript">
-        $(document).ready(function () {
-               $("#VisResultat").click(function () {
-                    // id som skal slettes ligger i data_id
-                    $.ajax({
-                        url: '@Url.Action("LoggUtTest", "Bruker")',
+  $(document).ready(function () {
+            
+      // funksjon som sjeker om en votering kjører if so hvis stop knapp
+            $.ajax({
+                url: '@Url.Action("VoteringKjorer", "Bruker")',
+                success: function (data) {
+                    if (data == "true") {
+                        $("#stop").show();
+                    }
+                    else if(data == "false")
+                    {
+                        $("#start").show();
+                    }
 
+                }
+            });
+
+            $("#start").click(function () {
+                $.ajax({
+                    url: '@Url.Action("startVotering", "Bruker")',
+                    success: function () {
+                        $("#stop").show();
+                        $("#start").hide();
+                    }
                 });
-                })
 
+
+            });
+            $("#stop").click(function () {
+                $.ajax({
+                    url: '@Url.Action("stopVotering", "Bruker")',
+                    success: function () {
+                        $("#stop").hide();
+                        $("#start").show();
+                    }
+                });
+
+            });
         });
     </script>
 </head>
 <body>
+    <form id="form1">
+        <div id="progressbar"></div>
+        <div id="result"></div><br />
+        <asp:Label  ID="lbldisp" Text="Percentage Completed : " />
+        <asp:Label  ID="lblStatus" />
+        <br />
+        <asp:Button ID="btnGetData" Text="Get Data" />
+    </form>
+
     <div class="col-sm-12" id="LoginForm">
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
@@ -32,14 +70,22 @@
         </div>
         <h2>Votering</h2>
         <label>Antall stemmer</label>
-        <div class="progress">
+        <form id="form1">
+            <div id="progress-bar"></div>
+            <div id="resultat"></div>
+
+        </form>
+      <!--  <div class="progress">
             <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
                 <span>60% har stemt</span>
             </div>
+        </div>-->
+        <div>
+            <button id="start" class="btn btn-default" style="display: none;">Start</button>
+            <button id="stop" class="btn btn-default" style="display: none;">Stopp</button>
+            @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-default" })
+            <button id="visResultat" class="btn btn-default">Resultat</button>
         </div>
-        @Html.ActionLink("Start valg", "startVotering", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-        @Html.ActionLink("Stopp valg", "stoppValg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-        @Html.ActionLink("Vis Resultat", "Resultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
 
     </div>
 </body>

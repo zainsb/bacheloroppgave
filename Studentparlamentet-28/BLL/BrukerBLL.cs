@@ -134,6 +134,10 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.HarBrukerStemt(brukernavn);
         }
-
+        public bool VoteringKjorer()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.VoteringKjorer();
+        }
     }
 }
