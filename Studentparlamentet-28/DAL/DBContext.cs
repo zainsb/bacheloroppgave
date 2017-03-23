@@ -56,6 +56,7 @@ namespace Studentparlamentet_28.DAL
     public class BrukereStemt_db
     {
         [Key]
+        public int Id { get; set; }
         public string Brukernavn { get; set; }
         public int ValgtypeID { get; set; }
         public string Valgtype { get; set; }

@@ -287,3 +287,11 @@ body {
 .containerResultat h1{
     color: red;
 }
+
+
+
+#tableHentResultat {
+    height: 500px;
+    overflow: auto;
+}
+

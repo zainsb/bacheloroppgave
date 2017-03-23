@@ -516,6 +516,25 @@ namespace Studentparlamentet_28.DAL
             }
         }
 
+        public string hentAntallStemt(int valgID)
+        {
+            var db = new BrukerContext();
+            int antallStemt = db.BrukereStemt.Where(b => b.ValgtypeID == valgID).Count();
+            int antallbrukere = hentData().Count();
 
+            string utskrift = antallStemt + "/" + antallbrukere;
+            return utskrift;
+        }
+        
+
+        public int antallValgFullført()
+        {
+            var db = new BrukerContext();
+            int antall = hentValgTyper().Count();
+
+            return antall;
+        }
+
+        
     }
 }

@@ -29,6 +29,43 @@ namespace Studentparlamentet_28.Controllers
         {
             return View();
         }
+
+       
+
+        public string HentResultatAntallStemt(int id)
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.hentAntallStemt(id);
+            var jsonSerializer = new JavaScriptSerializer();
+
+            return jsonSerializer.Serialize(melding);
+        }
+
+        public string HentAntallValg()
+        {
+            var db = new BrukerBLL();
+            int antall = db.antallValgFullført();
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(antall);
+        }
+
+        public ActionResult HentResultat()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Valgtyper> listeValg = db.hentValgTyper();
+                    return View(listeValg);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
         [HttpPost]
         public ActionResult Resultat(Bruker innAdmin, int id)
         {
@@ -47,8 +84,6 @@ namespace Studentparlamentet_28.Controllers
             }
 
          }
-
-                
         
         public ActionResult Resultat()
         {

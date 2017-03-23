@@ -229,6 +229,7 @@
     <Content Include="Views\Bruker\VisListe.cshtml" />
     <Content Include="Views\Bruker\ResultatVoteringPartial.cshtml" />
     <Content Include="Views\Bruker\sletteModal.cshtml" />
+    <Content Include="Views\Bruker\HentResultat.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
