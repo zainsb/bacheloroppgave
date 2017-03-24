@@ -20,6 +20,158 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
+        public int hentAntallStemte_int()
+        {
+            var db = new BrukerBLL();
+            return db.hentAntallStemte_int();
+        }
+        public int hentAntallBrukere_int()
+        {
+            var db = new BrukerBLL();
+            return db.hentAntallBrukere_int();
+
+        }
+
+        public string vinnerVotering()
+        {
+            double forProsent = prosentFor();
+            double motProsent = prosentMot();
+            double blankProsent = prosentBlank();
+            // for vinner
+            if (forProsent > motProsent && forProsent > blankProsent)
+            {
+                return "For";
+            }
+            // mot vinner
+            else if (motProsent > forProsent && motProsent > blankProsent)
+            {
+                return "Mot";
+            }
+            //blank vinner
+            else if (blankProsent > forProsent && blankProsent > motProsent)
+            {
+                return "Blank";
+            }
+            // for == mot && for == blank  
+            else if (forProsent == motProsent && forProsent == blankProsent)
+            {
+                return "Likt FOr, Mot og Blank";
+            }
+            // for == mot
+            else if (forProsent == motProsent)
+            {
+                return "Likt For og Mot";
+            }
+            // for == blank
+            else if (forProsent == blankProsent)
+            {
+                return "Likt For og Mot";
+            }
+
+            else
+            {
+                return "ingen valgresultat";
+            }
+
+
+
+        }
+        public int antallForDiv()
+        {
+            int id = hentsisteVotering();
+            return antallFor(id);
+        }
+        public int antallMotDiv()
+        {
+            int id = hentsisteVotering();
+            return antallMot(id);
+        }
+        public int antallBlankDiv()
+        {
+            int id = hentsisteVotering();
+            return antallBlank(id);
+        }
+
+        public double prosentFor()
+        {
+            //hent siste votering
+            int id = hentsisteVotering();
+            //hent antall stemte
+            double antallstemmer = antallstemteVotering(id);
+            //hent for stemmer
+            double antallfor = antallFor(id);
+            // regn ut og retuner
+            double prosent = Math.Round((antallfor / antallstemmer * 100), 1);
+            return prosent;
+        }
+        public double prosentMot()
+        {
+            //hent siste votering
+            int id = hentsisteVotering();
+            //hent antall stemte
+            double antallstemmer = antallstemteVotering(id);
+            //hent for stemmer
+            double antallmot = antallMot(id);
+            // regn ut og retuner
+            double prosent = Math.Round((antallmot / antallstemmer * 100), 1);
+            return prosent;
+        }
+        public double prosentBlank()
+        {
+            //hent siste votering
+            int id = hentsisteVotering();
+            //hent antall stemte
+            double antallstemmer = antallstemteVotering(id);
+            //hent for stemmer
+            double antallblank = antallBlank(id);
+            // regn ut og retuner
+            double prosent = Math.Round((antallblank / antallstemmer * 100), 1);
+            return prosent;
+        }
+        public int antallstemteVotering(int id)
+        {
+            var db = new BrukerBLL();
+            return db.antallstemteVotering(id);
+        }
+        public int antallFor(int id)
+        {
+            var db = new BrukerBLL();
+            return db.antallFor(id);
+        }
+        public int antallMot(int id)
+        {
+            var db = new BrukerBLL();
+            return db.antallMot(id);
+
+        }
+        public int antallBlank(int id)
+        {
+            var db = new BrukerBLL();
+            return db.antallBlank(id);
+        }
+        public int hentsisteVotering()
+        {
+            var db = new BrukerBLL();
+            return db.hentsisteVotering();
+        }
+        public string finnesdetvalg()
+        {
+            var db = new BrukerBLL();
+            bool valg = db.finnesdetvalg();
+            if(valg == true)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+
+        }
+        public ActionResult ResultatVotering()
+        {
+            return View();
+        }
         //Uferdig views
         public ActionResult Preferansevalg()
         {

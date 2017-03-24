@@ -11,6 +11,49 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
+       public bool finnesdetvalg()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.finnesdetvalg();
+        }
+        public int antallstemteVotering(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.antallstemteVotering(id);
+        }
+        public int antallFor(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.antallFor(id);
+        }
+        public int antallMot(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.antallMot(id);
+        }
+        public int antallBlank(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.antallBlank(id);
+        }
+        public int hentsisteVotering()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.hensisteVotering();
+        }
+
+        public int hentAntallStemte_int()
+        {
+            var brukerDal = new DbDal();
+            int antall = brukerDal.hentAntallStemte_int();
+            return antall;
+        }
+        public int hentAntallBrukere_int()
+        {
+            var brukerDAl = new DbDal();
+            int antall = brukerDAl.hentAntallBrukere_int();
+            return antall;
+        }
         public bool GenererBrukere(int antallBrukere)
         {
             var brukerDal = new DbDal();
@@ -150,10 +193,12 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.antallValgFullført();
         }
+        /*
         public List<BrukereStemt_db> brukereStemt(int valgtypeid)
         {
             var brukerDal = new DbDal();
             return brukerDal.brukereStemt(valgtypeid);
         }
+        */
     }
 }

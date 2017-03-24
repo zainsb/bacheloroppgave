@@ -15,8 +15,78 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public bool finnesdetvalg()
+        {
+            var db = new BrukerContext();
+            int antall = db.Valgtyper.Count();
+            if (antall <= 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public int antallstemteVotering(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.BrukereStemt.Count(b => b.ValgtypeID == id && b.Valgtype == "Votering");
+            return antall;
+        }
+        public int antallFor(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarFor == "for");
+            return antall;
+        }
+        public int antallMot(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarMot == "mot");
+            return antall;
+        }
+        public int antallBlank(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarBlank == "blank");
+            return antall;
+        }
+        public int hensisteVotering()
+        {
+            var db = new BrukerContext();
+            var sistevotering = db.Valgtyper.Max(b => b.ValgtypeID);
+            if (sistevotering > 0)
+            {
+                return sistevotering;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
-        
+
+        public int hentAntallStemte_int()
+        {
+            var db = new BrukerContext();
+            var valg = VoteringPågår();
+            if (valg != null)
+            {
+                String valgtype = valg.valgtype;
+                int valgID = valg.valgtypeid;
+                System.Int32 antall = db.BrukereStemt.Count(b => b.Valgtype == valgtype && b.ValgtypeID == valgID);
+                return antall;
+            }
+            else return 0;
+        }
+
+        public int hentAntallBrukere_int()
+        {
+            var db = new BrukerContext();
+            System.Int32 antall = db.Brukere.Count();
+            return antall;
+        }
 
 
         public bool GenererBrukere(int antallBrukere)

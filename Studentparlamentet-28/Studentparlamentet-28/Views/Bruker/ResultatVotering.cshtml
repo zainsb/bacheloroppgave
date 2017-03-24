@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #forProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #forBar {
+            width: 10%;
+            height: 30px;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+
+        #motProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #motBar {
+            width: 10%;
+            height: 30px;
+            background-color: #ff0000;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+
+        #blankProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #blankBar {
+            width: 10%;
+            height: 30px;
+            background-color: #42aaf4;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // sjekk om valgtype finnes && det finnes brukere som har stemt på det valget.
+            $.ajax({
+                url: '@Url.Action("finnesdetvalg", "Bruker")',
+                success: function (data) {
+                    //== true - kjør koden 
+                    if (data == "true")
+                    {
+                        // hent prosent For
+                        $.ajax({
+                            url: '@Url.Action("prosentFor", "Bruker")',
+                            success: function (data) {
+
+                                if (data > 0)
+                                {
+                                    // legger prosent ut i prossessbar
+                                    var elem = document.getElementById("forBar");
+                                    var width = 1;
+                                    var prosentfor = data;
+                                    var id = setInterval(frame, 1);
+                                    function frame() {
+                                        if (width >= data) {
+                                            clearInterval(id);
+                                        } else {
+                                            width++;
+                                            elem.style.width = width + '%';
+                                            elem.innerHTML = prosentfor + '%';
+                                        }
+                                    }
+                                }
+            
+
+                            }
+                        });
+                        // hent prosent mot
+                        $.ajax({
+                            url: '@Url.Action("prosentMot", "Bruker")',
+                            success: function (data) {
+                                if (data > 0)
+                                {
+                                    // legger prosent ut i prossessbar
+                                    var elem = document.getElementById("motBar");
+                                    var width = 1;
+                                    var prosentmot = data;
+                                    var id = setInterval(frame, 1);
+                                    function frame() {
+                                        if (width >= data) {
+                                            clearInterval(id);
+                                        } else {
+                                            width++;
+                                            elem.style.width = width + '%';
+                                            elem.innerHTML = prosentmot + '%';
+                                        }
+                                    }
+                                }
+                                
+
+                            }
+                        });
+                        // hent prosent blank
+                        $.ajax({
+                            url: '@Url.Action("prosentBlank", "Bruker")',
+                            success: function (data) {
+                                if (data > 0)
+                                {
+                                    // legger prosent ut i prossessbar
+                                    var elem = document.getElementById("blankBar");
+                                    var width = 1;
+                                    var prosentblank = data;
+                                    var id = setInterval(frame, 1);
+                                    function frame() {
+                                        if (width >= data) {
+                                            clearInterval(id);
+                                        } else {
+                                            width++;
+                                            elem.style.width = width + '%';
+                                            elem.innerHTML = prosentblank + '%';
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        });
+                        // hent antall for
+                        $.ajax({
+                            url: '@Url.Action("antallForDiv", "Bruker")',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#antall').html(data);
+                            }
+                        });
+                        // hent antall mot
+                        $.ajax({
+                            url: '@Url.Action("antallMotDiv", "Bruker")',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#antallmot').html(data);
+                            }
+                        });
+                        // hent antall blank
+                        $.ajax({
+                            url: '@Url.Action("antallBlankDiv", "Bruker")',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#antallblank').html(data);
+                            }
+                        });
+                        // hent vinner
+                        $.ajax({
+                            url: '@Url.Action("vinnerVotering", "Bruker")',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#vinner').html(data);
+                            }
+                        });
+                        // hent antallstemte
+                    }
+                    else
+                    {
+                        //== false - ikke kjør koden
+                    }
+                }
+            });
+            
+                      
+            });
+    </script>
+</head>
+
+<body>
+
+
+    <div class="col-sm-12" id="LoginForm">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("ResultatVoteringEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div>
+        <br /><br />
+        <div>
+            <div id="forProgress">
+                <p>For stemmer</p> <div id="forBar">0%</div>
+            </div>
+
+            <div id="motProgress">
+                <p>Mot stemmer</p><div id="motBar">0%</div>
+            </div>
+            <div id="blankProgress">
+                <p>Blanke stemmer</p><div id="blankBar">0%</div>
+            </div>
+
+
+
+
+            <div id="msg">
+                <h1>Vinner </h1><h1 id="vinner"></h1>
+                <div>Antall For stemmer : </div><div id="antall"></div>
+                <div>Antall Mot stemmer : </div><div id="antallmot"></div>
+                <div>Antall Blanke stemmer : </div><div id="antallblank"></div>
+            </div>
+        </div>
+
+    </div>
+
+
+</body>
+</html>
