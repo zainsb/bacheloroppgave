@@ -193,12 +193,6 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.antallValgFullført();
         }
-        /*
-        public List<BrukereStemt_db> brukereStemt(int valgtypeid)
-        {
-            var brukerDal = new DbDal();
-            return brukerDal.brukereStemt(valgtypeid);
-        }
-        */
+        
     }
 }

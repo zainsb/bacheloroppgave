@@ -11,8 +11,6 @@ body {
     background: linear-gradient(#ededed, lightgrey); 
     background-size: 500%;
 
-    
-    
 }
 /*LoginForm*/
 #LoginForm {
@@ -273,7 +271,7 @@ body {
 #box2 {
     background-color: #fff;
     border-radius: 25px;
-    max-width: 900px;
+    max-width: 800px;
     padding: 15px 35px 45px;
     margin: 0 auto;
     border: 2px solid rgba(0,0,0,0.1); 

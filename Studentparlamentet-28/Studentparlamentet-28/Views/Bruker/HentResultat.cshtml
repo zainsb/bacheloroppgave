@@ -9,17 +9,7 @@
         
         $(function () {
             
-            $.ajax({
-                url: '/Bruker/HentAntallValg',
-                type: 'GET',
-                dataType: 'json',
-                success: function (antall) {
-                    
-                },
-                error: function (x, y, z) {
-                    alert(x + '\n' + y + '\n' + z);
-                }
-            });
+           
 
             
             //Henter inn antall stemte av antall brukere
@@ -41,7 +31,19 @@
 </head>
 <body>
     <div class="col-sm-12" id="box2">
-        
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <!--<li><a href="@Url.Action("HentResultatEng", "Bruker")">English</a></li>-->
+                </ul>
+            </div>
+        </div>
+        <br /><br />
         <div id="tableHentResultat">
 
             <table class="table  table-responsive table-scrollable" id="tableID">
@@ -65,34 +67,37 @@
 
 
                 <tbody class="table-bordered">
+                    @{int i = 1;}
                     @foreach (var item in Model)
                     {
+
                         <tr>
                             <td>
                                 @Html.DisplayFor(modelItem => item.valgtype)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.valgtypeid, new { id = "HiddenID"})
+                                (Antall stemte)
                             </td>
                             <td>
-                                
+                                @Html.CheckBox("valgtypeID"+ @i, new { value = item.valgtypeid, @checked = false })
+
                             </td>
                             <td>
                                 @Html.ActionLink("Resultat", "Resultat", new { tom = "" }, new { @class = "btn btn-danger" })
                             </td>
                         </tr>
+                        i++;
                     }
                 </tbody>
 
             </table>
 
+            
         </div>
 
-        @Html.ActionLink("Tilbake", "Tilbake")
         @Html.ActionLink("Last ned PDF", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
 
-        <div id="testDiv"></div>
-        <div id="testDiv2"></div>
     </div>
+    <br />
 </body>
 </html>
