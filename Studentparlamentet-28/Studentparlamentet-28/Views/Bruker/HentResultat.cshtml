@@ -6,27 +6,32 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <script type="text/javascript">
+        var antallValg = @Model.Count +1; //Henter inn antall valg som er gjennomført
+        var hiddenData = "";
         
         $(function () {
-            
-           
+            for(var i = 1; i < antallValg; i++)
+            {
+                hiddenData = $("#HiddenID" + i).val();
+                ajaxKall(i, hiddenData);
+            }
+        })
 
-            
-            //Henter inn antall stemte av antall brukere
-            /*$.ajax({
+        //Funksjon som henter inn antall stemte og antall deltatt
+        function ajaxKall(i, hiddenid) {
+            $.ajax({
                 url: '/Bruker/HentResultatAntallStemt',
-                data: { id: teller },
+                data: { id: hiddenid },
                 type: 'GET',
                 dataType: 'json',
                 success: function (melding) {
-                    $("#idAntStemt").html(melding);
-                    teller++;
+                    $("#divStemt" + i).html(melding);
                 },
                 error: function (x, y, z) {
                     alert(x + '\n' + y + '\n' + z);
                 }
-            });*/
-        })
+            });
+        }
     </script>
 </head>
 <body>
@@ -43,13 +48,13 @@
                 </ul>
             </div>
         </div>
-        <br /><br />
-        <div id="tableHentResultat">
 
+        <br /><br />
+
+        <div id="tableHentResultat">
             <table class="table  table-responsive table-scrollable" id="tableID">
                 <thead class="thead-default">
                     <tr>
-
                         <th>
                             Type valg
                         </th>
@@ -57,26 +62,24 @@
                             Antall Stemt
                         </th>
                         <th>
-
                             Legg til PDF
                         </th>
-
                         <th></th>
                     </tr>
                 </thead>
-
 
                 <tbody class="table-bordered">
                     @{int i = 1;}
                     @foreach (var item in Model)
                     {
-
                         <tr>
                             <td>
                                 @Html.DisplayFor(modelItem => item.valgtype)
                             </td>
                             <td>
-                                (Antall stemte)
+                                @Html.HiddenFor(modelItem => item.valgtypeid, new { id = "HiddenID" + @i })
+                                <div id="@("divStemt"+i)"></div>
+                                
                             </td>
                             <td>
                                 @Html.CheckBox("valgtypeID"+ @i, new { value = item.valgtypeid, @checked = false })
@@ -89,10 +92,7 @@
                         i++;
                     }
                 </tbody>
-
             </table>
-
-            
         </div>
 
         @Html.ActionLink("Last ned PDF", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })

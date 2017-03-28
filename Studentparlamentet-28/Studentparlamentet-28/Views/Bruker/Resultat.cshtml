@@ -42,20 +42,21 @@
     </script>
 </head>
 <body>
-    <div class="form-inline" style="float:right;">
-        @Html.ActionLink("Tilbake", "Tilbake_VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-        <div class="dropdown" style="float:right;">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                Norsk
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a href="@Url.Action("ResultatEng", "Bruker")">English</a></li>
-            </ul>
-        </div>
-    </div>
-    <br /> <br />
+    
+    <br /> 
 <div class="col-sm-12" id="box2">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Tilbake_VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("ResultatEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div><br /><br />
             <div class="containerResultat">
 
                 @foreach (var valgtyper in Model)

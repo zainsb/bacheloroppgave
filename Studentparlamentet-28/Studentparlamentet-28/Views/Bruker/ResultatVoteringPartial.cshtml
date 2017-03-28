@@ -11,7 +11,16 @@
             <tr>
                 <td>@Model.valgtypeid</td>
                 <td>@Model.valgtype</td>
-                <td>@Model.start</td>
+                <td>
+                    @if(@Model.start != false)
+                    {
+                        <p>Ja</p>
+                    }
+                    else
+                    {
+                        <p>Nei</p>
+                    }
+                </td>
             </tr>
         </table>
     </div>
