@@ -188,7 +188,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Style\StyleSheet7.css" />
+    <Content Include="Style\StyleSheet9.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -231,6 +231,13 @@
     <Content Include="Views\Bruker\sletteModal.cshtml" />
     <Content Include="Views\Bruker\HentResultat.cshtml" />
     <Content Include="Views\Bruker\ResultatVotering.cshtml" />
+    <Content Include="Views\User\VisListeEng.cshtml" />
+    <Content Include="Views\Bruker\ResultatVoteringID.cshtml" />
+    <Content Include="Views\User\ResultatEng.cshtml" />
+    <Content Include="Views\User\ResultatVoteringPartialEng.cshtml" />
+    <Content Include="Views\User\sletteModalEng.cshtml" />
+    <Content Include="Views\User\ResultatVoteringEng.cshtml" />
+    <Content Include="Views\User\ResultatVoteringIDEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

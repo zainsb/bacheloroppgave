@@ -6,7 +6,7 @@
     @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
         <div class="dropdown" style="float:right;">
             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                Norsk
+                English
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
@@ -16,8 +16,11 @@
      </div>
    
     <br />
-    <h2 style="text-align:left;">Legg til deltakere for valg og votering</h2>
-  
+    <h2 style="text-align:left;">Generer liste med valgdeltakere for valg og votering</h2>
+    <br />
+    
+        <p>Velg antall valgdeltagere for valg og votering og generer liste</p>
+    
     <br />
     @using (Html.BeginForm("GenererListe", "Bruker"))
     {
@@ -34,7 +37,7 @@
             <br/> <br/>
                        
             <div class="form-group">
-                @Html.ActionLink("Vis Liste", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
+                @Html.ActionLink("Se liste", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
                 @Html.ActionLink("Last ned liste", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
             </div>
            

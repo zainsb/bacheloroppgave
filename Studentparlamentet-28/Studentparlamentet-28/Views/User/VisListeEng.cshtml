@@ -1,0 +1,85 @@
+﻿@model List<Studentparlamentet_28.Models.Bruker>
+
+
+
+<div class="col-sm-12" id="box">
+    <div class="form-inline" style="float:right;">
+        @Html.ActionLink("Back", "LeggTilBrukerEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        <div class="dropdown" style="float:right;">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                Norsk
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("VisListe", "Bruker")">Norsk</a></li>
+            </ul>
+        </div>
+    </div>
+    <br /><br />
+
+    <div id="tableContainer">
+
+
+        <table class="table  table-responsive table-scrollable" id="tableID">
+            <thead class="thead-default">
+                <tr>
+                    <th>
+                        Username
+                    </th>
+                    <th>
+                        Password
+                    </th>
+                    <th>
+                        Signed in
+                    </th>
+
+                    <th></th>
+                </tr>
+            </thead>
+
+
+            <tbody class="table-bordered">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.brukernavn)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.passord)
+                        </td>
+                        <td>
+                            @if (!item.innlogget)
+                            {
+                                <p>No</p>
+                            }
+                            else if (item.innlogget)
+                            {
+                                <p>Yes</p>
+                            }
+                            else
+                            {
+                                <p>Don't know</p>
+                            }
+
+                        </td>
+                        <td>
+                            @Html.ActionLink("Delete", "SlettBruker", new { id = item.brukernavn }, new { @class = "btn btn-danger" })
+                        </td>
+                        <td>
+                            @Html.ActionLink("Sign out", "LoggUtBruker", new { id = item.brukernavn }, new { @class = "btn btn-danger" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <br />
+
+
+
+</div>
+

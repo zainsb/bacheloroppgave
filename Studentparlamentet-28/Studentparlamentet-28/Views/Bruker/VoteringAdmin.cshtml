@@ -91,28 +91,30 @@
             @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
+                    English
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("VoteringEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("VoteringAdminEng", "Bruker")">English</a></li>
                 </ul>
             </div>
         </div>
         <h2>Votering</h2>
+        <br/>
         <div id="melding">
             <p>Her kan du starte og stoppe voteringer</p>
         </div>
         <div id="melding2" style="display: none;">
-            <p>Antall valgdeltakere</p><div id="antall"></div>
-            <p>Antall stemte</p><div id="antallstemt"></div>
+            <p><b>Antall valgdeltakere</b></p><div id="antall"></div>
+            <p><b>Antall stemte</b></p><div id="antallstemt"></div>
         </div>
-        
+        <br />
         <div>
-            <button id="start" class="btn btn-default" style="display: none;">Start</button>
-            <button id="stop" class="btn btn-default" style="display: none;">Stopp</button>
-            @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-default" })
-            <div id="resultat" style="display: none;">@Html.ActionLink("Resultat", "ResultatVotering", new { tom = "" }, new { @class = "btn btn-default" })</div>
+            <button id="start" class="btn btn-success"  style="display: none;">Start</button>
+            <button id="stop" class="btn btn-danger" style="display: none;">Stopp</button>
+            @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-info" })
+            <br /><br />
+            <div id="resultat" style="display: none;">@Html.ActionLink("Resultat", "ResultatVotering", new { tom = "" }, new { @class = "btn btn-primary" })</div>
         </div>
 
     </div>

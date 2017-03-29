@@ -3,7 +3,7 @@
 
 <div class="col-sm-12" id="LoginForm">
     <div class="form-inline" style="float:right;">
-        @Html.ActionLink("Tilbake", "TilbakeEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        @Html.ActionLink("Back", "TilbakeEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
         <div class="dropdown" style="float:right;">
             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                 Norsk
@@ -16,8 +16,9 @@
     </div>
 
     <br />
-    <h2 style="text-align:left;">Add users for election and voting</h2>
-
+    <h2 style="text-align:left;">Generate list of users for election and voting</h2>
+    <br />
+    <p>Choose number of users for election and voting and generate list</p>
     <br />
     @using (Html.BeginForm("GenererListe", "Bruker"))
     {
@@ -34,7 +35,7 @@
             <br /> <br />
 
             <div class="form-group">
-                @Html.ActionLink("View list", "VisListe", new { tom = "" }, new { @class = "btn btn-success" })
+                @Html.ActionLink("See list", "VisListeEng", new { tom = "" }, new { @class = "btn btn-success" })
                 @Html.ActionLink("Download list", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
             </div>
 

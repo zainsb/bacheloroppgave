@@ -1,1 +1,122 @@
-﻿
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Liste</title>
+    <script type="text/javascript">
+  $(document).ready(function () {
+
+      // funksjon som sjeker om en votering kjører if so hvis stop knapp
+            $.ajax({
+                url: '@Url.Action("VoteringKjorer", "Bruker")',
+                success: function (data) {
+                    if (data == "true") {
+                        $("#stop").show();
+                        $("#melding").hide();
+                        $("#melding2").show();
+                        $.ajax({
+                            url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
+                            success: function (data) {
+                                var antallBrukere = data;
+                                $('#antall').html(antallBrukere);
+
+                                setInterval(function () {
+                                    antallStemte();
+                                }, 250); // 250 milleskunder
+                            }
+                        });
+                    }
+                    else if(data == "false")
+                    {
+                        $("#start").show();
+                    }
+
+                }
+            });
+
+            $("#start").click(function () {
+                $.ajax({
+                    url: '@Url.Action("startVotering", "Bruker")',
+                    success: function () {
+                        $("#start").hide();
+                        $("#resultat").hide();
+                        $("#stop").show();
+                        $("#melding").hide();
+                        $("#melding2").show();
+
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
+                    success: function (data) {
+                        var antallBrukere = data;
+                        $('#antall').html(antallBrukere);
+
+                        setInterval(function () {
+                            antallStemte();
+                        }, 250); // 250 milleskunder
+                    }
+                });
+
+
+            });
+            $("#stop").click(function () {
+                $.ajax({
+                    url: '@Url.Action("stopVotering", "Bruker")',
+                    success: function () {
+                        $("#stop").hide();
+                        $("#resultat").show();
+                        $("#start").show();
+                    }
+                });
+
+            });
+
+      function antallStemte() {
+          $.ajax({
+              url: '@Url.Action("hentAntallStemte_int", "Bruker")',
+              success: function (data) {
+                  var antallBrukereStemt = data;
+                  $('#antallstemt').html(antallBrukereStemt);
+              }
+          });
+      }
+
+        });
+    </script>
+</head>
+<body>
+    <div class="col-sm-12" id="LoginForm">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "TilbakeEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("VoteringAdmin", "Bruker")">Norsk</a></li>
+                </ul>
+            </div>
+        </div>
+        <h2>Vote</h2>
+        <br />
+        <div id="melding">
+            <p>Here you can stop and start a vote</p>
+        </div>
+        <div id="melding2" style="display: none;">
+            <p><b>Number of election participants </b></p><div id="antall"></div>
+            <p><b>Number of votes</b></p><div id="antallstemt"></div>
+        </div>
+        <br />
+        <div>
+            <button id="start" class="btn btn-success" style="display: none;">Start</button>
+            <button id="stop" class="btn btn-danger" style="display: none;">Stop</button>
+            @Html.ActionLink("See elections", "ResultatEng", new { tom = "" }, new { @class = "btn btn-info" })
+            <br /><br />
+            <div id="resultat" style="display: none;">@Html.ActionLink("Result", "ResultatVoteringEng", new { tom = "" }, new { @class = "btn btn-primary" })</div>
+        </div>
+
+    </div>
+</body>
+</html>

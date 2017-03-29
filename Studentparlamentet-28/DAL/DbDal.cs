@@ -15,6 +15,38 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public Valgtyper hentValg(int id)
+        {
+            var db = new BrukerContext();
+
+            var enDbValg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+
+            if (enDbValg == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utBruker = new Valgtyper()
+                {
+                    valgtypeid = enDbValg.ValgtypeID
+                };
+                return utBruker;
+            }
+        }
+        public bool finnesdetvalg_ID(int id)
+        {
+            var db = new BrukerContext();
+            var antall = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+            if (antall == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public bool finnesdetvalg()
         {
             var db = new BrukerContext();
@@ -65,8 +97,6 @@ namespace Studentparlamentet_28.DAL
                 return 0;
             }
         }
-
-
         public int hentAntallStemte_int()
         {
             var db = new BrukerContext();
@@ -80,15 +110,12 @@ namespace Studentparlamentet_28.DAL
             }
             else return 0;
         }
-
         public int hentAntallBrukere_int()
         {
             var db = new BrukerContext();
             System.Int32 antall = db.Brukere.Count();
             return antall;
         }
-
-
         public bool GenererBrukere(int antallBrukere)
         {
             var db = new BrukerContext();
@@ -120,7 +147,6 @@ namespace Studentparlamentet_28.DAL
 
             return true;
         }
-
         public List<Bruker> hentData()
         {
 
@@ -201,7 +227,6 @@ namespace Studentparlamentet_28.DAL
             }
             
        }
-
         public Bruker hentRolleBruker(string rolle)
         {
             var db = new BrukerContext();
@@ -224,8 +249,6 @@ namespace Studentparlamentet_28.DAL
             }
 
         }
-
-
         public bool slettBruker(String id)
         {
             var db = new BrukerContext();
@@ -241,7 +264,6 @@ namespace Studentparlamentet_28.DAL
                 return false;
             }
         }
-
         public bool loggUtBruker(String id)
         {
             var db = new BrukerContext();
@@ -257,8 +279,6 @@ namespace Studentparlamentet_28.DAL
                 return false;
             }
         }
-
-
         private static byte[] lagHash(string passord)
         {
             byte[] inndata, utdata;
@@ -269,7 +289,6 @@ namespace Studentparlamentet_28.DAL
             utdata = algoritme.ComputeHash(inndata);
             return utdata;
         }
-
         public bool bruker_i_db(Bruker innPerson)
         {
             using (var db = new BrukerContext())
@@ -298,7 +317,7 @@ namespace Studentparlamentet_28.DAL
                 }
             }
 
-        }//End of person_i__db(Person innPerson)
+        }
         public bool admin_i_db(Bruker innAdmin)
         {
             using (var db = new BrukerContext())
@@ -328,8 +347,7 @@ namespace Studentparlamentet_28.DAL
                 }
 
             }
-        }//End of Admin_i_db(Admin innAdmin)
-
+        }
         public bool logg_ut_bruker(String id)
         {
             using (var db = new BrukerContext())
@@ -429,7 +447,6 @@ namespace Studentparlamentet_28.DAL
             }
             
         }
-
         public string voteringBrukerStart()
         {
             var db = new BrukerContext();
@@ -448,7 +465,6 @@ namespace Studentparlamentet_28.DAL
 
             return melding;
         }
-
         public List<Valgtyper> hentValgTyper()
         {
             using (var db = new BrukerContext())
@@ -463,7 +479,6 @@ namespace Studentparlamentet_28.DAL
                 return listeAvValgTyper;
             }
         }
-
         public bool slettValg(int id)
         {
             var db = new BrukerContext();
@@ -499,8 +514,7 @@ namespace Studentparlamentet_28.DAL
                 }
 
             }
-        }//End of Admin_i_db(Admin innAdmin)
-
+        }
         public Valgtyper VoteringPågår()
         {
             var db = new BrukerContext();
@@ -523,8 +537,6 @@ namespace Studentparlamentet_28.DAL
                 return valgtype;
             }
         }
-
-        //Ny
         public string HarBrukerStemt(string brukernavn)
         {
             var db = new BrukerContext();
@@ -548,7 +560,6 @@ namespace Studentparlamentet_28.DAL
             }
             
         }
-        //Ny
         public void LagreBrukerStemt(Valgtyper valg, string brukernavn)
         {
             var db = new BrukerContext();
@@ -585,7 +596,6 @@ namespace Studentparlamentet_28.DAL
                 }
             }
         }
-
         public string hentAntallStemt(int id)
         {
             var db = new BrukerContext();
@@ -595,8 +605,6 @@ namespace Studentparlamentet_28.DAL
             string utskrift = antallStemt + "/" + antallbrukere;
             return utskrift;
         }
-        
-
         public int antallValgFullført()
         {
             var db = new BrukerContext();

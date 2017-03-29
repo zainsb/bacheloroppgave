@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@model Studentparlamentet_28.Models.Valgtyper
+<!DOCTYPE html>
 <html>
 <head>
     <style>
@@ -47,16 +48,16 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            // sjekk om valgtype finnes && det finnes brukere som har stemt på det valget.
+
             $.ajax({
-                url: '@Url.Action("finnesdetvalg", "Bruker")',
+                url: '@Url.Action("finnesdetvalg_ID", "Bruker", new { id = Model.valgtypeid })',
                 success: function (data) {
-                    //== true - kjør koden 
+                    //== true - kjør koden
                     if (data == "true")
                     {
                         // hent prosent For
                         $.ajax({
-                            url: '@Url.Action("prosentFor", "Bruker")',
+                            url: '@Url.Action("prosentFor_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
 
                                 if (data > 0)
@@ -76,13 +77,13 @@
                                         }
                                     }
                                 }
-            
+
 
                             }
                         });
                         // hent prosent mot
                         $.ajax({
-                            url: '@Url.Action("prosentMot", "Bruker")',
+                            url: '@Url.Action("prosentMot_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 if (data > 0)
                                 {
@@ -101,13 +102,13 @@
                                         }
                                     }
                                 }
-                                
+
 
                             }
                         });
                         // hent prosent blank
                         $.ajax({
-                            url: '@Url.Action("prosentBlank", "Bruker")',
+                            url: '@Url.Action("prosentBlank_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 if (data > 0)
                                 {
@@ -132,7 +133,7 @@
                         });
                         // hent antall for
                         $.ajax({
-                            url: '@Url.Action("antallForDiv", "Bruker")',
+                            url: '@Url.Action("antallForDiv_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 // legger antall i div
                                 $('#antall').html(data);
@@ -140,7 +141,7 @@
                         });
                         // hent antall mot
                         $.ajax({
-                            url: '@Url.Action("antallMotDiv", "Bruker")',
+                            url: '@Url.Action("antallMotDiv_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 // legger antall i div
                                 $('#antallmot').html(data);
@@ -148,7 +149,7 @@
                         });
                         // hent antall blank
                         $.ajax({
-                            url: '@Url.Action("antallBlankDiv", "Bruker")',
+                            url: '@Url.Action("antallBlankDiv_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 // legger antall i div
                                 $('#antallblank').html(data);
@@ -156,7 +157,7 @@
                         });
                         // hent vinner
                         $.ajax({
-                            url: '@Url.Action("vinnerVotering", "Bruker")',
+                            url: '@Url.Action("vinnerVotering_IDEng", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 // legger antall i div
                                 $('#vinner').html(data);
@@ -170,8 +171,8 @@
                     }
                 }
             });
-            
-                      
+
+
             });
     </script>
 </head>
@@ -181,38 +182,38 @@
 
     <div class="col-sm-12" id="LoginForm">
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Tilbake", "VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "VoteringAdminEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
+                    Norsk
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("ResultatVoteringEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("ResultatVoteringID", "Bruker", new { id = Model.valgtypeid })">Norsk</a></li>
                 </ul>
             </div>
         </div>
         <br /><br />
         <div>
             <div id="forProgress">
-                <p>For stemmer</p> <div id="forBar">0%</div>
+                <p>For votes</p> <div id="forBar">0%</div>
             </div>
 
             <div id="motProgress">
-                <p>Mot stemmer</p><div id="motBar">0%</div>
+                <p>Against votes</p><div id="motBar">0%</div>
             </div>
             <div id="blankProgress">
-                <p>Blanke stemmer</p><div id="blankBar">0%</div>
+                <p>Blank votes</p><div id="blankBar">0%</div>
             </div>
 
 
 
 
             <div id="msg">
-                <h1>Vinner </h1><h1 id="vinner"></h1>
-                <div>Antall For stemmer : </div><div id="antall"></div>
-                <div>Antall Mot stemmer : </div><div id="antallmot"></div>
-                <div>Antall Blanke stemmer : </div><div id="antallblank"></div>
+                <h1>Winner </h1><h1 id="vinner"></h1>
+                <div>Number of For votes : </div><div id="antall"></div>
+                <div>Number of Against votes : </div><div id="antallmot"></div>
+                <div>Number of Blank votes : </div><div id="antallblank"></div>
             </div>
         </div>
 

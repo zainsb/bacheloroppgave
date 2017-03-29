@@ -45,11 +45,12 @@
     
     <br /> 
 <div class="col-sm-12" id="box2">
-        <div class="form-inline" style="float:right;">
+        
+    <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake_VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
+                    English
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
@@ -64,7 +65,8 @@
                     @Html.Partial("ResultatVoteringPartial", valgtyper)
                 }
             </div>
-        </div>
+    
+    </div>
         <br /><br />
         @Html.Partial("sletteModal", new Studentparlamentet_28.Models.Bruker())
 </body>

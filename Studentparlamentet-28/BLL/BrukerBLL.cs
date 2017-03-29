@@ -11,6 +11,17 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
+        public Valgtyper hentValg(int id)
+        {
+            var brukerDal = new DbDal();
+            Valgtyper valgtyper = brukerDal.hentValg(id);
+            return valgtyper;
+        }
+        public bool finnesdetvalg_ID(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.finnesdetvalg_ID(id);
+        }
        public bool finnesdetvalg()
         {
             var brukerDal = new DbDal();

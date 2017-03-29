@@ -1,0 +1,49 @@
+﻿@model Studentparlamentet_28.Models.Valgtyper
+<div class="panel panel-default">
+    <div class="panel-body" id="resultatVotering">
+        <table class="table">
+            <tr>
+                <th>ElectionNr</th>
+                <th>Electiontype</th>
+                <th>Running</th>
+            </tr>
+            <tr>
+                <td>@Model.valgtypeid</td>
+                <td>
+                    @if (@Model.valgtype == "Votering")
+                    {
+                        <p>For, against and blank</p>
+                    }
+                    else if (@Model.valgtype == "S.V.T")
+                    {
+                        <p>S.V.T</p>
+                    }
+                    else if (@Model.valgtype == "PersonElection")
+                    {
+                        <p>Person election</p>
+                    }
+                </td>
+                <td>
+                    @if (@Model.start != false)
+                    {
+                        <p>Yes</p>
+                    }
+                    else
+                    {
+                        <p>No</p>
+                    }
+                </td>
+            </tr>
+        </table>
+
+
+        <div class="panel-footer clearfix">
+            <div class="pull-left">
+                <a href="@Url.Action("ResultatVoteringIDEng", "Bruker", new {  id = Model.valgtypeid })" class="btn btn-success ">See result</a>
+                <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+                   data-navn="ValgNr: @Model.valgtypeid ValgType: @Model.valgtype"
+                   data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>

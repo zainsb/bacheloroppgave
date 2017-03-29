@@ -51,7 +51,7 @@
             $.ajax({
                 url: '@Url.Action("finnesdetvalg", "Bruker")',
                 success: function (data) {
-                    //== true - kjør koden 
+                    //== true - kjør koden
                     if (data == "true")
                     {
                         // hent prosent For
@@ -76,7 +76,7 @@
                                         }
                                     }
                                 }
-            
+
 
                             }
                         });
@@ -101,7 +101,7 @@
                                         }
                                     }
                                 }
-                                
+
 
                             }
                         });
@@ -156,7 +156,7 @@
                         });
                         // hent vinner
                         $.ajax({
-                            url: '@Url.Action("vinnerVotering", "Bruker")',
+                            url: '@Url.Action("vinnerVoteringEng", "Bruker")',
                             success: function (data) {
                                 // legger antall i div
                                 $('#vinner').html(data);
@@ -170,8 +170,8 @@
                     }
                 }
             });
-            
-                      
+
+
             });
     </script>
 </head>
@@ -181,38 +181,38 @@
 
     <div class="col-sm-12" id="LoginForm">
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Tilbake", "VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "VoteringAdminEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
+                    Norsk
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("ResultatVoteringEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("../Bruker/ResultatVotering", "Bruker")">Norsk</a></li>
                 </ul>
             </div>
         </div>
         <br /><br />
         <div>
             <div id="forProgress">
-                <p>For stemmer</p> <div id="forBar">0%</div>
+                <p>For votes</p> <div id="forBar">0%</div>
             </div>
 
             <div id="motProgress">
-                <p>Mot stemmer</p><div id="motBar">0%</div>
+                <p>Against votes</p><div id="motBar">0%</div>
             </div>
             <div id="blankProgress">
-                <p>Blanke stemmer</p><div id="blankBar">0%</div>
+                <p>Blank votes</p><div id="blankBar">0%</div>
             </div>
 
 
 
 
             <div id="msg">
-                <h1>Vinner </h1><h1 id="vinner"></h1>
-                <div>Antall For stemmer : </div><div id="antall"></div>
-                <div>Antall Mot stemmer : </div><div id="antallmot"></div>
-                <div>Antall Blanke stemmer : </div><div id="antallblank"></div>
+                <h1>Winner</h1><h1 id="vinner"></h1>
+                <div>Number of For votes : </div><div id="antall"></div>
+                <div>Number of Against votes : </div><div id="antallmot"></div>
+                <div>Number of Blank votes : </div><div id="antallblank"></div>
             </div>
         </div>
 
