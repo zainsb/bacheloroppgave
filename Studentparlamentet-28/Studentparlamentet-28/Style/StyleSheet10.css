@@ -12,11 +12,85 @@ body {
     background-size: 500%;
 
 }
+/*Resultat*/
+
+        #forProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #forBar {
+            width: 10%;
+            height: 30px;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+
+        #motProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #motBar {
+            width: 10%;
+            height: 30px;
+            background-color: #ff0000;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+
+        #blankProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #blankBar {
+            width: 10%;
+            height: 30px;
+            background-color: #42aaf4;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+
 /*LoginForm*/
+#ADmin {
+    background-color: whitesmoke;
+    border-radius: 25px;
+    max-width: 400px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 4px solid rgba(0,0,0,0.1); 
+     
+}
+#LoginForm2 {
+    background-color: whitesmoke;
+    border-radius: 25px;
+    max-width: 400px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 4px solid rgba(0,0,0,0.1); 
+     
+}
+
+#LoginForm2 .LoginHeader {
+    margin-bottom: 30px;
+    text-align:left;
+}
+
+#LoginForm2 #LogginnBtn{
+    margin-top: 30px;
+    text-align: left;
+}
+
 #LoginForm {
     background-color: whitesmoke;
     border-radius: 25px;
     max-width: 400px;
+    max-height: 610px;
     padding: 15px 35px 45px;
     margin: 0 auto;
     border: 4px solid rgba(0,0,0,0.1); 
@@ -201,12 +275,12 @@ body {
 
 /*BrukerIndex Panel*/
 #panelBrukerIndex {
-    background-color: #fff;
+    background-color: whitesmoke;
     border-radius: 25px;
     max-width: 400px;
     padding: 15px 35px 45px;
     margin: 0 auto;
-    border: 2px solid rgba(0,0,0,0.1); 
+    border: 4px solid rgba(0,0,0,0.1); 
 }
 
 #panelBrukerIndex .brukerHeader {
@@ -224,12 +298,12 @@ body {
 }
 
 #box {
-    background-color: #fff;
+    background-color: whitesmoke;
     border-radius: 25px;
     max-width: 600px;
     padding: 15px 35px 45px;
     margin: 0 auto;
-    border: 2px solid rgba(0,0,0,0.1); 
+    border: 4px solid rgba(0,0,0,0.1); 
 
 }
 

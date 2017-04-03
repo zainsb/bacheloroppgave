@@ -220,7 +220,6 @@ namespace Studentparlamentet_28.Controllers
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
-
                     var db = new BrukerBLL();
                     var bruker = db.hentEnAdmin(id);
 
@@ -250,6 +249,32 @@ namespace Studentparlamentet_28.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        [HttpPost]
+        public ActionResult VisListe(Bruker innAdmin, String id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        db.slettBruker(id);
+                        List<Bruker> tabell = db.hentData();
+                        return View(tabell);
+                    }
+                   
+                }
+                return RedirectToAction("VisListe");
+            }
+
+            return RedirectToAction("Index");
+
         }
         [Authorize(Roles = "true")] 
         public ActionResult VisListe()
@@ -338,6 +363,7 @@ namespace Studentparlamentet_28.Controllers
                     List<Valgtyper> alleValgTyper = db.hentValgTyper();
                     return View(alleValgTyper);
                 }
+
             }
 
             return RedirectToAction("Index");
@@ -443,6 +469,32 @@ namespace Studentparlamentet_28.Controllers
             return RedirectToAction("Index");
 
         }
+        [Authorize(Roles = "true")]
+        [HttpPost]
+        public ActionResult VisListeEng(Bruker innAdmin, String id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        db.slettBruker(id);
+                        return RedirectToAction("VisListeEng");
+                    }
+
+                }
+                return RedirectToAction("VisListeEng");
+            }
+
+            return RedirectToAction("Index");
+
+        }
+
         [Authorize(Roles = "true")] 
         public ActionResult VisListeEng()
         {

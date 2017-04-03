@@ -2,49 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        #forProgress {
-            width: 100%;
-            background-color: #ddd;
-        }
-
-        #forBar {
-            width: 10%;
-            height: 30px;
-            background-color: #4CAF50;
-            text-align: center;
-            line-height: 30px;
-            color: white;
-        }
-
-        #motProgress {
-            width: 100%;
-            background-color: #ddd;
-        }
-
-        #motBar {
-            width: 10%;
-            height: 30px;
-            background-color: #ff0000;
-            text-align: center;
-            line-height: 30px;
-            color: white;
-        }
-
-        #blankProgress {
-            width: 100%;
-            background-color: #ddd;
-        }
-
-        #blankBar {
-            width: 10%;
-            height: 30px;
-            background-color: #42aaf4;
-            text-align: center;
-            line-height: 30px;
-            color: white;
-        }
-    </style>
+  
     <script type="text/javascript">
         $(document).ready(function () {
 
@@ -182,10 +140,10 @@
 
     <div class="col-sm-12" id="LoginForm">
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Back", "VoteringAdminEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "ResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
+                    English
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">

@@ -1,85 +1,111 @@
 ﻿@model List<Studentparlamentet_28.Models.Bruker>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Liste</title>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // lag en hendelse som utføres når en a-href med "data-SletteModal = true" trykkes.
+            $('a[data-sletteModal=true]').click(function () {
 
+                // hent inn data-taggene fra denne a-hef lenken
+                var data_navn = $(this).data('id');
+                var data_id_valgtype = $(this).data('navn')
 
+                // legg ut dataene i div'en i modal-view'et
+                $('#slettNavn').val(data_navn);
+                $('#slettNavnDiv').html(data_id_valgtype);
+                // lag en hendelse for knappen for å slette via ajax, knappen ligger i modal-view'et
+                // må ligge inne i denne overordnede funksjonen for at id'én som er valgt kan brukes
 
-<div class="col-sm-12" id="box">
-    <div class="form-inline" style="float:right;">
-        @Html.ActionLink("Tilbake", "Leggtilbruker", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-        <div class="dropdown" style="float:right;">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                English
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a href="@Url.Action("VisListeEng", "Bruker")">English</a></li>
-            </ul>
+            })
+        });
+    </script>
+</head>
+<body>
+    <div class="col-sm-12" id="box">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Leggtilbruker", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("VisListeEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-    <br /><br />
-    
-    <div id="tableContainer">
-        
+        <br /><br />
 
-        <table class="table  table-responsive table-scrollable" id="tableID">
-            <thead class="thead-default">
-                <tr>
-                    <th>
-                        Brukernavn
-                    </th>
-                    <th>
-                        Passord
-                    </th>
-                    <th>
-                        Innlogget
-                    </th>
-
-                    <th></th>
-                </tr>
-            </thead>
+        <div id="tableContainer">
 
 
-            <tbody class="table-bordered">
-                @foreach (var item in Model)
-                {
+            <table class="table  table-responsive table-scrollable" id="tableID">
+                <thead class="thead-default">
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.brukernavn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.passord)
-                        </td>
-                        <td>
-                            @if (!item.innlogget)
-                            {
-                                <p>Nei</p>
-                            }
-                            else if (item.innlogget)
-                            {
-                                <p>Ja</p>
-                            }
-                            else
-                            {
-                                <p>Vet ikke</p>
-                            }
+                        <th>
+                            Brukernavn
+                        </th>
+                        <th>
+                            Passord
+                        </th>
+                        <th>
+                            Innlogget
+                        </th>
 
-                        </td>
-                        <td>
-                            @Html.ActionLink("Slett", "SlettBruker", new { id = item.brukernavn }, new { @class = "btn btn-danger" })
-                        </td>
-                        <td>
-                            @Html.ActionLink("Logg ut", "LoggUtBruker", new { id = item.brukernavn }, new { @class = "btn btn-danger" })
-                        </td>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
+                </thead>
 
-        </table>
 
-    </div>
+                <tbody class="table-bordered">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.brukernavn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.passord)
+                            </td>
+                            <td>
+                                @if (!item.innlogget)
+                                {
+                                    <p>Nei</p>
+                                }
+                                else if (item.innlogget)
+                                {
+                                    <p>Ja</p>
+                                }
+                                else
+                                {
+                                    <p>Vet ikke</p>
+                                }
 
-    <br />
+                            </td>
+                            <td>
+                                <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+                                   data-navn="Brukernavn: @item.brukernavn"
+                                   data-id="@item.brukernavn" data-toggle="modal" data-sletteModal="true">Slett</a>                             
+                            </td>
+                            <td>
+                                @Html.ActionLink("Logg ut", "LoggUtBruker", new { id = item.brukernavn }, new { @class = "btn btn-danger" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
 
-    
+            </table>
 
-</div>
+        </div>
 
+        <br />
+
+
+            @Html.Partial("sletteModalListe", new Studentparlamentet_28.Models.Bruker())
+
+        </div>
+</body>
+</html>

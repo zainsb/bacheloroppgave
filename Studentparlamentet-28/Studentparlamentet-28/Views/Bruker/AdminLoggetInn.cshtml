@@ -1,12 +1,10 @@
 ﻿@model Studentparlamentet_28.Models.Admin
-<br />
-
 <div class="col-sm-12" id="LoginForm">
     <div class="panel-body" id="panelAdminIndex">
 
         <div class="dropdown" style="float:right;">
             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                English
+                Norsk
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
@@ -17,7 +15,7 @@
         <br /><br />
         <div class="list-group">
 
-            <div id="borderListGroup">
+<!--            <div id="borderListGroup">
                 <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Legg til administratorer</h5>
@@ -25,7 +23,7 @@
                     <small>Klikk her for å lage flere administrator brukere</small>
                 </a>
             </div>
-
+-->
             <div id="borderListGroup">
                 <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                     <div class="d-flex w-100 justify-content-between">
@@ -71,7 +69,6 @@
                 </a>
             </div>
         </div>
-
         @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger" })
     </div>
     </div>

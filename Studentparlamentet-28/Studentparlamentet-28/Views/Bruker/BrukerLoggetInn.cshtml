@@ -46,35 +46,34 @@
 </head>
 <body>
     <div class="panel-body" id="panelBrukerIndex">
+              <div id="mainBrukerContainer">
+                <div class="dropdown" style="float:right;">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        Norsk
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("BrukerLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
+                    </ul>
+                </div>
+                <h3 class="brukerHeader">Valg og votering</h3>
+                <div id="txtBruker">
+                    <p>Vennligst forbli innlogget</p>
+                    <p>Venter på valg...</p>
+                </div>
+            </div>
 
-        
-        <div id="mainBrukerContainer">
-            <div class="dropdown" style="float:right;">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("BrukerLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
-                </ul>
+            <div id="VoteringBruker">
+
+
             </div>
-            <h3 class="brukerHeader">Valg og votering</h3>
-            <div id="txtBruker">
-                <p>Vennligst forbli innlogget</p>
-                <p>Venter på valg...</p>
-            </div>
+
+
+            @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
+
         </div>
 
-        <div id="VoteringBruker">
 
-
-        </div>
-        
-
-        @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
-
-    </div>
-
-    
 </body>
+
 </html>
