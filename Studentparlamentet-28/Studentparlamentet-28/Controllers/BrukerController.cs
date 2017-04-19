@@ -20,6 +20,7 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
+        // PERSONVALG
         public ActionResult PersonvalgResultat(int id)
         {
             var db = new BrukerBLL();
@@ -419,6 +420,9 @@ namespace Studentparlamentet_28.Controllers
 
           return RedirectToAction("Index");
       }
+
+    // PERSONVALG
+
 
       // start
 
