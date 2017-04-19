@@ -1,0 +1,47 @@
+﻿@model List<Studentparlamentet_28.Models.Kandidat>
+<div class="col-sm-12" id="PersonvalgPartial">
+    <div id="tableContainerPersonvalg">
+
+
+        <table class="table  table-responsive table-scrollable" id="tableID">
+            <thead class="thead-default">
+                <tr>
+                    <th>
+                        First name
+                    </th>
+                    <th>
+                        Last name
+                    </th>
+
+                    <th></th>
+                </tr>
+            </thead>
+
+
+            <tbody class="table-bordered">
+                @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.fornavn)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.etternavn)
+                        </td>
+
+                        <td></td>
+                        <td>
+                            @Html.ActionLink("Delete", "slettKandidat", new { id = item.id }, new { @class = "btn btn-danger" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+    <div class="pull-right">
+        @Html.ActionLink("Save person election", "LagrePersonvalg", new {/* tom = "" */}, new { @class = "btn btn-success" })
+        @Html.ActionLink("Go to saved person election", "lagretPersonvalgEng", new { /* tom = "" */ }, new { @class = "btn btn-success" })
+    </div>
+</div>

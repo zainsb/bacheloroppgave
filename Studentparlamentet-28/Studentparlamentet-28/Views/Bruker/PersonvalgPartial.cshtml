@@ -1,0 +1,47 @@
+﻿@model List<Studentparlamentet_28.Models.Kandidat>
+<div class="col-sm-12" id="PersonvalgPartial">
+    <div id="tableContainerPersonvalg">
+
+
+        <table class="table  table-responsive table-scrollable" id="tableID">
+            <thead class="thead-default">
+                <tr>
+                    <th>
+                        Fornavn
+                    </th>
+                    <th>
+                        Etternavn
+                    </th>
+
+                    <th></th>
+                </tr>
+            </thead>
+
+
+            <tbody class="table-bordered">
+                @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.fornavn)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.etternavn)
+                        </td>
+
+                        <td></td>
+                        <td>
+                            @Html.ActionLink("Slett", "slettKandidat", new { id = item.id }, new { @class = "btn btn-danger" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+    <div class="pull-right">
+        @Html.ActionLink("Lagre personvalg", "LagrePersonvalg", new {/* tom = "" */}, new { @class = "btn btn-success" })
+        @Html.ActionLink("Gå til lagrede personvalg", "lagretPersonvalg", new { /* tom = "" */ }, new { @class = "btn btn-success" })
+    </div>
+    </div>

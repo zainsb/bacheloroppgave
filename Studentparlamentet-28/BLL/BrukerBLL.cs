@@ -11,6 +11,137 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
+       public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
+        {
+            var brukerDal = new DbDal();
+            List<PersonvalgKandidatResultat> tabell = brukerDal.hentPersonvalgResultatFane(id);
+            return tabell;
+        }
+        public void SlettPersonvalg(int id)
+        {
+            var brukerDal = new DbDal();
+            brukerDal.SlettPersonvalg(id);
+        }
+        public bool StemPersonvalg(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.StemPersonvalg(id);
+        }
+        public List<Personvalg> hentKandidaterPersonvalg(int ID)
+        {
+            var brukerDal = new DbDal();
+            List<Personvalg> tabell = brukerDal.hentKandidaterPersonvalg(ID);
+            return tabell;
+        }
+        public int hentAntallStemtePersonvalg_int()
+        {
+            var brukerDal = new DbDal();
+            int antall = brukerDal.hentAntallStemtePersonvalg_int();
+            return antall;
+        }
+        public int antallPersonvalgStemmer(int ID)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.antallPersonvalgStemmer(ID);
+        }
+        public int PersonvalgKjørerID()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.PersonvalgKjørerID();
+        }
+        public bool stopPersonvalg()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.stopPersonvalg();
+        }
+        public bool startPersonvalg(int ID)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.startPersonvalg(ID);
+        }
+        public bool PersonvalgKjorer()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.PersonvalgKjorer();
+        }
+        public int finnValgtypeID(int id)
+        {
+            var brukerDal = new DbDal();
+            int ok = brukerDal.finnValgtypeID(id);
+            return ok;
+        }
+        public bool Kandidatendre(Kandidat innkandidat)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.Kandidatendre(innkandidat);
+            return ok;
+        }
+        public bool SjekkPassord(Kandidat innkandidat, string brukernavn)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.SjekkPassord(innkandidat, brukernavn);
+            return ok;
+        }
+        public bool KandidatSlett(Kandidat innkandidat)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.KandidatSlett(innkandidat);
+            return ok;
+        }
+        public bool KandidatendreFornavn(Kandidat innkandidat)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.KandidatendreFornavn(innkandidat);
+            return ok;
+        }
+        public bool KandidatendreEtternavn(Kandidat innkandidat)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.KandidatendreEtternavn(innkandidat);
+            return ok;
+        }
+        public List<String> hentKandidaterLagretNavn(int ID)
+        {
+            var brukerDal = new DbDal();
+            List<String> tabell = brukerDal.hentKandidaterLagretNavn(ID);
+            return tabell;
+        }
+        public List<PersonvalgResultat> hentPersonvalgResultat()
+        {
+            var brukerDal = new DbDal();
+            List<PersonvalgResultat> tabell = brukerDal.hentPersonvalgResultat();
+            return tabell;
+        }
+        public bool LagrePersonvalgResultat()
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.LagrePersonvalgResultat();
+            return ok;
+        }
+        public bool LagrePersonvalg()
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.LagrePersonvalg();
+            return ok;
+        }
+        public bool slettKandidat(int id)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.slettKandidat(id);
+            return ok;
+        }
+        public List<Kandidat> hentKandidater()
+        {
+            var brukerDal = new DbDal();
+            List<Kandidat> tabell = brukerDal.hentKandidater();
+            return tabell;
+        }
+        public bool leggtilPersonvalgKandidat(Kandidat innKandidat)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.leggtilPersonvalgKandidat(innKandidat);
+        }            
+        
         public Valgtyper hentValg(int id)
         {
             var brukerDal = new DbDal();

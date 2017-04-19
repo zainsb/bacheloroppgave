@@ -1,7 +1,61 @@
-﻿
-@{
-    ViewBag.Title = "Personvalg";
-}
+﻿@model Studentparlamentet_28.Models.Kandidat
 
-<h2>Personvalg</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    <div class="col-sm-12" id="Personvalg">
+
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("PersonvalgEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div>
+        <h2>Personvalg</h2>
+        <br />
+        <div id="melding">
+            <p>Legg inn kanditater til personvalg </p>
+
+        </div>
+        @using (Html.BeginForm())
+        {
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-inline">
+
+                <div class="form-group">
+                    @Html.EditorFor(model => model.fornavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Fornavn" } })
+                    @Html.ValidationMessageFor(model => model.fornavn, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.EditorFor(model => model.etternavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Etternavn" } })
+                    @Html.ValidationMessageFor(model => model.etternavn, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Legg til kandidat" class="btn btn-primary" />
+                </div>
+            </div>
+            <br />
+            <h3>Kandiater til personvalg</h3>
+
+
+
+
+        }
+   
+@Html.Action("HentListeKandidat", "Bruker")
+
+        </div>
+            
+</body>
+</html>
 

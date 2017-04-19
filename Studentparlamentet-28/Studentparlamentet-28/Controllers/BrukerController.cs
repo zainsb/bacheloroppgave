@@ -20,621 +20,373 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
-        // start
-
-        [HttpPost]
-        public ActionResult Index(Bruker innlogget, string returnUrl)
+        public ActionResult PersonvalgResultat(int id)
         {
-            // Ser om Model er valid or not
-
-            if (ModelState.IsValid)
-            {
-
-                var db = new BrukerBLL();
-
-                if (db.admin_i_db(innlogget) == (bool)true)
-                {
-                    String brukernavn = innlogget.brukernavn;
-                    Session["LoggetInn"] = true;
-                    FormsAuthentication.SetAuthCookie(brukernavn, false);
-
-                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                    {
-                        return Redirect(returnUrl);
-                    }
-
-                    else
-                    {
-                        return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
-                    }
-
-
-
-                }
-                else if (db.bruker_i_db(innlogget) == (bool)true)
-                {
-                    String brukernavn = innlogget.brukernavn;
-                    Session["LoggetInn"] = true;
-                    FormsAuthentication.SetAuthCookie(brukernavn, false);
-
-                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                    {
-                        return Redirect(returnUrl);
-                    }
-
-                    else
-                    {
-                        return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
-                    }
-
-
-
-                }
-                else
-                {
-                    return View();
-                }
-            }
-            else
-            {
-                return View();
-            }
+            var db = new BrukerBLL();
+            List<PersonvalgKandidatResultat> tabell = db.hentPersonvalgResultatFane(id);
+            tabell.OrderByDescending(i => i.stemmer);
+            return View(tabell);
         }
-        public ActionResult Index()
+        public ActionResult SlettPersonvalg(int id)
         {
-
-            if (Session["LoggetInn"] != null)
-
-            {
-                String iD = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-                var db = new BrukerBLL();
-                var roles = db.hentRolleAdmin(iD);
-                if (roles != null)
-                {
-                    return RedirectToAction("AdminLoggetInn", new { id = iD });
-                }
-                else
-                {
-                    return RedirectToAction("BrukerLoggetInn", new { id = iD });
-                }
-
-            }
-
-            else if (FormsAuthentication.CookiesSupported == true)
-            {
-
-                if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
-                {
-                    string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-                    var db = new BrukerBLL();
-                    var loggut = db.logg_ut_bruker(id);
-                    return View();
-                }
-                else
-                {
-                    return View();
-                }
-            }
-            else
-            {
-                return View();
-            }
-
-        }
-
-        // start english
-        public ActionResult IndexEng()
-        {
-            if (Session["LoggetInn"] != null)
-
-            {
-                String iD = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-                var db = new BrukerBLL();
-                var roles = db.hentRolleAdmin(iD);
-                if (roles != null)
-                {
-                    return RedirectToAction("AdminLoggetInn", new { id = iD });
-                }
-                else
-                {
-                    return RedirectToAction("BrukerLoggetInn", new { id = iD });
-                }
-
-            }
-            else
-            {
-                return View("../User/IndexEng");
-
-            }
+            var db = new BrukerBLL();
+            db.SlettPersonvalg(id);
+            return RedirectToAction("lagretPersonvalg");
         }
         [HttpPost]
-        public ActionResult IndexEng(Bruker innlogget, string returnUrl)
+        public ActionResult PersonvalgStemme(int id)
         {
-            // Ser om Model er valid or not
-
-            if (ModelState.IsValid)
+            if(id != 0)
             {
-
                 var db = new BrukerBLL();
-
-                if (db.admin_i_db(innlogget) == (bool)true)
-                {
-                    String brukernavn = innlogget.brukernavn;
-                    Session["LoggetInn"] = true;
-
-                    FormsAuthentication.SetAuthCookie(brukernavn, false);
-
-                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                    {
-                        return Redirect(returnUrl);
-                    }
-
-                    else
-                    {
-                        return RedirectToAction("AdminLoggetInnEng", new { id = innlogget.brukernavn });
-                    }
-
-
-                }
-                else if (db.bruker_i_db(innlogget) == (bool)true)
-                {
-                    String brukernavn = innlogget.brukernavn;
-                    Session["LoggetInn"] = true;
-
-                    FormsAuthentication.SetAuthCookie(brukernavn, false);
-
-                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                    {
-                        return Redirect(returnUrl);
-                    }
-                    else
-                    {
-                        return RedirectToAction("BrukerLoggetInnEng", new { id = innlogget.brukernavn });
-                    }
-
-                }
-                else
-                {
-                    return View("../User/IndexEng");
-                }
-            }
-            else
-            {
-                return View("../User/IndexEng");
-            }
-
-        }
-       
-        // ActionResult Administrator
-
-        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
-        public ActionResult AdminLoggetInn(string id)
-        {
-
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    var bruker = db.hentEnAdmin(id);
-
-                    return View(bruker);
-                }
-                else
+                var stem = db.StemPersonvalg(id);
+                if(stem == true)
                 {
                     return RedirectToAction("Index");
                 }
+                else
+                {
+                 return RedirectToAction("Index");
+                    
+                }
+         
+            }
+           else
+            {
+                return RedirectToAction("Index");
+            
+            }
+            
+        }
+        public ActionResult PersonvalgStemmeModal(int id)
+        {
+            return PartialView("PersonvalgStemmeModal");
+        }
+        public ActionResult PersonvalgStemme()
+        {
+
+           string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+           var db = new BrukerBLL();
+           int ID = db.PersonvalgKjørerID();
+           int valgtypeID = db.PersonvalgKjørerID();
+           var valg = new Valgtyper()
+            {
+               valgtypeid = valgtypeID,
+               valgtype = "Personvalg"
+                
+            };
+            db.LagreBrukerStemt(valg, brukernavn);
+           List<Personvalg> tabell = db.hentKandidaterPersonvalg(ID);
+           return View(tabell);
+        }
+
+        public int hentAntallStemtePersonvalg_int()
+        {
+            var db = new BrukerBLL();
+            return db.hentAntallStemtePersonvalg_int();
+        }
+        public ActionResult lagretPersonvalgstop()
+        {
+           
+            string stop = stopPersonvalg();
+
+            return RedirectToAction("lagretPersonvalg");
+        }
+        public int antallPersonvalgStemmer(int ID)
+        {
+            var db = new BrukerBLL();
+            var ok = db.antallPersonvalgStemmer(ID);
+            return ok;
+        }
+        public int PersonvalgKjørerID()
+        {
+
+            var db = new BrukerBLL();
+            var ok = db.PersonvalgKjørerID();
+            return ok;
+
+        }
+        public string stopPersonvalg()
+        {
+
+            var db = new BrukerBLL();
+            bool ok = db.stopPersonvalg();
+            if (ok == true)
+            {
+                return "true";
             }
             else
             {
-                return RedirectToAction("Index");
+                return "false";
             }
-        }
-        [Authorize(Roles = "true")] 
-        public ActionResult LeggTilBruker()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
 
-                    return View();
+        }
+        public string startPersonvalg(int ID)
+        {
+
+            var db = new BrukerBLL();
+            bool ok = db.startPersonvalg(ID);
+            if (ok == true)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+
+        }
+        public string PersonvalgKjorer()
+        {
+
+            var db = new BrukerBLL();
+            bool ok = db.PersonvalgKjorer();
+            if (ok == true)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+
+        }
+      
+      [HttpPost]
+      public ActionResult lagretPersonvalg(Kandidat innKandidat, String stringID, int valgtypeID2)
+      {
+            if (stringID != null)
+            {
+                if (valgtypeID2 > 0)
+                {
+                    var slett = SlettPersonvalg(valgtypeID2);
+                    return RedirectToAction("lagretPersonvalg");
                 }
-            }
-
-            return RedirectToAction("Index");
-        }
-        [Authorize(Roles = "true")]
-        [HttpPost]
-        public ActionResult VisListe(Bruker innAdmin, String id)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
-                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
-                    {
-                        db.slettBruker(id);
-                        List<Bruker> tabell = db.hentData();
-                        return View(tabell);
-                    }
-                   
-                }
-                return RedirectToAction("VisListe");
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")] 
-        public ActionResult VisListe()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-
-                    var db = new BrukerBLL();
-                    List<Bruker> tabell = db.hentData();
-
-                    return View(tabell);
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult VoteringAdmin()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    return View();
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult ResultatVotering()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    return View();
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
-        [HttpPost]
-        [Authorize(Roles = "true")]
-        public ActionResult Resultat(Bruker innAdmin, int id)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
-                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
-                    {
-                        db.slettValg(id);
-                        return RedirectToAction("Resultat");
-                    }
-                    else
-                    {
-                        return RedirectToAction("Resultat");
-                    }
-                }
-            }
-
-            return RedirectToAction("Index");
-
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult Resultat()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    List<Valgtyper> alleValgTyper = db.hentValgTyper();
-                    return View(alleValgTyper);
                 }
 
-            }
+                
+            else if (innKandidat.id != 0)
+          {
 
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult ResultatVoteringID(int id)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    Valgtyper Valg = db.hentValg(id);
-                    return View(Valg);
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult HentResultat()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    List<Valgtyper> listeValg = db.hentValgTyper();
-                    return View(listeValg);
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult Preferansevalg()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    return View();
-                }
-            }
-
-            return RedirectToAction("Index");
-            
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult Personvalg()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    return View();
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
-
-        // ActionResult Administrator Engelsk
-
-        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
-        public ActionResult AdminLoggetInnEng(string id)
-        {
-
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-
-                    var db = new BrukerBLL();
-                    var bruker = db.hentEnAdmin(id);
-
-                    return View("../User/AdminLoggetInnEng", bruker);
-                }
-            }
-
-            return RedirectToAction("IndexEng");
-        }
-        [Authorize(Roles = "true")] 
-        public ActionResult LeggTilBrukerEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-
-                    return View("../User/LeggTilBrukerEng");
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")]
-        [HttpPost]
-        public ActionResult VisListeEng(Bruker innAdmin, String id)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
-                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
-                    {
-                        db.slettBruker(id);
-                        return RedirectToAction("VisListeEng");
-                    }
-
-                }
-                return RedirectToAction("VisListeEng");
-            }
-
-            return RedirectToAction("Index");
-
-        }
-
-        [Authorize(Roles = "true")] 
-        public ActionResult VisListeEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-
-                    var db = new BrukerBLL();
-                    List<Bruker> tabell = db.hentData();
-
-                    return View("../User/VisListeEng", tabell);
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult VoteringAdminEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    return View("../User/VoteringAdminEng");
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult ResultatVoteringEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    return View("../User/ResultatVoteringEng");
-                }
-            }
-
-            return RedirectToAction("Index");
-            
-        }
-        [HttpPost]
-        [Authorize(Roles = "true")]
-        public ActionResult ResultatEng(Bruker innAdmin, int id)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
-                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
-                    {
-                        db.slettValg(id);
-                        return RedirectToAction("ResultatEng");
-                    }
-                    else
-                    {
-                        return RedirectToAction("ResultatEng");
-                    }
-                }
-            }
-
-            return RedirectToAction("Index");
-            
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult ResultatEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    List<Valgtyper> alleValgTyper = db.hentValgTyper();
-                    return View("../User/ResultatEng", alleValgTyper);
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult ResultatVoteringIDEng(int id)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    Valgtyper Valg = db.hentValg(id);
-                    return View("../User/ResultatVoteringIDEng", Valg);
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-        
-
-        // ActionResult Administrator funksjoner
-        [HttpPost]
-        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
-        public ActionResult GenererListe(int antall)
-        {
-
-            if (Session["LoggetInn"] != null)
-            {
                 var db = new BrukerBLL();
+                int ID = db.finnValgtypeID(innKandidat.id);
+              string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+              bool ok = db.SjekkPassord(innKandidat, brukernavn);
+             
+                if (ok != false)
+              {
+                  if (innKandidat.etternavn != null || innKandidat.fornavn != null)
+                  {
+                      if (innKandidat.etternavn != null && innKandidat.fornavn != null)
+                      {
+                          bool ok2 = db.Kandidatendre(innKandidat);
+                          int valgtypeID = db.finnValgtypeID(innKandidat.id);
+                            // finn valgtypeID
+                            //   return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+                            return RedirectToAction("lagretPersonvalg", new { id2 = ID });
+                        }
+                      else if (innKandidat.etternavn != null)
+                      {
+                          bool ok2 = db.KandidatendreEtternavn(innKandidat);
+                            //  return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+                            return RedirectToAction("lagretPersonvalg", new { id2 = ID });
+
+                        }
+                      else if (innKandidat.fornavn != null)
+                      {
+                          bool ok2 = db.KandidatendreFornavn(innKandidat);
+                            //  return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+                            return RedirectToAction("lagretPersonvalg", new { id2 = ID });
+
+                        }
+                  }
+                  else
+                  {
+                      bool ok2 = db.KandidatSlett(innKandidat);
+
+                        return RedirectToAction("lagretPersonvalg", new { id2 = ID });
+                        //   return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+
+                    }
+
+              }
+
+          }
+            
+                int id3 = 0;
+
+                return RedirectToAction("lagretPersonvalg", new { id2 = id3 });
+            
+      
+
+
+        }
+      
+        public JsonResult HentKandidaterLagretID(int ID)
+      {
+          var db = new BrukerBLL();
+
+          List<String> navn = db.hentKandidaterLagretNavn(ID);
+
+
+          List<string> test = new List<string>();
+          int teller = navn.Count();
+          for (int i = 0; i < teller; i++)
+          {
+              test.Add(navn[i]);
+
+          }
+
+
+          return Json(test, JsonRequestBehavior.AllowGet);
+
+
+          // fill some data for your model here
+          //return Json(tabell);
+      }
+      public JsonResult HentKandidaterLagret(int ID)
+      {
+          var db = new BrukerBLL();
+
+          List<String> navn = db.hentKandidaterLagretNavn(ID);
+
+
+          List<string> test = new List<string>();
+          int teller = navn.Count();
+          for (int i = 0; i < teller; i++)
+          {
+              test.Add(navn[i]);
+
+          }
+
+
+          return Json(test, JsonRequestBehavior.AllowGet);
+
+
+          // fill some data for your model here
+          //return Json(tabell);
+      }
+      public ActionResult lagretPersonvalgModal(int id2)
+      {
+          var db = new BrukerBLL();
+          List<PersonvalgResultat> tabell = db.hentPersonvalgResultat();
+          // Finn valgtypeID
+          // 
+
+          return View(tabell);
+      }
+        public ActionResult lagretPersonvalgEng()
+        {
+            var db = new BrukerBLL();
+            List<PersonvalgResultat> tabell = db.hentPersonvalgResultat();
+            return View("../user/lagretPersonvalgEng", tabell);
+        }
+        public ActionResult lagretPersonvalg()
+      {
+          var db = new BrukerBLL();
+          List<PersonvalgResultat> tabell = db.hentPersonvalgResultat();
+          return View(tabell);
+      }
+      public ActionResult LagrePersonvalg()
+      {
+          var db = new BrukerBLL();
+          db.LagrePersonvalg();
+          db.LagrePersonvalgResultat();
+
+          return RedirectToAction("Personvalg");
+      }
+      public ActionResult slettKandidat(int id)
+      {
+
+                  var db = new BrukerBLL();
+                  db.slettKandidat(id);
+                  return RedirectToAction("Personvalg");
+
+
+
+
+      }
+        public ActionResult HentListeKandidatEng()
+        {
+            var db = new BrukerBLL();
+            List<Kandidat> tabell = db.hentKandidater();
+            // fill some data for your model here
+            return PartialView("../User/PersonvalgPartialEng", tabell);
+        }
+        public ActionResult HentListeKandidat()
+      {
+          var db = new BrukerBLL();
+          List<Kandidat> tabell = db.hentKandidater();
+          // fill some data for your model here
+          return PartialView("PersonvalgPartial", tabell);
+      }
+      [HttpPost]
+      [Authorize(Roles = "true")]
+      public ActionResult Personvalg(Kandidat innKandidat)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  bool ok = db.leggtilPersonvalgKandidat(innKandidat);
+                  if (ok)
+                  {
+                      // hent liste
+                      // returner liste
+                      return RedirectToAction("Personvalg");
+                  }
+                  else
+                  {
+                      return RedirectToAction("Personvalg"); // legg til feilmelding
+                  }
+                  }
+          }
+
+          return RedirectToAction("Index");
+
+
+
+
+      }
+        [HttpPost]
+        [Authorize(Roles = "true")]
+        public ActionResult PersonvalgEng(Kandidat innKandidat)
+        {
+            if (Session["LoggetInn"] != null)
+            {
                 bool loggetinn = (bool)Session["LoggetInn"];
                 if (loggetinn)
                 {
-                    bool ok = db.GenererBrukere(antall);
+                    var db = new BrukerBLL();
+                    bool ok = db.leggtilPersonvalgKandidat(innKandidat);
                     if (ok)
                     {
-                        return RedirectToAction("VisListe");
+                        // hent liste
+                        // returner liste
+                        return RedirectToAction("PersonvalgEng");
                     }
                     else
                     {
-                        return RedirectToAction("LeggTilBruker");
+                        return RedirectToAction("PersonvalgEng"); // legg til feilmelding
                     }
                 }
             }
+
             return RedirectToAction("Index");
+
+
+
+
         }
-        [Authorize(Roles = "true")] 
-        public ActionResult LastNedListe()
+        [Authorize(Roles = "true")]
+        public ActionResult PersonvalgEng()
         {
-            // Lokal løsning med memoryStream
             if (Session["LoggetInn"] != null)
             {
                 bool loggetinn = (bool)Session["LoggetInn"];
@@ -642,102 +394,737 @@ namespace Studentparlamentet_28.Controllers
                 {
 
                     var db = new BrukerBLL();
-                    List<Bruker> tabell = db.hentData();
-
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
-                        {
-                            PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                            PdfPTable table = new PdfPTable(3);
-                            BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
-                            Font tablefont = new Font(bfTimes, 24);
-                            Font tablefont2 = new Font(bfTimes, 16);
-                            PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
-                            cell.Colspan = 3;
-                            cell.HorizontalAlignment = 1;
-                            table.AddCell(cell);
-                            int teller = 0;
-                            for (int i = 0; i < tabell.Count; i++)
-                            {
-                                teller++;
-                                // nummer
-                                table.AddCell(new PdfPCell(new Paragraph(teller.ToString(), tablefont2)));
-                                // brukernavn
-                                table.AddCell(new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2)));
-                                // passord
-                                table.AddCell(new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2)));
-                            }
-                            doc.Open();
-                            doc.Add(table);
-                            doc.Close();
-                        }
-                        byte[] filedata = ms.ToArray();
-                        return File(filedata, "application/pdf", "BrukernavnOgPassord.pdf");
-                    }
+                    List<Kandidat> tabell = db.hentKandidater();
+                    return View("../User/PersonvalgEng");
                 }
             }
 
             return RedirectToAction("Index");
-
-
-            // Azure løsning med cloud
-            /*
-           // Retrieve storage account from connection string.
-           CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-               CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
-           // Create the blob client.
-           CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-
-           // Retrieve reference to a previously created container.
-           CloudBlobContainer container = blobClient.GetContainerReference("myprivatecontainer");
-
-           // Retrieve reference to a blob named "myblob.txt".
-           CloudBlockBlob blockBlob = container.GetBlockBlobReference("BrukernavnOgPassord.pdf");
-
-           var db = new BrukerBLL();
-           List<Bruker> tabell = db.hentData();
-
-           using (MemoryStream ms = new MemoryStream())
-           {
-               using (var doc = new iTextSharp.text.Document())
-               {
-                   PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                   PdfPTable table = new PdfPTable(3);
-                   PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
-                   cell.Colspan = 3;
-                   cell.HorizontalAlignment = 1;
-                   table.AddCell(cell);
-                   int teller = 0;
-                   for (int i = 0; i < tabell.Count; i++)
-                   {
-                       teller++;
-                       // nummer
-                       table.AddCell(teller.ToString());
-                       // brukernavn
-                       table.AddCell(tabell[i].brukernavn.ToString());
-                       // passord
-                       table.AddCell(tabell[i].passord.ToString());
-
-                   }
-                   doc.Open();
-                   doc.Add(table);
-                   doc.Close();
-               }
-               var byteArray = ms.ToArray();
-               var blobName = "BrukernavnOgPassord.pdf";
-               var blob = container.GetBlockBlobReference(blobName);
-               blob.Properties.ContentType = "application/pdf";
-               blob.UploadFromByteArray(byteArray, 0, byteArray.Length);
-           }
-           var memStream = new MemoryStream();
-           blockBlob.DownloadToStream(memStream);
-           return File(memStream.ToArray(), blockBlob.Properties.ContentType);
-           */
-
         }
-        public ActionResult LoggUt(String id)
+
+        [Authorize(Roles = "true")]
+      public ActionResult Personvalg()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  var db = new BrukerBLL();
+                  List<Kandidat> tabell = db.hentKandidater();
+                  return View();
+              }
+          }
+
+          return RedirectToAction("Index");
+      }
+
+      // start
+
+      [HttpPost]
+      public ActionResult Index(Bruker innlogget, string returnUrl)
+      {
+          // Ser om Model er valid or not
+
+          if (ModelState.IsValid)
+          {
+
+              var db = new BrukerBLL();
+
+              if (db.admin_i_db(innlogget) == (bool)true)
+              {
+                  String brukernavn = innlogget.brukernavn;
+                  Session["LoggetInn"] = true;
+                  FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                  if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                      && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                  {
+                      return Redirect(returnUrl);
+                  }
+
+                  else
+                  {
+                      return RedirectToAction("AdminLoggetInn", new { id = innlogget.brukernavn });
+                  }
+
+
+
+              }
+              else if (db.bruker_i_db(innlogget) == (bool)true)
+              {
+                  String brukernavn = innlogget.brukernavn;
+                  Session["LoggetInn"] = true;
+                  FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                  if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                      && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                  {
+                      return Redirect(returnUrl);
+                  }
+
+                  else
+                  {
+                      return RedirectToAction("BrukerLoggetInn", new { id = innlogget.brukernavn });
+                  }
+
+
+
+              }
+              else
+              {
+                  return View();
+              }
+          }
+          else
+          {
+              return View();
+          }
+      }
+      public ActionResult Index()
+      {
+
+          if (Session["LoggetInn"] != null)
+
+          {
+              String iD = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+              var db = new BrukerBLL();
+              var roles = db.hentRolleAdmin(iD);
+              if (roles != null)
+              {
+                  return RedirectToAction("AdminLoggetInn", new { id = iD });
+              }
+              else
+              {
+                  return RedirectToAction("BrukerLoggetInn", new { id = iD });
+              }
+
+          }
+
+          else if (FormsAuthentication.CookiesSupported == true)
+          {
+
+              if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
+              {
+                  string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                  var db = new BrukerBLL();
+                  var loggut = db.logg_ut_bruker(id);
+                  return View();
+              }
+              else
+              {
+                  return View();
+              }
+          }
+          else
+          {
+              return View();
+          }
+
+      }
+
+      // start english
+      public ActionResult IndexEng()
+      {
+          if (Session["LoggetInn"] != null)
+
+          {
+              String iD = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+              var db = new BrukerBLL();
+              var roles = db.hentRolleAdmin(iD);
+              if (roles != null)
+              {
+                  return RedirectToAction("AdminLoggetInn", new { id = iD });
+              }
+              else
+              {
+                  return RedirectToAction("BrukerLoggetInn", new { id = iD });
+              }
+
+          }
+          else
+          {
+              return View("../User/IndexEng");
+
+          }
+      }
+      [HttpPost]
+      public ActionResult IndexEng(Bruker innlogget, string returnUrl)
+      {
+          // Ser om Model er valid or not
+
+          if (ModelState.IsValid)
+          {
+
+              var db = new BrukerBLL();
+
+              if (db.admin_i_db(innlogget) == (bool)true)
+              {
+                  String brukernavn = innlogget.brukernavn;
+                  Session["LoggetInn"] = true;
+
+                  FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                  if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                      && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                  {
+                      return Redirect(returnUrl);
+                  }
+
+                  else
+                  {
+                      return RedirectToAction("AdminLoggetInnEng", new { id = innlogget.brukernavn });
+                  }
+
+
+              }
+              else if (db.bruker_i_db(innlogget) == (bool)true)
+              {
+                  String brukernavn = innlogget.brukernavn;
+                  Session["LoggetInn"] = true;
+
+                  FormsAuthentication.SetAuthCookie(brukernavn, false);
+
+                  if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                      && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                  {
+                      return Redirect(returnUrl);
+                  }
+                  else
+                  {
+                      return RedirectToAction("BrukerLoggetInnEng", new { id = innlogget.brukernavn });
+                  }
+
+              }
+              else
+              {
+                  return View("../User/IndexEng");
+              }
+          }
+          else
+          {
+              return View("../User/IndexEng");
+          }
+
+      }
+
+      // ActionResult Administrator
+
+      [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+      public ActionResult AdminLoggetInn(string id)
+      {
+
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  var bruker = db.hentEnAdmin(id);
+
+                  return View(bruker);
+              }
+              else
+              {
+                  return RedirectToAction("Index");
+              }
+          }
+          else
+          {
+              return RedirectToAction("Index");
+          }
+      }
+      [Authorize(Roles = "true")] 
+      public ActionResult LeggTilBruker()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  return View();
+              }
+          }
+
+          return RedirectToAction("Index");
+      }
+      [Authorize(Roles = "true")]
+      [HttpPost]
+      public ActionResult VisListe(Bruker innAdmin, String id)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                  if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                  {
+                      db.slettBruker(id);
+                      List<Bruker> tabell = db.hentData();
+                      return View(tabell);
+                  }
+
+              }
+              return RedirectToAction("VisListe");
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")] 
+      public ActionResult VisListe()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  var db = new BrukerBLL();
+                  List<Bruker> tabell = db.hentData();
+
+                  return View(tabell);
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult VoteringAdmin()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  return View();
+              }
+          }
+
+          return RedirectToAction("Index");
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult ResultatVotering()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  return View();
+              }
+          }
+
+          return RedirectToAction("Index");
+      }
+      [HttpPost]
+      [Authorize(Roles = "true")]
+      public ActionResult Resultat(Bruker innAdmin, int id)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                  if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                  {
+                      db.slettValg(id);
+                      return RedirectToAction("Resultat");
+                  }
+                  else
+                  {
+                      return RedirectToAction("Resultat");
+                  }
+              }
+          }
+
+          return RedirectToAction("Index");
+
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult Resultat()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  List<Valgtyper> alleValgTyper = db.hentValgTyper();
+                  return View(alleValgTyper);
+              }
+
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult ResultatVoteringID(int id)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  Valgtyper Valg = db.hentValg(id);
+                  return View(Valg);
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult HentResultat()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  List<Valgtyper> listeValg = db.hentValgTyper();
+                  return View(listeValg);
+              }
+          }
+
+          return RedirectToAction("Index");
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult Preferansevalg()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  return View();
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+
+
+      // ActionResult Administrator Engelsk
+
+      [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+      public ActionResult AdminLoggetInnEng(string id)
+      {
+
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  var db = new BrukerBLL();
+                  var bruker = db.hentEnAdmin(id);
+
+                  return View("../User/AdminLoggetInnEng", bruker);
+              }
+          }
+
+          return RedirectToAction("IndexEng");
+      }
+      [Authorize(Roles = "true")] 
+      public ActionResult LeggTilBrukerEng()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  return View("../User/LeggTilBrukerEng");
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      [HttpPost]
+      public ActionResult VisListeEng(Bruker innAdmin, String id)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                  if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                  {
+                      db.slettBruker(id);
+                      return RedirectToAction("VisListeEng");
+                  }
+
+              }
+              return RedirectToAction("VisListeEng");
+          }
+
+          return RedirectToAction("Index");
+
+      }
+
+      [Authorize(Roles = "true")] 
+      public ActionResult VisListeEng()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  var db = new BrukerBLL();
+                  List<Bruker> tabell = db.hentData();
+
+                  return View("../User/VisListeEng", tabell);
+              }
+          }
+
+          return RedirectToAction("Index");
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult VoteringAdminEng()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  return View("../User/VoteringAdminEng");
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult ResultatVoteringEng()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  return View("../User/ResultatVoteringEng");
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [HttpPost]
+      [Authorize(Roles = "true")]
+      public ActionResult ResultatEng(Bruker innAdmin, int id)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                  if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                  {
+                      db.slettValg(id);
+                      return RedirectToAction("ResultatEng");
+                  }
+                  else
+                  {
+                      return RedirectToAction("ResultatEng");
+                  }
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult ResultatEng()
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  List<Valgtyper> alleValgTyper = db.hentValgTyper();
+                  return View("../User/ResultatEng", alleValgTyper);
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+      [Authorize(Roles = "true")]
+      public ActionResult ResultatVoteringIDEng(int id)
+      {
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  var db = new BrukerBLL();
+                  Valgtyper Valg = db.hentValg(id);
+                  return View("../User/ResultatVoteringIDEng", Valg);
+              }
+          }
+
+          return RedirectToAction("Index");
+
+      }
+
+
+      // ActionResult Administrator funksjoner
+      [HttpPost]
+      [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+      public ActionResult GenererListe(int antall)
+      {
+
+          if (Session["LoggetInn"] != null)
+          {
+              var db = new BrukerBLL();
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+                  bool ok = db.GenererBrukere(antall);
+                  if (ok)
+                  {
+                      return RedirectToAction("VisListe");
+                  }
+                  else
+                  {
+                      return RedirectToAction("LeggTilBruker");
+                  }
+              }
+          }
+          return RedirectToAction("Index");
+      }
+      [Authorize(Roles = "true")] 
+      public ActionResult LastNedListe()
+      {
+          // Lokal løsning med memoryStream
+          if (Session["LoggetInn"] != null)
+          {
+              bool loggetinn = (bool)Session["LoggetInn"];
+              if (loggetinn)
+              {
+
+                  var db = new BrukerBLL();
+                  List<Bruker> tabell = db.hentData();
+
+                  using (MemoryStream ms = new MemoryStream())
+                  {
+                      using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                      {
+                          PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                          PdfPTable table = new PdfPTable(3);
+                          BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                          Font tablefont = new Font(bfTimes, 24);
+                          Font tablefont2 = new Font(bfTimes, 16);
+                          PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
+                          cell.Colspan = 3;
+                          cell.HorizontalAlignment = 1;
+                          table.AddCell(cell);
+                          int teller = 0;
+                          for (int i = 0; i < tabell.Count; i++)
+                          {
+                              teller++;
+                              // nummer
+                              table.AddCell(new PdfPCell(new Paragraph(teller.ToString(), tablefont2)));
+                              // brukernavn
+                              table.AddCell(new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2)));
+                              // passord
+                              table.AddCell(new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2)));
+                          }
+                          doc.Open();
+                          doc.Add(table);
+                          doc.Close();
+                      }
+                      byte[] filedata = ms.ToArray();
+                      return File(filedata, "application/pdf", "BrukernavnOgPassord.pdf");
+                  }
+              }
+          }
+
+          return RedirectToAction("Index");
+
+
+          // Azure løsning med cloud
+          /*
+         // Retrieve storage account from connection string.
+         CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+             CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+         // Create the blob client.
+         CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+         // Retrieve reference to a previously created container.
+         CloudBlobContainer container = blobClient.GetContainerReference("myprivatecontainer");
+
+         // Retrieve reference to a blob named "myblob.txt".
+         CloudBlockBlob blockBlob = container.GetBlockBlobReference("BrukernavnOgPassord.pdf");
+
+         var db = new BrukerBLL();
+         List<Bruker> tabell = db.hentData();
+
+         using (MemoryStream ms = new MemoryStream())
+         {
+             using (var doc = new iTextSharp.text.Document())
+             {
+                 PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                 PdfPTable table = new PdfPTable(3);
+                 PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
+                 cell.Colspan = 3;
+                 cell.HorizontalAlignment = 1;
+                 table.AddCell(cell);
+                 int teller = 0;
+                 for (int i = 0; i < tabell.Count; i++)
+                 {
+                     teller++;
+                     // nummer
+                     table.AddCell(teller.ToString());
+                     // brukernavn
+                     table.AddCell(tabell[i].brukernavn.ToString());
+                     // passord
+                     table.AddCell(tabell[i].passord.ToString());
+
+                 }
+                 doc.Open();
+                 doc.Add(table);
+                 doc.Close();
+             }
+             var byteArray = ms.ToArray();
+             var blobName = "BrukernavnOgPassord.pdf";
+             var blob = container.GetBlockBlobReference(blobName);
+             blob.Properties.ContentType = "application/pdf";
+             blob.UploadFromByteArray(byteArray, 0, byteArray.Length);
+         }
+         var memStream = new MemoryStream();
+         blockBlob.DownloadToStream(memStream);
+         return File(memStream.ToArray(), blockBlob.Properties.ContentType);
+         */
+
+    }
+    public ActionResult LoggUt(String id)
         {
             var db = new BrukerBLL();
             db.logg_ut_bruker(id);
@@ -1358,6 +1745,10 @@ namespace Studentparlamentet_28.Controllers
             // check om bruker har stemt
             var jsonSerializer = new JavaScriptSerializer();
             if (melding == "Votering")
+            {
+                return jsonSerializer.Serialize(melding);
+            }
+            else if(melding == "Personvalg")
             {
                 return jsonSerializer.Serialize(melding);
             }

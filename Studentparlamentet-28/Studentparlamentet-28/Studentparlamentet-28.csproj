@@ -168,6 +168,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\JavaScript.js" />
@@ -188,7 +190,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Style\StyleSheet10.css" />
+    <Content Include="Style\StyleSheet15.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -240,6 +242,16 @@
     <Content Include="Views\User\ResultatVoteringIDEng.cshtml" />
     <Content Include="Views\Bruker\sletteModalListe.cshtml" />
     <Content Include="Views\User\sletteModalListeEng.cshtml" />
+    <Content Include="Views\Bruker\PersonvalgPartial.cshtml" />
+    <Content Include="Views\Bruker\lagretPersonvalg.cshtml" />
+    <Content Include="Views\Bruker\PersonvalgModal.cshtml" />
+    <Content Include="Views\Bruker\PersonvalgStemme.cshtml" />
+    <Content Include="Views\Bruker\PersonvalgStemmeModal.cshtml" />
+    <Content Include="Views\Bruker\slettePersonvalgModal.cshtml" />
+    <Content Include="Views\User\PersonvalgEng.cshtml" />
+    <Content Include="Views\User\PersonvalgPartialEng.cshtml" />
+    <Content Include="Views\User\lagretPersonvalgEng.cshtml" />
+    <Content Include="Views\Bruker\PersonvalgResultat.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

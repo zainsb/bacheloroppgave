@@ -1,0 +1,286 @@
+﻿@model List<Studentparlamentet_28.Models.PersonvalgResultat>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('=') // Split the string into an array with / as separator
+            var data_id = url_array[url_array.length - 1];  // Get the last part of the array (-1)
+            if (isNaN(data_id))
+            {
+
+            }
+            else
+            {
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagretID", "Bruker")',
+                    data: { id: data_id },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+
+                        }
+                        $("#listeKandidater").append(listeKandidaterContent);
+                    }
+                });
+                $("#sletteModal").modal();
+            }
+
+            $.ajax({
+                url: '@Url.Action("PersonvalgKjorer", "Bruker")',
+                success: function (data) {
+                    if (data == "true") {
+                        $("#stop").show();
+                        $("#personvalgmelding").show();
+                        $("#personvalgmeldingID").show();
+                        $.ajax({
+                            url: '@Url.Action("PersonvalgKjørerID", "Bruker")',
+                            success: function (data) {
+                                $('#personvalgmeldingID').html(data);
+                            }
+                        });
+                    }
+                    else if (data == "false") {
+                        $("#start").show();
+                        $("#inputmelding").show();
+                        $("#input").show();
+                        $("#tabell").show();
+
+
+
+
+                    }
+
+                }
+            });
+
+            $("#start").click(function () {
+                $("#feilmelding").hide();
+                var data_id = $('input[name="ValgtypeID"]').val();
+                $.ajax({
+                    url: '@Url.Action("startPersonvalg", "Bruker")',
+                    data: { id: data_id },
+                    success: function (data) {
+                        if (data == "true")
+                        {
+                            $("#start").hide();
+                            $("#input").hide();
+                            $("#feilmelding").hide();
+                            $("#inputmelding").hide();
+                            $("#stop").show();
+                            $("#personvalgmelding").show();
+                            $("#personvalgmeldingID").show();
+                            $("#tabell").hide();
+                            $.ajax({
+                                url: '@Url.Action("PersonvalgKjørerID", "Bruker")',
+                                success: function (data) {
+                                    $('#personvalgmeldingID').html(data);
+
+                                    setInterval(function () {
+                                        antallStemte();
+                                    }, 250); // 250 milleskunder
+                                }
+
+                            });
+                            $.ajax({
+                                url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
+                                success: function (data) {
+                                    $('#antallbrukere').html(data);
+                                }
+                            });
+                        }
+                        else if (data == "false")
+                        {
+                            $("#feilmelding").show();
+
+                        }
+
+                    }
+                });
+
+                function antallStemte() {
+                    $.ajax({
+                        url: '@Url.Action("hentAntallStemtePersonvalg_int", "Bruker")',
+                        success: function (data) {
+
+                            $('#antallstemt').html(data);
+                        }
+                    });
+                }
+            });
+            $("#stop").click(function () {
+                 $.ajax({
+                    url: '@Url.Action("stopPersonvalg", "Bruker")',
+                    success: function (data) {
+                        if (data == "true") {
+                            window.location.reload();
+                        }
+                        else if (data == "false") {
+                            $("#feilmelding").show();
+
+                        }
+
+                    }
+                });
+
+            });
+            // lag en hendelse som utføres når en a-href med "data-SletteModal = true" trykkes.
+            $('a[data-sletteModal=true]').click(function () {
+                var data_id = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagret", "Bruker")',
+                    data: { id: data_id },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+
+                        }
+                        $("#listeKandidater").append(listeKandidaterContent);
+                    }
+                });
+
+
+
+
+
+
+            })
+            $('a[data-slettePersonvalgModal=true]').click(function () {
+                var personvalg_id = $(this).data('id');
+                var valgtype_id = $(this).data('navn')
+                // legg ut dataene i div'en i modal-view'et
+                $('#valgtypeID').val(valgtype_id);
+                $('#personvalgID').html(personvalg_id);
+            }
+          )
+        });
+    </script>
+</head>
+<body>
+    <div class="form-inline" style="float:right;">
+        @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        <div class="dropdown" style="float:right;">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                Norsk
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("VoteringAdminEng", "Bruker")">English</a></li>
+            </ul>
+        </div>
+    </div>
+    <h1>Personvalg</h1>
+    <div id="meldingLagretPersonvalg">
+        <p>Her finner du oversikt over alle lagrede personvalg og alle utførte personvalg</p>
+        <br />
+        <button id="start" class="btn btn-success" style="display: none;">Start</button>
+        <button id="stop" class="btn btn-danger" style="display: none;">Stopp</button>
+        <div id="personvalgmelding" style="display: none;"> <p>Personvalg kjører med valgtypeID : </p></div>
+        <div id="personvalgmeldingID" style="display: none;"></div>
+        <div id="inputmelding" style="display: none;"> <p> Skriv inn ValgtypeID for å starte personvalg</p></div>
+        <div id="input" style="display: none;"><input type="number" name="ValgtypeID"><br></div>
+        <div id="feilmelding" style="display: none;"> <p> Skriv inn gyldig ValgtypeID for å starte personvalg</p></div>
+
+        <div id="antallstemt"></div>
+        <div id="antallbrukere"></div>
+
+    </div>
+    <div id="tabell" style="display: none;">
+        <table class="table  table-responsive table-scrollable" id="tableID">
+            <thead class="thead-default">
+                <tr>
+                    <th>
+
+                    </th>
+                    <th>
+                        ElectionID
+                    </th>
+                    <th>
+                        Number of candidates
+                    </th>
+                    <th>
+                        Winner
+                    </th>
+                    <th>
+                        Number of votes for winner
+                     </th>
+                    <th>
+                     Total number of votes personvalg
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+
+            <tbody class="table-bordered">
+                @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>
+                            Personvalg @Html.DisplayFor(modelItem => item.id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.valgtypeid)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.antallkandidater)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.vinner)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.stemmer)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.totalantallStemmer)
+                        </td>
+
+                        <td></td>
+                        <td>
+                            <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-sletteModal="true">Se Kandidater</a>
+                            @Html.ActionLink("Vis Resultat i ny fane", "", new { id = item.id }, new { @class = "btn btn-danger" })
+                            <a href="#slettePersonvalgModal" class="btn btn-large btn-danger" id="slettePersonvalgKnapp" data-navn="@item.valgtypeid" data-id="@item.id" data-toggle="modal" data-slettePersonvalgModal="true">Slett personvalg og resultat</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+
+    @Html.Partial("PersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
+    @Html.Partial("slettePersonvalgModal")
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

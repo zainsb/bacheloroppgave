@@ -1,0 +1,54 @@
+﻿@model List<Studentparlamentet_28.Models.PersonvalgKandidatResultat>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="col-sm-12" align="center" id="PersonvalgResultat">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div>
+        <br />
+        <h3>Vinner av Personvalg </h3>
+        <div id="PersonvalgResultatContainer">
+            @foreach (var item in Model)
+            {
+
+                <ul class="list-group" id="ListeResultat" align="center">
+
+                    <li class="list-group-item">Kandidat</li>
+                    <li class="list-group-item">@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</li>
+                    <li class="list-group-item">Antall Stemmer</li>
+                    <li class="list-group-item">@Html.DisplayFor(modelItem => item.stemmer)</li>
+                </ul>
+
+
+            }
+        </div>
+    </div>
+
+   
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

@@ -30,6 +30,22 @@
                             });
 
                         }
+                        else if(melding == "Personvalg")
+                        {
+                            // sjekke om brukernavn, valgtypeid og valgtype finnes i tabellen
+                            $.ajax({
+                                url: '/Bruker/BrukerStemtMld',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (mld) {
+                                    if(mld == "NEI")
+                                    {
+                                        window.location = "@Url.Action("PersonvalgStemme", "Bruker")";
+                                    }
+                                }
+                            });
+
+                        }
                     },
                     error: function (x, y, z) {
                         alert(x + '\n' + y + '\n' + z);

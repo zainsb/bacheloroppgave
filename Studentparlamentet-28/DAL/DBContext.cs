@@ -62,6 +62,60 @@ namespace Studentparlamentet_28.DAL
         public string Valgtype { get; set; }
 
     }
+    public class Personvalg_db
+    {
+        [Key]
+        public int ID { get; set; }
+        public string Fornavn { get; set; }
+
+        public string Etternavn { get; set; }
+
+        public int ValgtypeID { get; set; }
+
+        public bool Lagret { get; set; }
+
+
+    }
+
+    public class PersonvalgResultat_db
+    {
+        [Key]
+        public int ID { get; set; }
+
+        public int ValgtypeID { get; set; }
+
+        public String Vinner { get; set; }
+
+        public int Stemmer { get; set; }
+        public int TotalantallStemmer { get; set;}
+
+        public int AntallKandidater { get; set; }
+    }
+    public class PersonvalgKandidatResultat_db
+    {
+        [Key]
+        public int ID { get; set; }
+
+        public int ValgtypeID { get; set; }
+
+        public String Fornavn { get; set; }
+        public String Etternavn { get; set; }
+        public int Stemmer { get; set; }
+
+    }
+
+    public class PersonvalgResultatStemmer_db
+    {
+        [Key]
+        public int ID { get; set; }
+
+        public int ValgtypeID { get; set; }
+
+        public string Fornavn { get; set; }
+
+        public string Etternavn { get; set; }
+
+    }
 
     public class BrukerContext : DbContext
     {
@@ -76,7 +130,10 @@ namespace Studentparlamentet_28.DAL
         public DbSet<Votering_db> Voteringer { get; set; }
         public DbSet<Valgtyper_db> Valgtyper { get; set; }
         public DbSet<BrukereStemt_db> BrukereStemt { get; set; }
-
+        public DbSet<Personvalg_db> Personvalger { get; set; }
+        public DbSet<PersonvalgResultat_db> PersonvalgResultat { get; set; }
+        public DbSet<PersonvalgResultatStemmer_db> PersonvalgResultatStemmer { get; set; }
+        public DbSet<PersonvalgKandidatResultat_db> PersonvalgKandidatResultat { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();

@@ -1,0 +1,61 @@
+﻿@model Studentparlamentet_28.Models.Kandidat
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    <div class="col-sm-12" id="Personvalg">
+
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("Personvalg", "Bruker")">Norsk</a></li>
+                </ul>
+            </div>
+        </div>
+        <h2>Person Election</h2>
+        <br />
+        <div id="melding">
+            <p>Add candidates for Person Election </p>
+
+        </div>
+        @using (Html.BeginForm())
+        {
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-inline">
+
+                <div class="form-group">
+                    @Html.EditorFor(model => model.fornavn, new { htmlAttributes = new { @class = "form-control", placeholder = "First name" } })
+                    @Html.ValidationMessageFor(model => model.fornavn, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.EditorFor(model => model.etternavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Last name" } })
+                    @Html.ValidationMessageFor(model => model.etternavn, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Add candidate" class="btn btn-primary" />
+                </div>
+            </div>
+            <br />
+            <h3>Candidates for Person Election</h3>
+
+
+
+
+        }
+
+        @Html.Action("HentListeKandidatEng", "Bruker")
+
+    </div>
+
+</body>
+</html>
+
