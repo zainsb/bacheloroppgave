@@ -1,0 +1,67 @@
+﻿@model Studentparlamentet_28.Models.Kandidat
+<div id="sletteModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Confirm deleting</h4>
+            </div>
+
+
+            <div class="modal-body">
+                <p>Overview of candidates</p>
+
+                <div class="alert alert-info" id="listeKandidater"></div>
+                <div class="alert alert-success">
+                    @using (Html.BeginForm())
+                    {
+
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <div class="form-group">
+                            <p>Fill Candidate ID</p>
+
+                            <div class="input-group">
+                                @Html.EditorFor(model => model.id, new { htmlAttributes = new { @type = "text", @class = "form-control", placeholder = "Fill inn candidateID" } })
+                                @Html.ValidationMessageFor(model => model.id, "", new { @class = "text-danger" })
+                            </div>
+
+                            <p>Fill in administrator password</p>
+
+                            <div class="input-group">
+                                @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Password" } })
+                                @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+                            </div>
+
+                            <input name="submit" type="submit" value="Delete" class="btn btn-success" />
+                            <br />
+                            <p>Fill inn firstname or lastname to make a change</p>
+                            <div class="input-group">
+                                @Html.EditorFor(model => model.fornavn, new { htmlAttributes = new { @class = "form-control", placeholder = "First name" } })
+
+                            </div>
+
+
+                            <div class="input-group">
+                                @Html.EditorFor(model => model.etternavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Last name" } })
+
+                            </div>
+                        </div>
+
+                        <input name="submit" type="submit" value="Change" class="btn btn-success" />
+                        <input type="hidden" id="valgtypeID2" name="valgtypeID2" />
+                    }
+                </div>
+            </div>
+
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -20,22 +20,30 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
+
         // PERSONVALG
-        public ActionResult PersonvalgResultat(int id)
+      public ActionResult PersonvalgResultatEng(int id)
+        {
+            var db = new BrukerBLL();
+            List<PersonvalgKandidatResultat> tabell = db.hentPersonvalgResultatFane(id);
+            tabell.OrderByDescending(i => i.stemmer);
+            return View("../user/PersonvalgResultatEng", tabell);
+        }
+      public ActionResult PersonvalgResultat(int id)
         {
             var db = new BrukerBLL();
             List<PersonvalgKandidatResultat> tabell = db.hentPersonvalgResultatFane(id);
             tabell.OrderByDescending(i => i.stemmer);
             return View(tabell);
         }
-        public ActionResult SlettPersonvalg(int id)
+      public ActionResult SlettPersonvalg(int id)
         {
             var db = new BrukerBLL();
             db.SlettPersonvalg(id);
             return RedirectToAction("lagretPersonvalg");
         }
-        [HttpPost]
-        public ActionResult PersonvalgStemme(int id)
+      [HttpPost]
+      public ActionResult PersonvalgStemme(int id)
         {
             if(id != 0)
             {
@@ -43,6 +51,15 @@ namespace Studentparlamentet_28.Controllers
                 var stem = db.StemPersonvalg(id);
                 if(stem == true)
                 {
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    int valgtypeID = db.PersonvalgKjørerID();
+                    var valg = new Valgtyper()
+                    {
+                        valgtypeid = valgtypeID,
+                        valgtype = "Personvalg"
+
+                    };
+                    db.LagreBrukerStemt(valg, brukernavn);
                     return RedirectToAction("Index");
                 }
                 else
@@ -59,47 +76,49 @@ namespace Studentparlamentet_28.Controllers
             }
             
         }
-        public ActionResult PersonvalgStemmeModal(int id)
+      public ActionResult PersonvalgStemmeModal(int id)
         {
             return PartialView("PersonvalgStemmeModal");
         }
-        public ActionResult PersonvalgStemme()
+      public ActionResult PersonvalgStemme()
         {
 
-           string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+          
            var db = new BrukerBLL();
            int ID = db.PersonvalgKjørerID();
-           int valgtypeID = db.PersonvalgKjørerID();
-           var valg = new Valgtyper()
-            {
-               valgtypeid = valgtypeID,
-               valgtype = "Personvalg"
-                
-            };
-            db.LagreBrukerStemt(valg, brukernavn);
+           
            List<Personvalg> tabell = db.hentKandidaterPersonvalg(ID);
-           return View(tabell);
-        }
+            List<Personvalg> randomList = new List<Personvalg>();
 
-        public int hentAntallStemtePersonvalg_int()
+            Random r = new Random();
+            int randomIndex = 0;
+            while (tabell.Count > 0)
+            {
+                randomIndex = r.Next(0, tabell.Count); //Choose a random object in the list
+                randomList.Add(tabell[randomIndex]); //add it to the new, random list
+                tabell.RemoveAt(randomIndex); //remove to avoid duplicates
+            }
+            return View(randomList);
+        }
+      public int hentAntallStemtePersonvalg_int()
         {
             var db = new BrukerBLL();
             return db.hentAntallStemtePersonvalg_int();
         }
-        public ActionResult lagretPersonvalgstop()
+      public ActionResult lagretPersonvalgstop()
         {
            
             string stop = stopPersonvalg();
 
             return RedirectToAction("lagretPersonvalg");
         }
-        public int antallPersonvalgStemmer(int ID)
+      public int antallPersonvalgStemmer(int ID)
         {
             var db = new BrukerBLL();
             var ok = db.antallPersonvalgStemmer(ID);
             return ok;
         }
-        public int PersonvalgKjørerID()
+      public int PersonvalgKjørerID()
         {
 
             var db = new BrukerBLL();
@@ -107,7 +126,7 @@ namespace Studentparlamentet_28.Controllers
             return ok;
 
         }
-        public string stopPersonvalg()
+      public string stopPersonvalg()
         {
 
             var db = new BrukerBLL();
@@ -122,7 +141,7 @@ namespace Studentparlamentet_28.Controllers
             }
 
         }
-        public string startPersonvalg(int ID)
+      public string startPersonvalg(int ID)
         {
 
             var db = new BrukerBLL();
@@ -137,7 +156,7 @@ namespace Studentparlamentet_28.Controllers
             }
 
         }
-        public string PersonvalgKjorer()
+      public string PersonvalgKjorer()
         {
 
             var db = new BrukerBLL();
@@ -152,7 +171,6 @@ namespace Studentparlamentet_28.Controllers
             }
 
         }
-      
       [HttpPost]
       public ActionResult lagretPersonvalg(Kandidat innKandidat, String stringID, int valgtypeID2)
       {
@@ -160,8 +178,19 @@ namespace Studentparlamentet_28.Controllers
             {
                 if (valgtypeID2 > 0)
                 {
-                    var slett = SlettPersonvalg(valgtypeID2);
-                    return RedirectToAction("lagretPersonvalg");
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    bool ok = db.SjekkPassord(innKandidat, brukernavn);
+                    if(ok != false)
+                    {
+                        var slett = SlettPersonvalg(valgtypeID2);
+                        return RedirectToAction("lagretPersonvalg");
+                    }
+                    else
+                    {
+                        return RedirectToAction("lagretPersonvalg");
+                    }
+           
                 }
                 }
 
@@ -226,8 +255,7 @@ namespace Studentparlamentet_28.Controllers
 
 
         }
-      
-        public JsonResult HentKandidaterLagretID(int ID)
+      public JsonResult HentKandidaterLagretID(int ID)
       {
           var db = new BrukerBLL();
 
@@ -280,18 +308,110 @@ namespace Studentparlamentet_28.Controllers
 
           return View(tabell);
       }
-        public ActionResult lagretPersonvalgEng()
+      [HttpPost]
+      public ActionResult lagretPersonvalgEng(Kandidat innKandidat, String stringID, int valgtypeID2)
+        {
+            if (stringID != null)
+            {
+                if (valgtypeID2 > 0)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    bool ok = db.SjekkPassord(innKandidat, brukernavn);
+                    if (ok != false)
+                    {
+                        var slett = SlettPersonvalg(valgtypeID2);
+                        return RedirectToAction("lagretPersonvalgEng");
+                    }
+                    else
+                    {
+                        return RedirectToAction("lagretPersonvalgEng");
+                    }
+
+                }
+            }
+
+
+            else if (innKandidat.id != 0)
+            {
+
+                var db = new BrukerBLL();
+                int ID = db.finnValgtypeID(innKandidat.id);
+                string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                bool ok = db.SjekkPassord(innKandidat, brukernavn);
+
+                if (ok != false)
+                {
+                    if (innKandidat.etternavn != null || innKandidat.fornavn != null)
+                    {
+                        if (innKandidat.etternavn != null && innKandidat.fornavn != null)
+                        {
+                            bool ok2 = db.Kandidatendre(innKandidat);
+                            int valgtypeID = db.finnValgtypeID(innKandidat.id);
+                            // finn valgtypeID
+                            //   return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+                            return RedirectToAction("lagretPersonvalgEng", new { id2 = ID });
+                        }
+                        else if (innKandidat.etternavn != null)
+                        {
+                            bool ok2 = db.KandidatendreEtternavn(innKandidat);
+                            //  return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+                            return RedirectToAction("lagretPersonvalgEng", new { id2 = ID });
+
+                        }
+                        else if (innKandidat.fornavn != null)
+                        {
+                            bool ok2 = db.KandidatendreFornavn(innKandidat);
+                            //  return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+                            return RedirectToAction("lagretPersonvalgEng", new { id2 = ID });
+
+                        }
+                    }
+                    else
+                    {
+                        bool ok2 = db.KandidatSlett(innKandidat);
+
+                        return RedirectToAction("lagretPersonvalgEng", new { id2 = ID });
+                        //   return RedirectToAction("lagretPersonvalgModal", new { id2 = ID });
+
+
+                    }
+
+                }
+
+            }
+
+            int id3 = 0;
+
+            return RedirectToAction("lagretPersonvalgEng", new { id2 = id3 });
+
+
+
+
+        }
+      public ActionResult lagretPersonvalgEng()
         {
             var db = new BrukerBLL();
             List<PersonvalgResultat> tabell = db.hentPersonvalgResultat();
             return View("../user/lagretPersonvalgEng", tabell);
         }
-        public ActionResult lagretPersonvalg()
+      public ActionResult lagretPersonvalg()
       {
           var db = new BrukerBLL();
           List<PersonvalgResultat> tabell = db.hentPersonvalgResultat();
           return View(tabell);
       }
+      public ActionResult LagrePersonvalgEng()
+        {
+            var db = new BrukerBLL();
+            db.LagrePersonvalg();
+            db.LagrePersonvalgResultat();
+
+            return RedirectToAction("PersonvalgEng");
+        }
       public ActionResult LagrePersonvalg()
       {
           var db = new BrukerBLL();
@@ -311,14 +431,14 @@ namespace Studentparlamentet_28.Controllers
 
 
       }
-        public ActionResult HentListeKandidatEng()
+      public ActionResult HentListeKandidatEng()
         {
             var db = new BrukerBLL();
             List<Kandidat> tabell = db.hentKandidater();
             // fill some data for your model here
             return PartialView("../User/PersonvalgPartialEng", tabell);
         }
-        public ActionResult HentListeKandidat()
+      public ActionResult HentListeKandidat()
       {
           var db = new BrukerBLL();
           List<Kandidat> tabell = db.hentKandidater();
@@ -355,9 +475,9 @@ namespace Studentparlamentet_28.Controllers
 
 
       }
-        [HttpPost]
-        [Authorize(Roles = "true")]
-        public ActionResult PersonvalgEng(Kandidat innKandidat)
+      [HttpPost]
+      [Authorize(Roles = "true")]
+      public ActionResult PersonvalgEng(Kandidat innKandidat)
         {
             if (Session["LoggetInn"] != null)
             {
@@ -385,8 +505,8 @@ namespace Studentparlamentet_28.Controllers
 
 
         }
-        [Authorize(Roles = "true")]
-        public ActionResult PersonvalgEng()
+      [Authorize(Roles = "true")]
+      public ActionResult PersonvalgEng()
         {
             if (Session["LoggetInn"] != null)
             {
@@ -402,8 +522,7 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
-
-        [Authorize(Roles = "true")]
+      [Authorize(Roles = "true")]
       public ActionResult Personvalg()
       {
           if (Session["LoggetInn"] != null)

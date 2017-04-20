@@ -13,6 +13,10 @@
             {
 
             }
+            else if(data_id == 0)
+            {
+                $("#sletteModal").modal();
+            }
             else
             {
                 $.ajax({
@@ -29,6 +33,7 @@
 
                         }
                         $("#listeKandidater").append(listeKandidaterContent);
+                        $('#valgtypeID2').val(0);
                     }
                 });
                 $("#sletteModal").modal();
@@ -39,14 +44,35 @@
                 success: function (data) {
                     if (data == "true") {
                         $("#stop").show();
+                        $("#oversikt").hide();
                         $("#personvalgmelding").show();
                         $("#personvalgmeldingID").show();
+                        $("#antallstemtmsg").show();
+                        $("#antallvalgtemsg").show();
                         $.ajax({
                             url: '@Url.Action("PersonvalgKjørerID", "Bruker")',
                             success: function (data) {
                                 $('#personvalgmeldingID').html(data);
                             }
                         });
+                        $.ajax({
+                            url: '@Url.Action("PersonvalgKjørerID", "Bruker")',
+                            success: function (data) {
+                                $('#personvalgmeldingID').html(data);
+
+                                setInterval(function () {
+                                    antallStemte2();
+                                }, 250); // 250 milleskunder
+                            }
+
+                        });
+                        $.ajax({
+                            url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
+                            success: function (data) {
+                                $('#antallbrukere').html(data);
+                            }
+                        });
+
                     }
                     else if (data == "false") {
                         $("#start").show();
@@ -61,10 +87,23 @@
 
                 }
             });
+            function antallStemte2() {
+                $.ajax({
+                    url: '@Url.Action("hentAntallStemtePersonvalg_int", "Bruker")',
+                    success: function (data) {
 
+                        $('#antallstemt').html(data);
+                    }
+                });
+            }
             $("#start").click(function () {
                 $("#feilmelding").hide();
                 var data_id = $('input[name="ValgtypeID"]').val();
+                if (typeof data_id === 'string' || data_id instanceof String || data_id == 0)
+                {
+                    $("#feilmelding").show();
+                }
+
                 $.ajax({
                     url: '@Url.Action("startPersonvalg", "Bruker")',
                     data: { id: data_id },
@@ -73,11 +112,14 @@
                         {
                             $("#start").hide();
                             $("#input").hide();
+                            $("#oversikt").hide();
                             $("#feilmelding").hide();
                             $("#inputmelding").hide();
                             $("#stop").show();
                             $("#personvalgmelding").show();
                             $("#personvalgmeldingID").show();
+                            $("#antallstemtmsg").show();
+                            $("#antallvalgtemsg").show();
                             $("#tabell").hide();
                             $.ajax({
                                 url: '@Url.Action("PersonvalgKjørerID", "Bruker")',
@@ -115,6 +157,9 @@
                         }
                     });
                 }
+
+
+
             });
             $("#stop").click(function () {
                  $.ajax({
@@ -149,6 +194,7 @@
 
                         }
                         $("#listeKandidater").append(listeKandidaterContent);
+                        $('#valgtypeID2').val(0);
                     }
                 });
 
@@ -159,10 +205,10 @@
 
             })
             $('a[data-slettePersonvalgModal=true]').click(function () {
-                var personvalg_id = $(this).data('id');
-                var valgtype_id = $(this).data('navn')
+                var personvalg_id = $(this).data('navn');
+                var valgtype_id = $(this).data('id')
                 // legg ut dataene i div'en i modal-view'et
-                $('#valgtypeID').val(valgtype_id);
+                $('#valgtypeID3').val(valgtype_id);
                 $('#personvalgID').html(personvalg_id);
             }
           )
@@ -170,117 +216,105 @@
     </script>
 </head>
 <body>
-    <div class="form-inline" style="float:right;">
-        @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-        <div class="dropdown" style="float:right;">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                Norsk
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a href="@Url.Action("VoteringAdminEng", "Bruker")">English</a></li>
-            </ul>
+    <div class="col-sm-12" id="lagretPersonvalg">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "PersonvalgEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    English
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("lagretPersonvalg", "Bruker")">Norsk</a></li>
+                </ul>
+            </div>
+        </div>
+        <h1>Person election</h1>
+        <div id="meldingLagretPersonvalg">
+            <div id="oversikt"><h3>Here you can find a overview of all the saved and completed Person elections</h3></div>
+            <br />
+            <button id="start" class="btn btn-success" style="display: none;">Start</button>
+
+
+
+            <div id="inputmelding" style="display: none;"> <p> Write inn ElectionID to start a Person election</p></div>
+            <div id="input" style="display: none;"><input type="text" pattern="[0-9]*" id="valgtypeID" name="ValgtypeID" style="width: 5em" /><br></div>
+            <div id="feilmelding" style="display: none;"> <p> Fill in a valid ElectionID to start a Person election</p></div>
+
+            <div align="center">
+                <div id="personvalgmelding" style="display: none;"> <h2>Running with ElectionID</h2><div id="personvalgmeldingID" style="display: none;"></div></div>
+                <div id="antallstemtmsg" style="display: none;"><h3>Number of votes</h3></div> <div id="antallstemt"></div>
+                <div id="antallvalgtemsg" style="display: none;"><h3>Number of voters</h3><div id="antallbrukere"></div>
+                    <br />
+                    <button id="stop" class="btn btn-danger" style="display: none;">Stop</button>
+                </div>
+            </div>
+            <div id="tabell" style="display: none;">
+                <div id="scrollTabell">
+                    <table class="table  table-responsive table-scrollable" id="tableID">
+                        <thead class="thead-default">
+                            <tr>
+                                <th>
+                                    ElectionID
+                                </th>
+                                <th>
+                                    Number of candidates
+                                </th>
+                                <th>
+                                    Winner
+                                </th>
+                                <th>
+                                    Number of votes to winner
+                                </th>
+                                <th>
+                                    Number of votes total
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+
+                        <tbody class="table-bordered">
+                            @foreach (var item in Model)
+            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.valgtypeid)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.antallkandidater)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.vinner)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.stemmer)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.totalantallStemmer)
+                                    </td>
+
+                                    <td></td>
+                                    <td>
+                                        <a href="#sletteModal" class="btn btn-large btn-info" id="sletteKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-sletteModal="true">See candidates</a>
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink("Show the result in a new tab", "PersonvalgResultatEng", "Bruker", new { id = item.valgtypeid }, new { target = "_blank", @class = "btn btn-info" })
+                                    </td>
+                                    <td>
+                                        <a href="#slettePersonvalgModal" class="btn btn-large btn-danger" id="slettePersonvalgKnapp" data-navn="@item.id" data-id="@item.valgtypeid" data-toggle="modal" data-slettePersonvalgModal="true">Delete Person election</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+            @Html.Partial("../user/PersonvalgModalEng", new Studentparlamentet_28.Models.Kandidat())
+            @Html.Partial("../user/slettePersonvalgModalEng", new Studentparlamentet_28.Models.Kandidat())
         </div>
     </div>
-    <h1>Personvalg</h1>
-    <div id="meldingLagretPersonvalg">
-        <p>Her finner du oversikt over alle lagrede personvalg og alle utførte personvalg</p>
-        <br />
-        <button id="start" class="btn btn-success" style="display: none;">Start</button>
-        <button id="stop" class="btn btn-danger" style="display: none;">Stopp</button>
-        <div id="personvalgmelding" style="display: none;"> <p>Personvalg kjører med valgtypeID : </p></div>
-        <div id="personvalgmeldingID" style="display: none;"></div>
-        <div id="inputmelding" style="display: none;"> <p> Skriv inn ValgtypeID for å starte personvalg</p></div>
-        <div id="input" style="display: none;"><input type="number" name="ValgtypeID"><br></div>
-        <div id="feilmelding" style="display: none;"> <p> Skriv inn gyldig ValgtypeID for å starte personvalg</p></div>
-
-        <div id="antallstemt"></div>
-        <div id="antallbrukere"></div>
-
-    </div>
-    <div id="tabell" style="display: none;">
-        <table class="table  table-responsive table-scrollable" id="tableID">
-            <thead class="thead-default">
-                <tr>
-                    <th>
-
-                    </th>
-                    <th>
-                        ElectionID
-                    </th>
-                    <th>
-                        Number of candidates
-                    </th>
-                    <th>
-                        Winner
-                    </th>
-                    <th>
-                        Number of votes for winner
-                     </th>
-                    <th>
-                     Total number of votes personvalg
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-
-
-            <tbody class="table-bordered">
-                @foreach (var item in Model)
-            {
-                    <tr>
-                        <td>
-                            Personvalg @Html.DisplayFor(modelItem => item.id)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.valgtypeid)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.antallkandidater)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.vinner)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.stemmer)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.totalantallStemmer)
-                        </td>
-
-                        <td></td>
-                        <td>
-                            <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-sletteModal="true">Se Kandidater</a>
-                            @Html.ActionLink("Vis Resultat i ny fane", "", new { id = item.id }, new { @class = "btn btn-danger" })
-                            <a href="#slettePersonvalgModal" class="btn btn-large btn-danger" id="slettePersonvalgKnapp" data-navn="@item.valgtypeid" data-id="@item.id" data-toggle="modal" data-slettePersonvalgModal="true">Slett personvalg og resultat</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-
-        </table>
-    </div>
-
-    @Html.Partial("PersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
-    @Html.Partial("slettePersonvalgModal")
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

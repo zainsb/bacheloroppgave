@@ -225,7 +225,7 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("VoteringAdminEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("lagretPersonvalgEng", "Bruker")">English</a></li>
                 </ul>
             </div>
         </div>
@@ -256,9 +256,6 @@
                             <thead class="thead-default">
                                 <tr>
                                     <th>
-
-                                    </th>
-                                    <th>
                                         ValgtypeID
                                     </th>
                                     <th>
@@ -282,9 +279,6 @@
                                 @foreach (var item in Model)
             {
                                     <tr>
-                                        <td>
-                                            Personvalg @Html.DisplayFor(modelItem => item.id)
-                                        </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.valgtypeid)
                                         </td>
@@ -320,7 +314,7 @@
                 </div>
 
                 @Html.Partial("PersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
-                @Html.Partial("slettePersonvalgModal")
+                @Html.Partial("slettePersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
             </div>
         </div>
 </body>

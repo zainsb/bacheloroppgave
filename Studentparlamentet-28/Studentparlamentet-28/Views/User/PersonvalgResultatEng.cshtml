@@ -8,28 +8,21 @@
 <body>
     <div class="col-sm-12" align="center" id="PersonvalgResultat">
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Tilbake", "lagretPersonvalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-            <div class="dropdown" style="float:right;">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("PersonvalgResultatEng", "Bruker")">English</a></li>
-                </ul>
-            </div>
+            @Html.ActionLink("Back", "lagretPersonvalgEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+
+            
         </div>
         <br />
-        <h3>Vinner av Personvalg </h3>
+        <h3>Winner Person Election </h3>
         <div id="PersonvalgResultatContainer">
             @foreach (var item in Model)
             {
 
                 <ul class="list-group" id="ListeResultat" align="center">
 
-                    <li class="list-group-item">Kandidat</li>
+                    <li class="list-group-item">Candidate</li>
                     <li class="list-group-item">@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</li>
-                    <li class="list-group-item">Antall Stemmer</li>
+                    <li class="list-group-item">Number of votes</li>
                     <li class="list-group-item">@Html.DisplayFor(modelItem => item.stemmer)</li>
                 </ul>
 
@@ -38,17 +31,6 @@
         </div>
     </div>
 
-   
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

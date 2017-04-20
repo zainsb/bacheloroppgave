@@ -1,4 +1,5 @@
-﻿<div id="slettePersonvalgModal" class="modal fade">
+﻿@model Studentparlamentet_28.Models.Kandidat
+<div id="slettePersonvalgModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -15,6 +16,10 @@
                     {
                         <p>Trykk slett for å fjerne Personvalg</p><div id="personvalgID"></div>
                         <p>Kandidater og resultat til dette personvalget vil bli slettet</p>
+                        
+                            @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
+                            @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+                        
                         <input name="submit" type="submit" value="Slett" class="btn btn-success" />
                         <input type="hidden" id="valgtypeID3" name="valgtypeID2" />
                         <input type="hidden" id="stringID" name="stringID" />

@@ -252,6 +252,9 @@
     <Content Include="Views\User\PersonvalgPartialEng.cshtml" />
     <Content Include="Views\User\lagretPersonvalgEng.cshtml" />
     <Content Include="Views\Bruker\PersonvalgResultat.cshtml" />
+    <Content Include="Views\User\PersonvalgModalEng.cshtml" />
+    <Content Include="Views\User\slettePersonvalgModalEng.cshtml" />
+    <Content Include="Views\User\PersonvalgResultatEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,0 +1,41 @@
+﻿@model Studentparlamentet_28.Models.Kandidat
+<div id="slettePersonvalgModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Confirm deleting</h4>
+            </div>
+
+
+            <div class="modal-body">
+                <p>Overview of candidates</p>
+
+                <div class="alert alert-success">
+                    @using (Html.BeginForm())
+                    {
+                        <p>Confirm deleting by pushing the delete button</p><div id="personvalgID"></div>
+                        <p>Candidates and the result will be deleted</p>
+
+                        @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Password" } })
+                        @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+
+                        <input name="submit" type="submit" value="Delete" class="btn btn-success" />
+                        <input type="hidden" id="valgtypeID3" name="valgtypeID2" />
+                        <input type="hidden" id="stringID" name="stringID" />
+
+                    }
+                </div>
+            </div>
+
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>

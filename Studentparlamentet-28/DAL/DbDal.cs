@@ -16,7 +16,9 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
-      public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
+
+        // Personvalg
+        public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
         {
             using (var db = new BrukerContext())
             {
@@ -28,6 +30,7 @@ namespace Studentparlamentet_28.DAL
                     etternavn = k.Etternavn,
                     stemmer = k.Stemmer
                 }).ToList();
+
                 int teller2 = slettListe.Count(k => k.valgtypeid == id);
                 if (teller2 > 0)
                 {
@@ -112,8 +115,7 @@ namespace Studentparlamentet_28.DAL
                     return listeResultat;
                 }
             
-        }
-        
+        }        
         public void SlettPersonvalg(int id)
         {
             var db = new BrukerContext();
@@ -892,6 +894,7 @@ namespace Studentparlamentet_28.DAL
   
 
         }
+        // Personvalg
         public Valgtyper hentValg(int id)
         {
             var db = new BrukerContext();
