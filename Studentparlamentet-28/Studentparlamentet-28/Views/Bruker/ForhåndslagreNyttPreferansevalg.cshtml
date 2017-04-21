@@ -1,0 +1,288 @@
+﻿@model List<Studentparlamentet_28.Models.KandidatSTV>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        //Hjelpevariabler
+
+        $(function () {
+            var valgid = 0;
+            var valgidtype = $("#hiddenValgtypeid").val();
+            var antallKandidaterIListe = @Model.Count();
+            $("#divLagreFeilmld").hide();
+
+            //Disable nullstill knappen
+            if(antallKandidaterIListe == 0){
+                $('#btnNullstillKandidater').attr("disabled", true);
+            }
+
+            //Nullstill kandidatliste
+            $("#btnNullstillKandidater").click(function () {
+
+                $.ajax({
+                    url: '/Bruker/NullstillKandidatliste',
+                    data: { valgtypeid: valgidtype },
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        if (melding == "OK") {
+                            location.reload();
+                        }
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+
+            //Lagrer kandidat i db og legger til en ny rad
+            $("#btnLeggTilKandidat").click(function () {
+                var navn = $('#kandidatNavn').val(); //Henter inn data fra felt
+                leggTilRad(navn);
+            });
+
+            //Lagre preferansevalg
+            $("#btnLagreSTV").click(function () {
+                var beskrivelse = $('#BeskrivelseSTV').val(); //Henter inn data fra felt
+                var antallRepresentanter = $("#antRepresentanter").val();
+                $("#divLagreFeilmld").hide();
+                $("#divLagreFeilTxt").hide();
+                $("#divFeilRepLagre").html(" ");
+                $("#divFeilBeskrivelseLagre").html(" ");
+
+                //Om antall kandidater er mindre enn så starter ikke et valg
+                if(antallKandidaterIListe < antallRepresentanter){
+                    $("#divLagreFeilmld").show();
+                    $("#divLagreFeilTxt").show();
+                    $("#divLagreFeilTxt").html("Antall kandidater for valget er mindre enn antall representanter som skal velges.");
+                    melding = "feil";
+                }
+                else if(antallRepresentanter == ""){
+                    if(beskrivelse == ""){
+                        $("#divLagreFeilmld").show();
+                        $("#divLagreFeilTxt").show();
+                        $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                        $("#divFeilBeskrivelseLagre").html("<p style='color: red;'>*Ikke fylt ut</p>");
+                    }
+                    antallRepresentanter = "-";
+                    $("#divLagreFeilmld").show();
+                    $("#divLagreFeilTxt").show();
+                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divFeilRepLagre").html("<p style='color: red;'>*Må være et tall</p>");
+                }
+                else if(isNaN(antallRepresentanter))
+                {
+                    $("#divLagreFeilmld").show();
+                    $("#divLagreFeilTxt").show();
+                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divFeilRepLagre").html("<p style='color: red;'>*Må være et tall</p>");
+                }
+                else{
+                    $.ajax({
+                        url: '/Bruker/lagreNyttPreferansevalg',
+                        data: {
+                            beskrivelse: beskrivelse,
+                            antallRepresentanter: antallRepresentanter
+                        },
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (melding) {
+                            if (melding == "OK") {
+                                $("#divLagreFeilmld").hide();
+                                $("#divLagreFeilTxt").hide();
+                                $("#divFeilRepLagre").html(" ");
+                                $("#divFeilBeskrivelseLagre").html(" ");
+
+                                window.location = "@Url.Action("ForhåndslagredePreferansevalg", "Bruker")";
+                            }
+                            else if (melding == "feil") {
+                                if(antallRepresentanter < 2){
+                                    $("#divLagreFeilmld").show();
+                                    $("#divLagreFeilTxt").show();
+                                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                                    $("#divFeilRepLagre").html("<p style='color: red;'>*Kan ikke være mindre enn 2</p>");
+                                }
+                                if(beskrivelse == ""){
+                                    $("#divLagreFeilmld").show();
+                                    $("#divLagreFeilTxt").show();
+                                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                                    $("#divFeilBeskrivelseLagre").html("<p style='color: red;'>*Ikke fylt ut</p>");
+                                }
+                            }
+                        },
+                        error: function (x, y, z) {
+                            alert(x + '\n' + y + '\n' + z);
+                        }
+                    });
+                }
+            });
+
+        }) //Her stopper function()
+
+
+        //Funksjon som legger til kandidater fortløpende
+        function leggTilRad(navn) {
+
+            $.ajax({
+                url: '/Bruker/lagreKandidatIListe',
+                data: { id: navn },
+                type: 'GET',
+                dataType: 'json',
+                success: function (melding) {
+                    if (melding == "OK")
+                    {
+                        location.reload();
+                    }
+                    else if(melding == "Samme navn")
+                    {
+                        $('#modalFeilLagre').modal('show');
+                    }
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <div class="col-sm-12" id="containerSTV">
+
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("ForhåndslagreNyttPreferansevalgEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div>
+        <br />
+        <h2>Administrer preferansevalg</h2>
+        <br />
+        <p class="text-info">For å administrere et preferansevalg som senere skal utføres, vennligst fyll ut skjema under.</p>
+        <br />
+        <div class="form-horizontal">
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-2">
+                        <label for="BeskrivelseSTV">Beskrivelse</label>
+                    </div>
+                    <div class="col-sm-5 col-sm-offset-2">
+                        <input type="text" class="form-control" id="BeskrivelseSTV" />
+                    </div>
+                    <div class="col-sm-3" id="divFeilBeskrivelseLagre">
+
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-4">
+                        <label for="antRepresentanter">Antall valgrepresentanter</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="antRepresentanter" />
+                    </div>
+                    <div class="col-sm-5" id="divFeilRepLagre">
+                    </div>
+                </div>
+            </div>
+            <br /><br>
+            <div class="form-group form-inline">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="kandidatNavn" placeholder="Skriv inn navn for kandidat" />
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="button" value="Legg til kandidat" id="btnLeggTilKandidat" class="btn btn-info" />
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-hover table-nonfluid" id="tablePreferansevalg">
+                <caption><h4 class="pull-left">Registrerte kandidater</h4></caption>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Navn</th>
+                        <th>
+                            <div class="pull-right">
+                            </div>
+                        </th>
+                        <th>
+                            <div class="pull-right">
+                                <input type="button" value="Nullstill liste" id="btnNullstillKandidater" class="btn btn-danger btn-sm" />
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{int i = 1;}
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <th scope="row">@i</th>
+                            <td colspan="2">
+                                @Html.DisplayFor(modelItem => item.navn)
+                                <input type="hidden" id="hiddenValgtypeid" value="@item.valgtypeid" />
+                            </td>
+                            <td>
+                                <div class="pull-right">
+                                    @Html.ActionLink(" ", "slettKandidatFraListe", new { id = item.kandidatListeID }, new { @class = "btn btn-danger btn-md glyphicon glyphicon-remove" })
+                                </div>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+
+            <br />
+
+            <div class="form-group form-inline">
+                <div class="row">
+                    <div class="col-sm-2" id="skjultFeilLagreDiv"></div>
+                    <div id="divLagreFeilmld" class="col-sm-8 pull-left alert alert-danger">
+                        <div class="col-sm-12 pull-left"><div id="divLagreFeilTxt"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-4">
+                        <input type="button" id="btnLagreSTV" value="Lagre preferansevalg" class="btn btn-primary" />
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="modalFeilLagre">
+                <div class="modal-dialog modal-sm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4>Feil</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p style="color: red;">Kan ikke legge til kandidat med samme navn. Prøv igjen med et annet navn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+        </div>
+    </div>
+    <br />
+</body>
+</html>

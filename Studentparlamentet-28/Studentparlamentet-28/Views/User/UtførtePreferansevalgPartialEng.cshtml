@@ -1,0 +1,36 @@
+﻿@model Studentparlamentet_28.Models.Preferansevalg
+
+<div class="panel panel-default">
+    <div class="panel-body" id="UtfortePreferansevalg">
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>Descripton</th>
+                <th>Done</th>
+            </tr>
+            <tr>
+                <td>@Model.id</td>
+                <td>@Model.beskrivelse</td>
+                <td>
+                    @if (@Model.utført != false)
+                    {
+                        <p>Yes</p>
+                    }
+                    else
+                    {
+                        <p>No</p>
+                    }
+                </td>
+            </tr>
+        </table>
+
+        <div class="panel-footer clearfix">
+            <div class="pull-left">
+                <a href="@Url.Action("ResultatPreferansevalgEng", "Bruker", new {  valgtypeid = Model.valgtypeid })" class="btn btn-success ">See result</a>
+                <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+                   data-navn="ValgNr: @Model.valgtypeid Beskrivelse: @Model.beskrivelse"
+                   data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>

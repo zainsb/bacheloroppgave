@@ -1,0 +1,128 @@
+﻿@model Studentparlamentet_28.Models.Preferansevalg
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+
+        $(function () {
+
+            //Skal kalle på hentAlleValgteKandidater metoden her
+            $.ajax({
+                url: '/Bruker/hentAlleValgteKandidater',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (alleKandidater) {
+                    if(alleKandidater == null)
+                    {
+                        $("#testforelopig").html("Lista var tom");
+                    }
+                    else {
+
+                        visListe(alleKandidater);
+                    }
+                }
+            });
+
+            //Henter inn beskrivelse for preferansevalget
+            $.ajax({
+                url: '/Bruker/hentPrefereransevalgDetaljer',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (valg) {
+                    $("#beskrivelsePreferansevalg").append(valg.beskrivelse);
+                }
+            });
+
+            //Henter inn antallet som deltok
+            $.ajax({
+                url: '/Bruker/antallDeltokIPreferansevalg',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (antallDeltakere) {
+                    $("#antallDeltakerePreferansevalg").html(antallDeltakere);
+                }
+            });
+
+            //Henter inn antall kandidater for valget
+            $.ajax({
+                url: '/Bruker/antallKandidaterIPreferansevalg',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (antallKandidater) {
+                    $("#antallKandidaterPreferansevalg").html(antallKandidater);
+                }
+            });
+
+
+        }) //Her stopper function()
+
+        function visListe(alleKandidater) {
+            var utskrift = "";
+            for (var i in alleKandidater) {
+                utskrift += "<li class='list-group-item' style='text-align:center'>"+ alleKandidater[i].navn + "</li>";
+            }
+
+            $("#listeValgt").append(utskrift);
+        }
+
+    </script>
+</head>
+<body>
+
+    <div class="col-sm-12" id="containerSTVBruker">
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "AlleUtfortePreferansevalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("ResultatPreferansevalgEng", "Bruker", new { valgtypeid = Model.valgtypeid})">English</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <br /><br />
+        <center><h2>Preferansevalg resultat</h2></center>
+        
+        <br />
+        <div class="alert alert-success">
+            <center><h4>Valgte representanter</h4></center><br />
+            <ul class="list-group" id="listeValgt"></ul>
+            <br />
+            <div class="col-sm-12"><hr id="hrSTV" /></div>
+            <br />
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-lg-10 pull-left">
+                        <p id="beskrivelsePreferansevalg"><b>Beskrivelse:</b>&nbsp;&nbsp;</p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-lg-4 pull-left">
+                        <p><b>Antall stemte</b></p>
+                        <div id="antallDeltakerePreferansevalg" class="col-lg-offset-2"></div>
+                    </div>
+                    <div class="col-lg-4 pull-left">
+                        <p><b>Antall kandidater</b></p>
+                        <div id="antallKandidaterPreferansevalg" class="col-lg-offset-3"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <br />
+    </div>
+</body>
+</html>

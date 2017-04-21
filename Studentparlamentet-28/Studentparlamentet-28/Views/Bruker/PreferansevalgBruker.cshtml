@@ -1,0 +1,428 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        var drop1Tekst = "";
+        var hjelpeArray = new Array();
+        var hjelpeTeller = 0;
+        $(function () {
+            var tellerDropdowns = 6;
+            //Skjule alle dropdowns fra 6-12
+            $("#hiddenDrop6").hide();
+            $("#hiddenDrop7").hide();
+            $("#hiddenDrop8").hide();
+            $("#hiddenDrop9").hide();
+            $("#hiddenDrop10").hide();
+            $("#hiddenDrop11").hide();
+            $("#hiddenDrop12").hide();
+
+            //Disabler alle fra 2 og oppopver
+            disableSelects();
+
+            $("#lenkeLeggTil").click(function (e) {
+                e.preventDefault();
+                if (tellerDropdowns >= 6 && tellerDropdowns <= 12) {
+                    LeggTilEnTil(tellerDropdowns);
+                    if (tellerDropdowns == 12) {
+                        $("#lenkeLeggTil").hide();
+                    }
+                    tellerDropdowns++;
+                }
+            });
+
+            //Hent alle kandidater for å bygge dropdown
+            $.ajax({
+                url: '/Bruker/hentKandidaterMedID',
+                type: 'GET',
+                dataType: 'json',
+                success: function (kandidater) {
+                    for (var i = 0; i < kandidater.length; i++) {
+                        hjelpeTeller++;
+                    }
+                    VisDropDown(kandidater);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            $('a[data-stemmeModal=true]').click(function () {
+                var txt = "&nbsp;&nbsp;&nbsp;&nbsp";
+
+                var data_navn = $(this).data('navn');
+                var data_navn2 = $(this).data('navn');
+                var data_navn3 = $(this).data('navn');
+                var data_navn4 = $(this).data('navn');
+                var data_navn5 = $(this).data('navn');
+                var data_navn6 = $(this).data('navn');
+                var data_navn7 = $(this).data('navn');
+                var data_navn8 = $(this).data('navn');
+                var data_navn9 = $(this).data('navn');
+                var data_navn10 = $(this).data('navn');
+                var data_navn11 = $(this).data('navn');
+                var data_navn12 = $(this).data('navn');
+
+                //Selected value fra dropdownene
+                drop1Tekst = $("#drop1 option:selected").text();
+                var drop2Tekst = $("#drop2 option:selected").text();
+                var drop3Tekst = $("#drop3 option:selected").text();
+                var drop4Tekst = $("#drop4 option:selected").text();
+                var drop5Tekst = $("#drop5 option:selected").text();
+                var drop6Tekst = $("#drop6 option:selected").text();
+                var drop7Tekst = $("#drop7 option:selected").text();
+                var drop8Tekst = $("#drop8 option:selected").text();
+                var drop9Tekst = $("#drop9 option:selected").text();
+                var drop10Tekst = $("#drop10 option:selected").text();
+                var drop11Tekst = $("#drop11 option:selected").text();
+                var drop12Tekst = $("#drop12 option:selected").text();
+
+                //Legge til selected navn i variabel
+                if (1 <= hjelpeTeller) {
+                    data_navn += "<p>1.   " + txt + $("#drop1 option:selected").text(); + "</p>";
+                }
+                if (2 <= hjelpeTeller) {
+                    data_navn += "<p>2.   " + txt + drop2Tekst + "</p>";
+                }
+                if (3 <= hjelpeTeller) {
+                    data_navn += "<p>3.   " + txt + drop3Tekst + "</p>";
+                }
+                if (4 <= hjelpeTeller) {
+                    data_navn += "<p>4.   " + txt + drop4Tekst + "</p>";
+                }
+                if (5 <= hjelpeTeller) {
+                    data_navn += "<p>5.   " + txt + drop5Tekst + "</p>";
+                }
+                if (6 <= hjelpeTeller) {
+                    data_navn += "<p>6.   " + txt + drop6Tekst + "</p>";
+                }
+                if (7 <= hjelpeTeller) {
+                    data_navn += "<p>7.   " + txt + drop7Tekst + "</p>";
+                }
+                if (8 <= hjelpeTeller) {
+                    data_navn += "<p>8.   " + txt + drop8Tekst + "</p>";
+                }
+                if (9 <= hjelpeTeller) {
+                    data_navn += "<p>9.   " + txt + drop9Tekst + "</p>";
+                }
+                if (10 <= hjelpeTeller) {
+                    data_navn += "<p>10.   " + txt + drop10Tekst + "</p>";
+                }
+                if (11 <= hjelpeTeller) {
+                    data_navn += "<p>11.   " + txt + drop11Tekst + "</p>";
+                }
+                if (12 <= hjelpeTeller) {
+                    data_navn += "<p>12.   " + txt + drop12Tekst + "</p>";
+                }
+
+                //Legge til data i div'ene
+                $('#stemData').html(data_navn);
+
+                //For stemmeknappen i modalen
+                $("#avgiStemmeKnapp").click(function () {
+                    // id som skal slettes ligger i data_id
+                    $.ajax({
+                        url: '@Url.Action("Preferansevalgsvar", "Bruker")',
+                        data: {
+                            kandidatEn: drop1Tekst,
+                            kandidatTo: drop2Tekst,
+                            kandidatTre: drop3Tekst,
+                            kandidatFire: drop4Tekst,
+                            kandidatFem: drop5Tekst,
+                            kandidatSeks: drop6Tekst,
+                            kandidatSju: drop7Tekst,
+                            kandidatÅtte: drop8Tekst,
+                            kandidatNi: drop9Tekst,
+                            kandidatTi: drop10Tekst,
+                            kandidatElleve: drop10Tekst,
+                            kandidatTolv: drop12Tekst
+                        },
+                        success: function () {
+                            window.location = "@Url.Action("Index", "Bruker")";
+                        }
+                    });
+                })
+
+            })
+        })
+
+        //Setter inn alle kandidater som er lagret i databasen inn i dropdownene
+        function VisDropDown(kandidater) {
+            var utskrift = "";
+            for (var i in kandidater) {
+                utskrift += "<option value='" + kandidater[i].kandidatListeID + "'>" + kandidater[i].navn + "</option>";
+            }
+            $("#drop1").append(utskrift);
+
+            $("#drop2").append(utskrift);
+            $("#drop3").append(utskrift);
+            $("#drop4").append(utskrift);
+            $("#drop5").append(utskrift);
+            $("#drop6").append(utskrift);
+            $("#drop7").append(utskrift);
+            $("#drop8").append(utskrift);
+            $("#drop9").append(utskrift);
+            $("#drop10").append(utskrift);
+            $("#drop11").append(utskrift);
+            $("#drop12").append(utskrift);
+        }
+
+        //disable alle dropdownene fra 2 og oppover
+        function disableSelects()
+        {
+            $('#drop2').attr("disabled", true);
+            $('#drop3').attr("disabled", true);
+            $('#drop4').attr("disabled", true);
+            $('#drop5').attr("disabled", true);
+            $('#drop6').attr("disabled", true);
+            $('#drop7').attr("disabled", true);
+            $('#drop8').attr("disabled", true);
+            $('#drop9').attr("disabled", true);
+            $('#drop10').attr("disabled", true);
+            $('#drop11').attr("disabled", true);
+            $('#drop12').attr("disabled", true);
+        }
+
+        //Setter inn alle kandidater som er lagret i databasen inn i dropdownene
+        function LeggTilEnTil(teller) {
+            var i = 6;
+            while (i <= teller) {
+                $("#hiddenDrop"+i).show();
+                i++;
+            }
+        }
+
+        function visDrop2() {
+            $('#drop2').attr("disabled", false);
+
+        }
+        function visDrop3() {
+            $('#drop3').attr("disabled", false);
+
+        }
+        function visDrop4() {
+            $('#drop4').attr("disabled", false);
+
+        }
+        function visDrop5() {
+            $('#drop5').attr("disabled", false);
+
+        }
+        function visDrop6() {
+            $('#drop6').attr("disabled", false);
+
+        }
+        function visDrop7() {
+            $('#drop7').attr("disabled", false);
+
+        }
+        function visDrop8() {
+            $('#drop8').attr("disabled", false);
+
+        }
+        function visDrop9() {
+            $('#drop9').attr("disabled", false);
+
+        }
+        function visDrop10() {
+            $('#drop10').attr("disabled", false);
+
+        }
+        function visDrop11() {
+            $('#drop11').attr("disabled", false);
+
+        }
+        function visDrop12() {
+            $('#drop12').attr("disabled", false);
+
+        }
+    </script>
+</head>
+
+<body>
+    <div class="col-sm-12" id="containerSTVBruker">
+        <div class="dropdown" style="float:right;">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                Norsk
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("PreferansevalgBrukerEng", "Bruker")">English</a></li>
+            </ul>
+        </div>
+
+        <h2 align="center">Preferansevalg</h2>
+        <br /><br />
+        <div id="teston"></div>
+
+
+        <div class="form-group form-inline">
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop1">1.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop1" onchange="visDrop2()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+        </div>
+        <div class="form-group form-inline">
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop2">2.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop2" onchange="visDrop3()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+        </div>
+        <div class="form-group form-inline">
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop3">3.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop3" onchange="visDrop4()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+        </div>
+        <div class="form-group form-inline">
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop4">4.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop4" onchange="visDrop5()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+        </div>
+        <div class="form-group form-inline">
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop5">5.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop5" onchange="visDrop6()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-inline" id="hiddenDrop6">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop6">6.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop6" onchange="visDrop7()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-inline" id="hiddenDrop7">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop7">7.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop7" onchange="visDrop8()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-inline" id="hiddenDrop8">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop8">8.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop8" onchange="visDrop9()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-inline" id="hiddenDrop9">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop9">9.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop9" onchange="visDrop10()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-inline" id="hiddenDrop10">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop10">10.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop10" onchange="visDrop11()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-inline" id="hiddenDrop11">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop11">11.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop11" onchange="visDrop12()">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-inline" id="hiddenDrop12">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="row">
+                <label class="col-sm-1 col-sm-offset-2" for="drop12">12.</label>
+                <div class="col-sm-6">
+                    <select class="form-control selectpicker" id="drop12">
+                        <option value="default" selected="selected" disabled>Velg kandidat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div id="testlenkediv"></div>
+        <div class="row" id="lenkeRadSTV">
+            <div class="col-sm-offset-4">
+                <a href="" id="lenkeLeggTil"><i class="glyphicon-plus" style="font-size: 20px !important;"></i>&nbsp; Legg til flere kandidater</a>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+        </div>
+        <div id="stemBtnStv">
+            <a href="#stemmeModal" class="btn btn-success col-sm-4 col-sm-offset-4" id="stemmeKnappSTV"
+               data-navn=""
+               data-toggle="modal" data-stemmeModal="true">Stem</a>
+        </div>
+
+        <div id="luftDiv1"></div>
+
+        @Html.Partial("stemmeModal")
+    </div>
+    <br />
+</body>
+</html>
+

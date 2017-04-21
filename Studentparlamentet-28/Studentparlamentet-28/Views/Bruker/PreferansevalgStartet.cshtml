@@ -1,0 +1,114 @@
+﻿@model Studentparlamentet_28.Models.Preferansevalg
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        //Hjelpevariabler
+
+        $(function () {
+            $("#skjulVisResultat").hide();
+
+            $.ajax({
+                url: '/Bruker/hentInnAntallDeltakere',
+                type: 'GET',
+                dataType: 'json',
+                success: function (melding) {
+                    if (melding != 0) {
+                        $("#antDeltakereDiv").html("<h4>" + melding + "</h4>");
+                    }
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+
+            var ajax_kall = function () {
+                $.ajax({
+                    url: '/Bruker/AntallstemtPreferansevalg',
+                    data: { valgtypeid: @Model.valgtypeid },
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        $("#antStemtDiv").html("<h4>" + melding + "</h4>");
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            };
+
+            $("#btnStopPreferansevalg").click(function () {
+
+                $.ajax({
+                    url: '/Bruker/stopPreferansevalg',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (valg) {
+                        if (valg != null) {
+                            $("#skjultStoppKnapp").hide();
+                            $("#skjulVisResultat").show();
+                        }
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+
+            setInterval(ajax_kall, 1000 * 2);
+
+
+        }) //Her stopper function()
+
+    </script>
+</head>
+<body>
+    <div class="col-sm-12" id="containerSTV">
+
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("PreferansevalgEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-lg-3"><h4>Beskrivelse:</h4></div>
+            <div class="col-lg-7"><div class="col-lg-7"><h4>@Model.beskrivelse</h4></div></div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-3"><h4>Antall deltakere:</h4></div>
+            <div class="col-lg-7"><div class="col-lg-7" id="antDeltakereDiv"></div></div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-lg-3"><h4>Antall stemt:</h4></div>
+            <div class="col-lg-7"><div class="col-lg-7" id="antStemtDiv"></div></div>
+        </div>
+        <br /><br />
+        <div class="row">
+            <div class="col-lg-12" id="skjultStoppKnapp">
+                <input type="button" id="btnStopPreferansevalg" value="Stopp preferansevalg" class="btn btn-danger" />
+            </div>
+            <div class="col-lg-12" id="skjulVisResultat">
+                @Html.ActionLink("Vis Resultat", "ResultatPreferansevalg", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-danger col-lg-3" })
+            </div>
+        </div>
+
+    </div>
+    <br />
+</body>
+</html>
+
