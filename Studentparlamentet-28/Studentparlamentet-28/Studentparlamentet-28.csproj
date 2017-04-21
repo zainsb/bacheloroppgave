@@ -190,7 +190,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Style\StyleSheet15.css" />
+    <Content Include="Style\StyleSheet16.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -255,6 +255,27 @@
     <Content Include="Views\User\PersonvalgModalEng.cshtml" />
     <Content Include="Views\User\slettePersonvalgModalEng.cshtml" />
     <Content Include="Views\User\PersonvalgResultatEng.cshtml" />
+    <Content Include="Views\Bruker\PreferansevalgAdmin.cshtml" />
+    <Content Include="Views\User\PreferansevalgAdminEng.cshtml" />
+    <Content Include="Views\User\PreferanseStartetEng.cshtml" />
+    <Content Include="Views\Bruker\ForhåndslagredePreferansevalg.cshtml" />
+    <Content Include="Views\User\ForhåndslagredePreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\ForhåndsLagredePreferansevalgPartial.cshtml" />
+    <Content Include="Views\User\ForhåndsLagredePreferansevalgPartialEng.cshtml" />
+    <Content Include="Views\Bruker\ForhåndslagreNyttPreferansevalg.cshtml" />
+    <Content Include="Views\User\ForhåndslagreNyttPreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\AlleUtfortePreferansevalg.cshtml" />
+    <Content Include="Views\User\AlleUtfortePreferansevalgEng.cshtml" />
+    <Content Include="Views\User\UtførtePreferansevalgPartialEng.cshtml" />
+    <Content Include="Views\Bruker\UtførtePreferansevalgPartial.cshtml" />
+    <Content Include="Views\Bruker\ResultatPreferansevalg.cshtml" />
+    <Content Include="Views\User\ResultatPreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\PreferansevalgStartet.cshtml" />
+    <Content Include="Views\User\PreferansevalgBrukerEng.cshtml" />
+    <Content Include="Views\User\stemmeModalEng.cshtml" />
+    <Content Include="Views\Bruker\PreferansevalgBruker.cshtml" />
+    <Content Include="Views\Bruker\stemmeModal.cshtml" />
+    <Content Include="Views\Bruker\UtførLagretPreferansevalg.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

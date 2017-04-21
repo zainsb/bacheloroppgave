@@ -117,6 +117,47 @@ namespace Studentparlamentet_28.DAL
 
     }
 
+    public class Preferansevalg_db
+    {
+        [Key]
+        public int Id { get; set; }
+        public string Beskrivelse { get; set; }
+        public int AntallRepresentanter { get; set; }
+        public bool Utført { get; set; }
+        public int ValgtypeID { get; set; }
+    }
+
+
+    public class KandidatListeSTV
+    {
+        [Key]
+        public int KandidatID { get; set; }
+        public string Navn { get; set; }
+        public int Stemmetall { get; set; }
+        public bool StemmetallSatt { get; set; }
+        public int ValgtypeID { get; set; }
+    }
+
+    public class Stemmeseddel_db
+    {
+        [Key]
+        public int StemmeseddelID { get; set; }
+        public string KandidatnrEn { get; set; }
+        public string KandidatnrTo { get; set; }
+        public string KandidatnrTre { get; set; }
+        public string KandidatnrFire { get; set; }
+        public string KandidatnrFem { get; set; }
+        public string KandidatnrSeks { get; set; }
+        public string KandidatnrSju { get; set; }
+        public string KandidatnrÅtte { get; set; }
+        public string KandidatnrNi { get; set; }
+        public string KandidatnrTi { get; set; }
+        public string KandidatnrElleve { get; set; }
+        public string KandidatnrTolv { get; set; }
+
+        public int ValgtypeID { get; set; }
+    }
+
     public class BrukerContext : DbContext
     {
         public BrukerContext()
@@ -134,6 +175,12 @@ namespace Studentparlamentet_28.DAL
         public DbSet<PersonvalgResultat_db> PersonvalgResultat { get; set; }
         public DbSet<PersonvalgResultatStemmer_db> PersonvalgResultatStemmer { get; set; }
         public DbSet<PersonvalgKandidatResultat_db> PersonvalgKandidatResultat { get; set; }
+        public DbSet<Preferansevalg_db> PreferanseValg { get; set; }
+        public DbSet<KandidatListeSTV> KandidaterSTV { get; set; }
+
+        public DbSet<Stemmeseddel_db> Stemmesedler { get; set; }
+        
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();

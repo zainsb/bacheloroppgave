@@ -21,8 +21,460 @@ namespace Studentparlamentet_28.Controllers
     public class BrukerController : Controller
     {
 
+        //PREFERANSEVALG
+
+        public string startLagretPreferansevalg(int valgtypeid, string beskrivelse, int antallRepresentanter)
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.startLagretPreferansevalg(valgtypeid, beskrivelse, antallRepresentanter);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public ActionResult Preferansevalgsvar(string kandidatEn, string kandidatTo, string kandidatTre, string kandidatFire,
+                                       string kandidatFem, string kandidatSeks, string kandidatSju, string kandidatÅtte,
+                                       string kandidatNi, string kandidatTi, string kandidatElleve, string kandidatTolv)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    String iD = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    bool ok = db.preferansevalgSvar(kandidatEn, kandidatTo, kandidatTre, kandidatFire, kandidatFem,
+                                                 kandidatSeks, kandidatSju, kandidatÅtte, kandidatNi, kandidatTi,
+                                                 kandidatElleve, kandidatTolv);
+
+                    Valgtyper valg = db.PreferansevalgPågår();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (valg != null)
+                    {
+                        db.LagreBrukerStemt(valg, brukernavn);
+                    }
+
+                    if (ok == true)
+                    {
+                        return RedirectToAction("BrukerLoggetInn", new { id = iD });
+                    }
+                    else
+                    {
+                        return RedirectToAction("BrukerLoggetInn", new { id = iD });
+                    }
+                }
+            }
+            return RedirectToAction("index");
+        }
+
+        public string hentKandidaterMedID()
+        {
+            var db = new BrukerBLL();
+            List<KandidatSTV> alleKandidater = db.hentKandidaterPreferansevalgBruker();
+
+            var jsonSerializer = new JavaScriptSerializer();
+            string json = jsonSerializer.Serialize(alleKandidater);
+            return json;
+        }
+        public ActionResult PreferansevalgBruker()
+        {
+            return View();
+        }
+        public ActionResult PreferansevalgBrukerEng()
+        {
+            return View("../User/PreferansevalgBrukerEng");
+        }
+        public string stvMelding()
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.stvBrukerStart();
+            var jsonSerializer = new JavaScriptSerializer();
+            if (melding == "Preferansevalg")
+            {
+                return jsonSerializer.Serialize(melding);
+            }
+            return jsonSerializer.Serialize(melding);
+        }
+        public string stopPreferansevalg()
+        {
+            var db = new BrukerBLL();
+            Valgtyper valg = db.stopPreferansevalg();
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(valg);
+
+            /*string melding = db.stopPreferansevalg();
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);*/
+        }
+        public string AntallstemtPreferansevalg(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+            int melding = db.AntallstemtPreferansevalg(valgtypeid);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public string hentInnAntallDeltakere()
+        {
+            var db = new BrukerBLL();
+            int melding = db.hentAntallBrukere_int();
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public string antallKandidaterIPreferansevalg(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+
+            int antallKandidater = db.PreferansevalgAntallKandidater(valgtypeid);
+            var jsonSerializer = new JavaScriptSerializer();
+
+            return jsonSerializer.Serialize(antallKandidater);
+        }
+        public string antallDeltokIPreferansevalg(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+
+            int antallDeltakere = db.PreferansevalgAntallDeltatt(valgtypeid);
+            var jsonSerializer = new JavaScriptSerializer();
+
+            return jsonSerializer.Serialize(antallDeltakere);
+        }
+        public string hentPrefereransevalgDetaljer(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+
+            Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+            var jsonSerializer = new JavaScriptSerializer();
+
+            return jsonSerializer.Serialize(valg);
+        }
+        public string hentAlleValgteKandidater(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+            List<KandidatSTV> alleKandidater = db.BeregnPreferansevalgResultat(valgtypeid);
+
+            var jsonSerializer = new JavaScriptSerializer();
+            string json = jsonSerializer.Serialize(alleKandidater);
+            return json;
+        }
+
+        public ActionResult ResultatPreferansevalg(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+                return View(valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult ResultatPreferansevalgEng(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+                return View("../User/ResultatPreferansevalgEng", valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter)
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public string NullstillKandidatliste(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+            string melding = db.NullstillKandidatliste(valgtypeid);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public ActionResult ForhåndslagreNyttPreferansevalgEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                List<KandidatSTV> listeKandidater = db.listeKandidaterIkkeSatt();
+                return View("../User/ForhåndslagreNyttPreferansevalgEng", listeKandidater);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult ForhåndslagreNyttPreferansevalg()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                List<KandidatSTV> listeKandidater = db.listeKandidaterIkkeSatt();
+                return View(listeKandidater);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult UtførLagretPreferansevalg(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                List<KandidatSTV> listeKandidater = db.hentKandidatlisteMedID(valgtypeid);
+                return View(listeKandidater);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult UtførLagretPreferansevalgEng(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                List<KandidatSTV> listeKandidater = db.hentKandidatlisteMedID(valgtypeid);
+                return View("../User/UtførLagretPreferansevalgEng", listeKandidater);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public void slettPreferanseValg(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    db.slettPreferanseValg(id);
+                }
+            }
+        }
+        public ActionResult AlleUtfortePreferansevalg()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Preferansevalg> alleUtforte = db.hentAlleUtfortePreferansevalg();
+                    return View(alleUtforte);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public ActionResult AlleUtfortePreferansevalg(Bruker innAdmin, int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        db.slettUtførtePreferanseValg(id);
+                        return RedirectToAction("AlleUtfortePreferansevalg");
+                    }
+                    else
+                    {
+                        return RedirectToAction("AlleUtfortePreferansevalg");
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        public ActionResult AlleUtfortePreferansevalgEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Preferansevalg> alleUtforte = db.hentAlleUtfortePreferansevalg();
+                    return View("../User/AlleUtfortePreferansevalgEng", alleUtforte);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public ActionResult AlleUtfortePreferansevalgEng(Bruker innAdmin, int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        db.slettUtførtePreferanseValg(id);
+                        return RedirectToAction("AlleUtfortePreferansevalgEng");
+                    }
+                    else
+                    {
+                        return RedirectToAction("AlleUtfortePreferansevalgEng");
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        public ActionResult ForhåndslagredePreferansevalg()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Preferansevalg> alleIkkeUtforte = db.hentAlleIkkeUtfortePreferansevalg();
+                    return View(alleIkkeUtforte);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        public ActionResult ForhåndslagredePreferansevalgEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Preferansevalg> alleIkkeUtforte = db.hentAlleIkkeUtfortePreferansevalg();
+                    return View("../User/ForhåndslagredePreferansevalgEng", alleIkkeUtforte);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        public ActionResult slettKandidatFraListe(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                db.slettKandidatFraListe(id);
+                List<KandidatSTV> listeKandidater = db.listeKandidaterIkkeSatt();
+                return RedirectToAction("PreferansevalgAdmin");
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public string lagreKandidatIListe(string id)
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.lagreKandidatSTV(id);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter)
+        {
+            var db = new BrukerBLL();
+
+            string melding = db.startPreferansevalg(beskrivelse, antallRepresentanter);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+
+        public ActionResult PreferansevalgStartet()
+        {
+            var db = new BrukerBLL();
+            if (Session["LoggetInn"] != null)
+            {
+                Preferansevalg valg = db.PreferansevalgHarStartet();
+                return View(valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult PreferansevalgStartetEng()
+        {
+            var db = new BrukerBLL();
+            if (Session["LoggetInn"] != null)
+            {
+                Preferansevalg valg = db.PreferansevalgHarStartet();
+                return View("../User/PreferansevalgStartetEng", valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public string PreferansevalgKjorer()
+        {
+            var db = new BrukerBLL();
+            bool ok = db.PreferansevalgKjorer();
+            if (ok == true)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+        }
+        public ActionResult PreferansevalgAdmin()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                List<KandidatSTV> listeKandidater = db.listeKandidaterIkkeSatt();
+                return View(listeKandidater);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult PreferansevalgAdminEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                List<KandidatSTV> listeKandidater = db.listeKandidaterIkkeSatt();
+                return View("../User/PreferansevalgAdminEng", listeKandidater);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+
+
         // PERSONVALG
-      public ActionResult PersonvalgResultatEng(int id)
+        public ActionResult PersonvalgResultatEng(int id)
         {
             var db = new BrukerBLL();
             List<PersonvalgKandidatResultat> tabell = db.hentPersonvalgResultatFane(id);
@@ -1875,6 +2327,10 @@ namespace Studentparlamentet_28.Controllers
             {
                 return jsonSerializer.Serialize(melding);
             }
+            else if(melding == "Preferansevalg")
+            {
+                return jsonSerializer.Serialize(melding);
+            }
 
             return jsonSerializer.Serialize(melding);
         }
@@ -1886,7 +2342,14 @@ namespace Studentparlamentet_28.Controllers
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(mld);
         }
-        
+        public string BrukerStemtMldSTV()
+        {
+            var db = new BrukerBLL();
+            string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+            string mld = db.HarBrukerStemtSTV(brukernavn);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(mld);
+        }
     }
 }
  

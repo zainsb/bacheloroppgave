@@ -28,3 +28,16 @@ C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\
 C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.dll
 C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.xml
 C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\Model.dll.config
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\Model.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\Model.pdb
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\itextsharp.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\PasswordGenerator.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.xml
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\bin\Debug\itextsharp.xml
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\obj\Debug\Model.csprojResolveAssemblyReference.cache
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\obj\Debug\Model.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\Model\obj\Debug\Model.pdb

@@ -37,3 +37,17 @@ C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\De
 C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.pdb
 C:\Users\dani9_000\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\PasswordGenerator.dll
 C:\Users\Paranoid\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\PasswordGenerator.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\BLL.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\BLL.pdb
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\DAL.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\itextsharp.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\Model.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\PasswordGenerator.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\EntityFramework.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\DAL.pdb
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\Model.pdb
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\itextsharp.xml
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\bin\Debug\EntityFramework.xml
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.csprojResolveAssemblyReference.cache
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.dll
+C:\Users\dani9\Source\Repos\bacheloroppgave\Studentparlamentet-28\BLL\obj\Debug\BLL.pdb

@@ -11,7 +11,153 @@ namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
     {
-       public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
+        //Preferansevalg
+        public string HarBrukerStemtSTV(string brukernavn)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.HarBrukerStemtSTV(brukernavn);
+        }
+        public string startLagretPreferansevalg(int valgtypeid, string beskrivelse, int antallRepresentanter)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.startLagretPreferansevalg(valgtypeid, beskrivelse, antallRepresentanter);
+        }
+        public Valgtyper PreferansevalgPågår()
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.PreferansevalgPågår();
+        }
+
+        public bool preferansevalgSvar(string kandidatEn, string kandidatTo, string kandidatTre, string kandidatFire,
+                                       string kandidatFem, string kandidatSeks, string kandidatSju, string kandidatÅtte,
+                                       string kandidatNi, string kandidatTi, string kandidatElleve, string kandidatTolv)
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.preferansevalgSvar(kandidatEn, kandidatTo, kandidatTre, kandidatFire, kandidatFem,
+                                                 kandidatSeks, kandidatSju, kandidatÅtte, kandidatNi, kandidatTi,
+                                                 kandidatElleve, kandidatTolv);
+        }
+
+        public List<KandidatSTV> hentKandidaterPreferansevalgBruker()
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentKandidaterPreferansevalgBruker();
+        }
+        public string stvBrukerStart()
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.stvBrukerStart();
+        }
+        public Valgtyper stopPreferansevalg()
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.stopPreferansevalg();
+        }
+        public int AntallstemtPreferansevalg(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.AntallstemtPreferansevalg(valgtypeid);
+        }
+        public int PreferansevalgAntallKandidater(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.PreferansevalgAntallKandidater(valgtypeid);
+        }
+        public int PreferansevalgAntallDeltatt(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.PreferansevalgAntallDeltatt(valgtypeid);
+        }
+        public List<KandidatSTV> BeregnPreferansevalgResultat(int valgtypeid)
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.BeregnPreferansevalgResultat(valgtypeid);
+        }
+        public Preferansevalg hentPreferanseValg(int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.hentPreferanseValg(id);
+        }
+        public void BeregnStemmetallFørsteRunde(int valgtypeid)
+        {
+            var brukderDal = new DbDal();
+            brukderDal.BeregnStemmetallFørsteRunde(valgtypeid);
+        }
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter)
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter);
+        }
+        public string NullstillKandidatliste(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.NullstillKandidatliste(valgtypeid);
+        }
+        public List<KandidatSTV> hentKandidatlisteMedID(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentKandidatlisteMedID(valgtypeid);
+        }
+        public bool slettPreferanseValg(int id)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.slettPreferanseValg(id);
+            return ok;
+        }
+        public List<Preferansevalg> hentAlleUtfortePreferansevalg()
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentAlleUtfortePreferansevalg();
+        }
+        public bool slettUtførtePreferanseValg(int id)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.slettUtførtePreferanseValg(id);
+            return ok;
+        }
+        public List<Preferansevalg> hentAlleIkkeUtfortePreferansevalg()
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentAlleIkkeUtfortePreferansevalg();
+        }
+        public void slettKandidatFraListe(int id)
+        {
+            var brukerdal = new DbDal();
+            brukerdal.slettKandidatFraListe(id);
+        }
+        public string lagreKandidatSTV(string id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.lagreKandidatSTV(id);
+        }
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter)
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.startPreferansevalg(beskrivelse, antallRepresentanter);
+        }
+        public bool startPreferansevalg(Valgtyper valg)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.startPreferansevalg(valg);
+        }
+        public Preferansevalg PreferansevalgHarStartet()
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.PreferansevalgHarStartet();
+        }
+        public bool PreferansevalgKjorer()
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.PreferansevalgKjorer();
+        }
+        public List<KandidatSTV> listeKandidaterIkkeSatt()
+        {
+            var brukderDal = new DbDal();
+            return brukderDal.listeKandidaterIkkeSatt();
+        }
+
+        //Personvalg
+        public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
         {
             var brukerDal = new DbDal();
             List<PersonvalgKandidatResultat> tabell = brukerDal.hentPersonvalgResultatFane(id);

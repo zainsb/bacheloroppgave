@@ -8,6 +8,34 @@
 
         $(function () {
 
+            var ajax_kall_STV = function () {
+                $.ajax({
+                    url: '/Bruker/stvMelding',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        if (melding == "Preferansevalg")
+                        {
+                            $.ajax({
+                                url: '/Bruker/BrukerStemtMldSTV',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (mld) {
+                                    if(mld == "NEI")
+                                    {
+                                        window.location = "@Url.Action("PreferansevalgBruker", "Bruker")";
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function (x, y, z) {
+
+                    }
+                });
+            };
+
+
             var ajax_kall = function () {
                 $.ajax({
                     url: '/Bruker/VoteringMelding',
@@ -53,8 +81,8 @@
                 });
             };
 
+            setInterval(ajax_kall_STV, 1000 * 3);
             setInterval(ajax_kall, 1000 * 3);
-
         })
 
 

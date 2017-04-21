@@ -62,12 +62,15 @@
     <Compile Include="Admin.cs" />
     <Compile Include="Bruker.cs" />
     <Compile Include="Kandidat.cs" />
+    <Compile Include="KandidatListeSTV.cs" />
     <Compile Include="Leggtilbruker.cs" />
     <Compile Include="PersonvalgKandidatResultat.cs" />
     <Compile Include="Personvalg.cs" />
     <Compile Include="PersonvalgStemmer.cs" />
     <Compile Include="PersonvalgResultat.cs" />
+    <Compile Include="Preferansevalg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stemmeseddel.cs" />
     <Compile Include="Valgtyper.cs" />
     <Compile Include="Votering.cs" />
   </ItemGroup>
