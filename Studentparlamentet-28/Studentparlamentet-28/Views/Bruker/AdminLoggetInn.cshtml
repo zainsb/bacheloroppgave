@@ -27,9 +27,9 @@
             <div id="borderListGroup">
                 <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Generer valgdeltagerliste</h5>
+                        <h5 class="mb-1">Generer liste med valgdeltagere</h5>
                     </div>
-                    <small>Klikk her for å generer og laste ned brukernavn og passord for valgdeltagere</small>
+                    <small>Klikk her for å generer en liste og last ned brukernavn og passord for valgdeltagere</small>
                 </a>
             </div>
 
@@ -38,7 +38,7 @@
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Votering</h5>
                     </div>
-                    <small>Klikk her for å starte en votering</small>
+                    <small>Klikk her for å starte og stoppe votering og for å se oversikt over alle voteringer</small>
                 </a>
             </div>
 
@@ -47,7 +47,7 @@
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Preferansevalg</h5>
                     </div>
-                    <small>Klikk her for å starte et preferansevalg</small>
+                    <small>Klikk her for å starte og stoppe preferansevalg og for å se oversikt over alle preferansevalg</small>
                 </a>
             </div>
 
@@ -56,19 +56,19 @@
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Personvalg</h5>
                     </div>
-                    <small>Klikk her for å starte et personvalg</small>
+                    <small>Klikk her for å starte og stoppe personvalg og for å se oversikt over alle personvalgene</small>
                 </a>
             </div>
 
             <div id="borderListGroup">
                 <a href="@Url.Action("HentResultat", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Hent resultat</h5>
+                        <h5 class="mb-1">Resultater</h5>
                     </div>
-                    <small>Klikk her for å hente rapporter av resultat</small>
+                    <small>Klikk her for å hente rapporter av resultatene</small>
                 </a>
             </div>
         </div>
-        @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger" })
+       @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger" })
     </div>
     </div>

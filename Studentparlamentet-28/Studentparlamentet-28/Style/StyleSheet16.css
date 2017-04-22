@@ -225,7 +225,7 @@ body {
 #LoginForm2 {
     background-color: whitesmoke;
     border-radius: 25px;
-    max-width: 400px;
+    max-width: 00px;
     padding: 15px 35px 45px;
     margin: 0 auto;
     border: 4px solid rgba(0,0,0,0.1); 
@@ -246,7 +246,7 @@ body {
     background-color: whitesmoke;
     border-radius: 25px;
     max-width: 400px;
-    max-height: 610px;
+    max-height: 700px;
     padding: 15px 35px 45px;
     margin: 0 auto;
     border: 4px solid rgba(0,0,0,0.1); 
@@ -472,6 +472,10 @@ body {
 
 /*LeggTilBruker*/
 #antall
+{
+    width: 77px;
+}
+#antalleng
 {
     width: 77px;
 }

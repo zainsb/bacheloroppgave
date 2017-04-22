@@ -1593,113 +1593,141 @@ namespace Studentparlamentet_28.Controllers
           }
           return RedirectToAction("Index");
       }
-      [Authorize(Roles = "true")] 
-      public ActionResult LastNedListe()
-      {
-          // Lokal løsning med memoryStream
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
+        [HttpPost]
+        [Authorize(Roles = "true")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+        public ActionResult GenererListeEng(int antalleng)
+        {
 
-                  var db = new BrukerBLL();
-                  List<Bruker> tabell = db.hentData();
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    bool ok = db.GenererBrukere(antalleng);
+                    if (ok)
+                    {
+                        return RedirectToAction("VisListeEng");
+                    }
+                    else
+                    {
+                        return RedirectToAction("LeggTilBrukerEng");
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult LastNedListe()
+        {
+            // Lokal løsning med memoryStream
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
 
-                  using (MemoryStream ms = new MemoryStream())
-                  {
-                      using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
-                      {
-                          PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                          PdfPTable table = new PdfPTable(3);
-                          BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
-                          Font tablefont = new Font(bfTimes, 24);
-                          Font tablefont2 = new Font(bfTimes, 16);
-                          PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
-                          cell.Colspan = 3;
-                          cell.HorizontalAlignment = 1;
-                          table.AddCell(cell);
-                          int teller = 0;
-                          for (int i = 0; i < tabell.Count; i++)
-                          {
-                              teller++;
-                              // nummer
-                              table.AddCell(new PdfPCell(new Paragraph(teller.ToString(), tablefont2)));
-                              // brukernavn
-                              table.AddCell(new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2)));
-                              // passord
-                              table.AddCell(new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2)));
-                          }
-                          doc.Open();
-                          doc.Add(table);
-                          doc.Close();
-                      }
-                      byte[] filedata = ms.ToArray();
-                      return File(filedata, "application/pdf", "BrukernavnOgPassord.pdf");
-                  }
-              }
-          }
+                    var db = new BrukerBLL();
+                    List<Bruker> tabell = db.hentData();
 
-          return RedirectToAction("Index");
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                        {
+                            PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                            PdfPTable table = new PdfPTable(3);
+                            BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                            Font tablefont = new Font(bfTimes, 30);
+                            Font tablefont2 = new Font(bfTimes, 24);
+                            PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
+                            cell.Colspan = 3;
+                            cell.HorizontalAlignment = 1;
+                            table.AddCell(cell);
+                            int teller = 0;
+                            for (int i = 0; i < tabell.Count; i++)
+                            {
+                                teller++;
+                                var t = new PdfPCell(new Paragraph(teller.ToString(), tablefont2));
+                                t.FixedHeight = 60f;
+                                // nummer
+                                table.AddCell(t);
+                                // brukernavn
+                                var b = new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2));
+                                b.FixedHeight = 60f;
+                                table.AddCell(b);
+                                // passord
+                                var p = new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2));
+                                p.FixedHeight = 60f;
+                                table.AddCell(p);
+                            }
+                            doc.Open();
+                            doc.Add(table);
+                            doc.Close();
+                        }
+                        byte[] filedata = ms.ToArray();
+                        return File(filedata, "application/pdf", "BrukernavnOgPassord.pdf");
+                    }
+                }
+            }
 
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult LastNedListeEng()
+        {
+            // Lokal løsning med memoryStream
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
 
-          // Azure løsning med cloud
-          /*
-         // Retrieve storage account from connection string.
-         CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-             CloudConfigurationManager.GetSetting("StorageConnectionString"));
+                    var db = new BrukerBLL();
+                    List<Bruker> tabell = db.hentData();
 
-         // Create the blob client.
-         CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                        {
+                            PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                            PdfPTable table = new PdfPTable(3);
+                            BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                            Font tablefont = new Font(bfTimes, 30);
+                            Font tablefont2 = new Font(bfTimes, 24);
+                            PdfPCell cell = new PdfPCell(new Phrase(" \n Username and Password \n ", tablefont));
+                            cell.Colspan = 3;
+                            cell.HorizontalAlignment = 1;
+                            table.AddCell(cell);
+                            int teller = 0;
+                            for (int i = 0; i < tabell.Count; i++)
+                            {
+                                teller++;
+                                var t = new PdfPCell(new Paragraph(teller.ToString(), tablefont2));
+                                t.FixedHeight = 60f;
+                                // nummer
+                                table.AddCell(t);
+                                // brukernavn
+                                var b = new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2));
+                                b.FixedHeight = 60f;
+                                table.AddCell(b);
+                                // passord
+                                var p = new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2));
+                                p.FixedHeight = 60f;
+                                table.AddCell(p);
+                            }
+                            doc.Open();
+                            doc.Add(table);
+                            doc.Close();
+                        }
+                        byte[] filedata = ms.ToArray();
+                        return File(filedata, "application/pdf", "UsernameAndPassword.pdf");
+                    }
+                }
+            }
 
-         // Retrieve reference to a previously created container.
-         CloudBlobContainer container = blobClient.GetContainerReference("myprivatecontainer");
-
-         // Retrieve reference to a blob named "myblob.txt".
-         CloudBlockBlob blockBlob = container.GetBlockBlobReference("BrukernavnOgPassord.pdf");
-
-         var db = new BrukerBLL();
-         List<Bruker> tabell = db.hentData();
-
-         using (MemoryStream ms = new MemoryStream())
-         {
-             using (var doc = new iTextSharp.text.Document())
-             {
-                 PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                 PdfPTable table = new PdfPTable(3);
-                 PdfPCell cell = new PdfPCell(new Phrase("Brukernavn og Passord"));
-                 cell.Colspan = 3;
-                 cell.HorizontalAlignment = 1;
-                 table.AddCell(cell);
-                 int teller = 0;
-                 for (int i = 0; i < tabell.Count; i++)
-                 {
-                     teller++;
-                     // nummer
-                     table.AddCell(teller.ToString());
-                     // brukernavn
-                     table.AddCell(tabell[i].brukernavn.ToString());
-                     // passord
-                     table.AddCell(tabell[i].passord.ToString());
-
-                 }
-                 doc.Open();
-                 doc.Add(table);
-                 doc.Close();
-             }
-             var byteArray = ms.ToArray();
-             var blobName = "BrukernavnOgPassord.pdf";
-             var blob = container.GetBlockBlobReference(blobName);
-             blob.Properties.ContentType = "application/pdf";
-             blob.UploadFromByteArray(byteArray, 0, byteArray.Length);
-         }
-         var memStream = new MemoryStream();
-         blockBlob.DownloadToStream(memStream);
-         return File(memStream.ToArray(), blockBlob.Properties.ContentType);
-         */
-
-    }
-    public ActionResult LoggUt(String id)
+            return RedirectToAction("Index");
+        }
+        public ActionResult LoggUt(String id)
         {
             var db = new BrukerBLL();
             db.logg_ut_bruker(id);
