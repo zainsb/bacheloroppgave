@@ -4,13 +4,37 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        $(document).ready(function () {
 
+
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
+            var feilmelding = url_array[url_array.length - 1];// Get the last part of the array (-1)
+
+            if (feilmelding == "kandidatfinnes")    // Feilmelding det er avlagt stemme i valget, ikke lov til å endre informasjon
+            {
+
+                $("#feilmelding").append("You have already added this Candidate to the list");
+                $("#feilmelding").show();
+            }
+            else if(feilmelding == "sucess")
+            {
+                $("#sucess").append("Person Election and the candidates was saved");
+                $("#sucess").show();
+            }
+            else if (feilmelding == "feil") {
+                $("#feil").append("You have not added any candidates to the list");
+                $("#feil").show();
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="col-sm-12" id="Personvalg">
 
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Back", "TilbakeEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     English
@@ -21,28 +45,30 @@
                 </ul>
             </div>
         </div>
-        <h2>Person Election</h2>
-        <br />
+        <h2><b>Create Person Election</b></h2>
         <div id="melding">
-            <p>Add candidates for Person Election </p>
-
+            <h3>Here you can add candidates to a Person election</h3>
         </div>
+        <br />
+        <p>Fill inn firstname and lastname to the candidate</p>
         @using (Html.BeginForm())
         {
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="form-inline">
 
                 <div class="form-group">
-                    @Html.EditorFor(model => model.fornavn, new { htmlAttributes = new { @class = "form-control", placeholder = "First name" } })
-                    @Html.ValidationMessageFor(model => model.fornavn, "", new { @class = "text-danger" })
+                    <div>@Html.EditorFor(model => model.fornavn_RequiredEng, new { htmlAttributes = new { @class = "form-control", placeholder = "Firstname" } })</div>
+                    <div>@Html.ValidationMessageFor(model => model.fornavn_RequiredEng, "", new { @class = "text-danger" })</div>
                 </div>
                 <div class="form-group">
-                    @Html.EditorFor(model => model.etternavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Last name" } })
-                    @Html.ValidationMessageFor(model => model.etternavn, "", new { @class = "text-danger" })
+                    <div>@Html.EditorFor(model => model.etternavn_RequiredEng, new { htmlAttributes = new { @class = "form-control", placeholder = "Lastname" } })</div>
+                    <div>@Html.ValidationMessageFor(model => model.etternavn_RequiredEng, "", new { @class = "text-danger" })</div>
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="Add candidate" class="btn btn-primary" />
+                    <input type="submit" value="Add Canidates" class="btn btn-info" />
                 </div>
+                <div class="alert alert-danger" style="display: none;" id="feilmelding"></div>
+
             </div>
             <br />
             <h3>Candidates for Person Election</h3>
@@ -58,4 +84,3 @@
 
 </body>
 </html>
-

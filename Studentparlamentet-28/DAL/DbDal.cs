@@ -16,6 +16,33 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public bool sjekkValgStemme(int ID)
+        {
+            var db = new BrukerContext();
+            PersonvalgResultatStemmer_db avlagtstemme = db.PersonvalgResultatStemmer.FirstOrDefault(b => b.ValgtypeID == ID);
+            if(avlagtstemme != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public string kjørerValg()
+        {
+            var db = new BrukerContext();
+            Valgtyper valg = valgPågår();
+            if (valg != null)
+            {
+                return "Ja";
+            }
+            else
+            {
+                return "Nei";
+            }
+            
+        }
         //Preferansevalg
         public string HarBrukerStemtSTV(string brukernavn)
         {
@@ -1307,16 +1334,18 @@ namespace Studentparlamentet_28.DAL
                     stemmer = k.Stemmer
                 }).ToList();
 
-                int teller2 = slettListe.Count(k => k.valgtypeid == id);
+                int teller2 = slettListe.Count();
                 if (teller2 > 0)
                 {
 
 
                     for (int i = 0; i < teller2; i++)
                     {
-                        var slett = db.PersonvalgKandidatResultat.FirstOrDefault(k => k.ValgtypeID == id);
+                        var slett = db.PersonvalgKandidatResultat.FirstOrDefault();
                         db.PersonvalgKandidatResultat.Remove(slett);
+                        db.SaveChanges();
                     }
+                    
                 }
                  var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
                     {
@@ -1644,6 +1673,30 @@ namespace Studentparlamentet_28.DAL
 
             }
         }
+        public bool SjekkPassordEng(Kandidat innkandidat, string brukernavn)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innkandidat.passordEng);
+
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
+                if (funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
+                {
+                    return false;
+                }
+                else if (funnetBruker.Innlogget == (bool)true && funnetBruker.Administrator == (bool)true)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }
         public bool KandidatSlett(Kandidat innkandidat)
         {
             var db = new BrukerContext();
@@ -1719,7 +1772,7 @@ namespace Studentparlamentet_28.DAL
                 List <string> stringarray = new List<string>();
                 for (int i = 0; i < teller2; i++)
                 {
-                    stringarray.Add("Kandidat ID : " + listeAvKandidater.FirstOrDefault().id + " " + "Navn : " + listeAvKandidater.FirstOrDefault().fornavn + " " + listeAvKandidater.FirstOrDefault().etternavn);
+                    stringarray.Add("<b>KandidatID " + listeAvKandidater.FirstOrDefault().id + " " + listeAvKandidater.FirstOrDefault().fornavn + " " + listeAvKandidater.FirstOrDefault().etternavn + "</b>") ;
                     var remove = listeAvKandidater.FirstOrDefault();
                     if(remove != null)
                     {
@@ -1903,6 +1956,152 @@ namespace Studentparlamentet_28.DAL
                 }
             
         }
+        public List<PersonvalgResultat> hentPersonvalgResultatEng()
+        {
+            using (var db = new BrukerContext())
+            {
+
+                var listeAvPersonvalg = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    stemmer = k.Stemmer,
+                    vinner = k.Vinner,
+                    totalantallStemmer = k.TotalantallStemmer,
+                    antallkandidater = k.AntallKandidater
+                }).ToList();
+                // Antall Personvalg
+                int teller = listeAvPersonvalg.Count();
+
+
+                for (int i = 0; i < teller; i++)
+                {
+                    // Et enkelt personvalg
+                    var personvalg = listeAvPersonvalg.FirstOrDefault();
+
+                    var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                    {
+                        id = k.ID,
+                        valgtypeid = k.ValgtypeID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn
+
+                    }).ToList();
+
+                    // TotalantallStemmer
+                    var totalAntallStemmer = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid);
+
+
+                    var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                    {
+                        id = k.ID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn,
+                        valgtypeid = k.ValgtypeID,
+                        lagret = k.Lagret,
+
+                    }).ToList();
+
+                    // AntallKandidater
+                    var antallkandidater = listeAvKandidater.Count(k => k.valgtypeid == personvalg.valgtypeid);
+
+
+                    if (totalAntallStemmer > 0)
+                    {
+                        // Finn vinner 
+                        int[] stemmer = new int[antallkandidater];
+                        string[] kandidater = new string[antallkandidater];
+
+                        for (int j = 0; j < antallkandidater; j++)
+                        {
+                            var kandidat = listeAvKandidater.FirstOrDefault(k => k.valgtypeid == personvalg.valgtypeid);
+                            int antallstemmerkandidat = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
+                            string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
+                            kandidater[j] = kandidatnavn;
+                            stemmer[j] = antallstemmerkandidat;
+                            listeAvKandidater.Remove(kandidat);
+                        }
+                        string vinnerKandidat = "";
+                        int vinnerstemmer = stemmer.Max();
+
+
+                        for (int j = 0; j < stemmer.Length; j++)
+                        {
+                            if (stemmer[j].Equals(vinnerstemmer))
+                            {
+                                vinnerKandidat = kandidater[j];
+                            }
+
+                        }
+                        int x = 0;
+                        // Metode for for sjekke om det er uavgjort
+                        for (int k = 0; k < stemmer.Length; k++)
+                        {
+                            if (vinnerstemmer == stemmer[k])
+                            {
+                                x++;
+                            }
+                        }
+                        if (x >= 2)
+                        {
+                            vinnerKandidat = "";
+                            vinnerKandidat = "Draw";
+                            vinnerstemmer = 0;
+
+                        }
+                        // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
+
+
+                        try
+                        {
+                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
+                            personvalgresultat.Vinner = vinnerKandidat;
+                            personvalgresultat.Stemmer = vinnerstemmer;
+                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
+                            personvalgresultat.AntallKandidater = antallkandidater;
+                            db.SaveChanges();
+                            listeAvPersonvalg.Remove(personvalg);
+
+                        }
+                        catch (Exception feil)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
+                            personvalgresultat.Vinner = "No votes";
+                            personvalgresultat.Stemmer = 0;
+                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
+                            personvalgresultat.AntallKandidater = antallkandidater;
+                            db.SaveChanges();
+                            listeAvPersonvalg.Remove(personvalg);
+
+                        }
+                        catch (Exception feil)
+                        {
+
+                        }
+                    }
+                }
+                // Henter ut liste
+                var listeAvPersonvalg2 = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    stemmer = k.Stemmer,
+                    vinner = k.Vinner,
+                    totalantallStemmer = k.TotalantallStemmer,
+                    antallkandidater = k.AntallKandidater
+                }).ToList();
+                return listeAvPersonvalg2;
+
+            }
+
+        }
         public bool LagrePersonvalgResultat()
         {
 
@@ -1956,7 +2155,7 @@ namespace Studentparlamentet_28.DAL
                     var nyResultat= new PersonvalgResultat_db()
                     {
                         ValgtypeID = valgtypeID.valgtypeid,
-                        Vinner = "Ingen forløpig",
+                        Vinner = "No Votes",
                         TotalantallStemmer = 0,
                         AntallKandidater = antallkandidater,
                     };
@@ -2068,7 +2267,11 @@ namespace Studentparlamentet_28.DAL
                     lagret = k.Lagret,
                     valgtypeid = k.ValgtypeID
                 }).ToList();
-
+            int tellersjekk = listeAvKandidater.Count(b => b.valgtypeid == 0);
+            if(tellersjekk == 0)
+            {
+                return false;
+            }
                 int teller = listeAvKandidater.Count();
                 for(int i = 0; i < teller; i++)
                 {
@@ -2152,24 +2355,81 @@ namespace Studentparlamentet_28.DAL
                 return listeAvKandidater;
             }
         }
-        public bool leggtilPersonvalgKandidat(Kandidat innKandidat)
+        public bool leggtilPersonvalgKandidatEng(Kandidat innKandidat)
         {
             var db = new BrukerContext();
-
-            var nyKandidat = new Personvalg_db()
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
             {
-                Fornavn = innKandidat.fornavn,
-                Etternavn = innKandidat.etternavn,
-                Lagret = (bool)false,
-               
-                ValgtypeID = 0
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_RequiredEng && b.etternavn == innKandidat.etternavn_RequiredEng && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+
+                return false;
+
+
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_RequiredEng,
+                    Etternavn = innKandidat.etternavn_RequiredEng,
+                    Lagret = (bool)false,
+
+                    ValgtypeID = 0
                 };
                 db.Personvalger.Add(nyKandidat);
                 db.SaveChanges();
                 return true;
-   
+            }
 
-  
+
+
+
+
+
+        }
+        public bool leggtilPersonvalgKandidat(Kandidat innKandidat)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_Required && b.etternavn == innKandidat.etternavn_Required && b.valgtypeid == 0);
+            if(teller > 0)
+            {
+
+                return false;
+
+
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_Required,
+                    Etternavn = innKandidat.etternavn_Required,
+                    Lagret = (bool)false,
+
+                    ValgtypeID = 0
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+
+
 
         }
         // Personvalg
@@ -2615,27 +2875,20 @@ namespace Studentparlamentet_28.DAL
             if(valg != null)
             {
                 melding = "Votering";
+                return melding;
             }
             else
             {
                 melding = "";
             }
-            valg = null;
-            valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Preferansevalg" && v.Start == true);
-            if (valg != null)
-            {
-                melding = "Preferansevalg";
-            }
-            else
-            {
-                melding = "";
-            }
+
             valg = null;
             valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Personvalg" && v.Start == true);
 
             if (valg != null)
             {
                 melding = "Personvalg";
+                return melding;
             }
             else
             {
@@ -2722,8 +2975,10 @@ namespace Studentparlamentet_28.DAL
         public string HarBrukerStemt(string brukernavn)
         {
             var db = new BrukerContext();
-            Valgtyper valg = VoteringPågår();
-            if (valg != null)
+            Valgtyper valg = valgPågår(); 
+            
+        
+            if (valg.valgtype == "Votering")
             {
                 BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == valg.valgtype);
 
@@ -2736,9 +2991,10 @@ namespace Studentparlamentet_28.DAL
                     return "NEI";
                 }
             }
-            else if (valg == null)
+            
+        
+            else if (valg.valgtype == "Preferansevalg")
             {
-                valg = valgPågår();
                 BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == "Preferansevalg");
                 if (brukerStemt != null)
                 {
@@ -2749,12 +3005,10 @@ namespace Studentparlamentet_28.DAL
                     return "NEI";
                 }
             }
-            else if(valg == null)
+            else if(valg.valgtype == "Personvalg" )
             {
-                int valgtypeID = PersonvalgKjørerID();
-                if(valgtypeID > 0)
-                {
-                    BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valgtypeID && b.Valgtype == "Personvalg");
+                int valgID = PersonvalgKjørerID();
+                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valgID && b.Valgtype == "Personvalg");
                     if (brukerStemt != null)
                     {
                         return "JA";
@@ -2763,13 +3017,8 @@ namespace Studentparlamentet_28.DAL
                     {
                         return "NEI";
                     }
-                }
-                else
-                {
-                    return "";
-                }
             }
-            else
+             else
             {
                 return "";
             }

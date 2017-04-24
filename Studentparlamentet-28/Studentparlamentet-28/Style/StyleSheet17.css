@@ -4,13 +4,41 @@
 
 body {
    
-    background: #ededed;
-    background: -webkit-linear-gradient(#ededed, lightgrey); 
-    background: -o-linear-gradient(#ededed, lightgrey);
-    background: -moz-linear-gradient(#ededed, lightgrey);
-    background: linear-gradient(#ededed, lightgrey); 
-    background-size: 500%;
+background: #ffffff;
+background: -moz-linear-gradient(-45deg, #e0dedf 50%, #e37d72 50%);
+background: -webkit-gradient(linear, left top, right bottom, color-stop(50%,#e0dedf), color-stop(50%,#e37d72));
+background: -webkit-linear-gradient(-45deg, #e0dedf 50%,#e37d72 50%);
+background: -o-linear-gradient(-45deg, #e0dedf 50%,#e37d72 50%);
+background: -ms-linear-gradient(-45deg, #e0dedf 50%,#e37d72 50%);
+background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 
+}
+#stemmeKnapp
+{
+    color:white;
+    background-color:cornflowerblue;
+    font-weight: bold;
+    
+}
+#ListeResultat
+{ 
+
+}
+#feilmelding{
+    max-width: 530px;
+}
+#PersonvalgTableFooter{
+        position: absolute;
+        bottom: 10px;
+         right: 25px;
+}
+
+#listeKandidater{
+     font-size: 25px;     
+     overflow: scroll;
+     overflow-x:hidden;
+     max-height: 90px;
+     
 }
 
 /*Preferansevalg*/
@@ -71,10 +99,13 @@ body {
 
 
 /*Personvalg*/
-            
+          #kandidat{
+              background-color: red;
+          }  
 #PersonvalgResultatContainer
 {
-     width: 500px;    
+     max-width: 650px;    
+     max-height: 800px;
      overflow: scroll;
      overflow-x:hidden;
 }
@@ -93,14 +124,15 @@ body {
 }
 #PersonvalgStemmeContainerList
 {
-     width: 500px;    
-     overflow: scroll;
-     overflow-x:hidden;
+    height: inherit;
+  
+        font-size: 35px;
+       
 }
 #PersonvalgStemmeContainer
 {
-    width: 500px;
-    height: 500px;
+  max-width: inherit;
+  max-width: inherit;
 
 }
 #PersonvalgStemme
@@ -504,7 +536,8 @@ body {
 }
 #tableID {
     max-width: 99%;
-}
+     
+    }
 
 
 #box2 {

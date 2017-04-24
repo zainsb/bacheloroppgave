@@ -23,22 +23,38 @@
     </script>
 </head>
 <body>
+
+
     <div class="col-sm-12" id="PersonvalgStemme">
+
         <div class="container" id="PersonvalgStemmeContainer">
-
-           <div align="center"><h2>Kandidater til personvalg</h2></div>
+     
+                <div class="dropdown" style="float:right;">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        Norsk
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("PersonvalgStemmeEng", "Bruker")">English</a></li>
+                    </ul>
+                </div>
+          
             <br />
-            <div align="center"><h3>Velg kandidat og avlegg stemme</h3></div>
+           <div align="center"><h1><b>Kandidater til personvalg</b></h1></div>
             <br />
-            <ul align="center" class="list-group" id="PersonvalgStemmeContainerList">
-                @foreach (var item in Model)
-            {
-                   
-                        <a href="#PersonvalgStemmeModal" class="list-group-item" id="stemmeKnapp" data-id="@item.id" data-navn="Kandidat: @item.fornavn @item.etternavn" data-toggle="modal" data-PersonvalgStemmeModal="true">@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</a>
-                    
-                }
+            <div align="center"><h2>Velg kandidat og avlegg stemme</h2></div>
+            <br />
+    <ul align="center" class="list-group" id="PersonvalgStemmeContainerList">
+        @foreach (var item in Model)
+        {
 
-            </ul>
+            <a href="#PersonvalgStemmeModal" class="list-group-item" id="stemmeKnapp" data-id="@item.id" data-navn="@item.fornavn @item.etternavn" data-toggle="modal" data-PersonvalgStemmeModal="true">@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</a>
+          
+        }
+        <a href="#PersonvalgStemmeModal" class="list-group-item" id="stemmeKnapp2" data-id="0" data-navn="Blank" data-toggle="modal" data-PersonvalgStemmeModal="true" style="background-color:indianred">Blank Stemme</a>
+    </ul>
+
+         
         </div>
         @Html.Partial("PersonvalgStemmeModal", new Studentparlamentet_28.Models.Kandidat())
         </div>

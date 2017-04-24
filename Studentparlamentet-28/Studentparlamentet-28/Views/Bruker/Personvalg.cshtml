@@ -4,7 +4,31 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        $(document).ready(function () {
 
+
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
+            var feilmelding = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            
+            if (feilmelding == "kandidatfinnes")    // Feilmelding det er avlagt stemme i valget, ikke lov til å endre informasjon
+            {
+            
+                $("#feilmelding").append("Du har allerede lagt til denne kandidaten");
+                $("#feilmelding").show();
+            }
+            else if(feilmelding == "sucess")
+            {
+                $("#sucess").append("Personvalget og kandidatene ble lagret");
+                $("#sucess").show();
+            }
+            else if (feilmelding == "feil") {
+                $("#feil").append("Du har ikke lagt til noen kandidater");
+                $("#feil").show();
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="col-sm-12" id="Personvalg">
@@ -21,28 +45,30 @@
                 </ul>
             </div>
         </div>
-        <h2>Personvalg</h2>
-        <br />
+        <h2><b>Opprett Personvalg</b></h2>
         <div id="melding">
-            <p>Legg inn kanditater til personvalg </p>
-
+            <h3>Her kan du legge inn kandidater til et personvalg </h3>
         </div>
+        <br/>
+        <p>Fyll inn fornavn og etternavn til kandidaten</p>
         @using (Html.BeginForm())
         {
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="form-inline">
 
                 <div class="form-group">
-                    @Html.EditorFor(model => model.fornavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Fornavn" } })
-                    @Html.ValidationMessageFor(model => model.fornavn, "", new { @class = "text-danger" })
+                    <div>@Html.EditorFor(model => model.fornavn_Required, new { htmlAttributes = new { @class = "form-control", placeholder = "Fornavn" } })</div>
+                    <div>@Html.ValidationMessageFor(model => model.fornavn_Required, "", new { @class = "text-danger" })</div>
                 </div>
                 <div class="form-group">
-                    @Html.EditorFor(model => model.etternavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Etternavn" } })
-                    @Html.ValidationMessageFor(model => model.etternavn, "", new { @class = "text-danger" })
+                    <div>@Html.EditorFor(model => model.etternavn_Required, new { htmlAttributes = new { @class = "form-control", placeholder = "Etternavn" } })</div>
+                    <div>@Html.ValidationMessageFor(model => model.etternavn_Required, "", new { @class = "text-danger" })</div> 
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="Legg til kandidat" class="btn btn-primary" />
+                    <input type="submit" value="Legg til kandidat" class="btn btn-info" />
                 </div>
+                <div class="alert alert-danger" style="display: none;" id="feilmelding"></div>
+                
             </div>
             <br />
             <h3>Kandiater til personvalg</h3>
@@ -53,7 +79,7 @@
         }
    
 @Html.Action("HentListeKandidat", "Bruker")
-
+    
         </div>
             
 </body>

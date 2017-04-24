@@ -10,7 +10,19 @@ using System.Threading.Tasks;
 namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
+
     {
+        // BrukertestForbedring
+        public bool sjekkValgStemme(int ID)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.sjekkValgStemme(ID);
+        }
+        public string kjørerValg()
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.kjørerValg();
+        }
         //Preferansevalg
         public string HarBrukerStemtSTV(string brukernavn)
         {
@@ -228,6 +240,12 @@ namespace Studentparlamentet_28.BLL
             bool ok = brukerDal.SjekkPassord(innkandidat, brukernavn);
             return ok;
         }
+        public bool SjekkPassordEng(Kandidat innkandidat, string brukernavn)
+        {
+            var brukerDal = new DbDal();
+            bool ok = brukerDal.SjekkPassordEng(innkandidat, brukernavn);
+            return ok;
+        }
         public bool KandidatSlett(Kandidat innkandidat)
         {
             var brukerDal = new DbDal();
@@ -258,6 +276,12 @@ namespace Studentparlamentet_28.BLL
             List<PersonvalgResultat> tabell = brukerDal.hentPersonvalgResultat();
             return tabell;
         }
+        public List<PersonvalgResultat> hentPersonvalgResultatEng()
+        {
+            var brukerDal = new DbDal();
+            List<PersonvalgResultat> tabell = brukerDal.hentPersonvalgResultatEng();
+            return tabell;
+        }
         public bool LagrePersonvalgResultat()
         {
             var brukerDal = new DbDal();
@@ -286,8 +310,13 @@ namespace Studentparlamentet_28.BLL
         {
             var brukerDal = new DbDal();
             return brukerDal.leggtilPersonvalgKandidat(innKandidat);
-        }            
-        
+        }
+        public bool leggtilPersonvalgKandidatEng(Kandidat innKandidat)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.leggtilPersonvalgKandidatEng(innKandidat);
+        }
+
         public Valgtyper hentValg(int id)
         {
             var brukerDal = new DbDal();

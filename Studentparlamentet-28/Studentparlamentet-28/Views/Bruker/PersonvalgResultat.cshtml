@@ -20,17 +20,18 @@
             </div>
         </div>
         <br />
-        <h3>Vinner av Personvalg </h3>
+        <h1>Resultat av personvalg i kronologisk rekkefølge </h1>
+        <br /><br/>
         <div id="PersonvalgResultatContainer">
             @foreach (var item in Model)
             {
 
                 <ul class="list-group" id="ListeResultat" align="center">
 
-                    <li class="list-group-item">Kandidat</li>
-                    <li class="list-group-item">@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</li>
-                    <li class="list-group-item">Antall Stemmer</li>
-                    <li class="list-group-item">@Html.DisplayFor(modelItem => item.stemmer)</li>
+                    <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Kandidat</h3></li>
+                    <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</b></h1></li>
+                    <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Antall Stemmer</h3></li>
+                    <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.stemmer)</b></h1></li>
                 </ul>
 
 

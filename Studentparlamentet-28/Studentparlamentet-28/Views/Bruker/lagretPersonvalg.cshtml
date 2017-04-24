@@ -5,17 +5,165 @@
     <meta name="viewport" content="width=device-width" />
   
     <script type="text/javascript">
+        function startPersonvalg(clicked_id) {
+            var data_id = clicked_id;
+            $.ajax({
+                url: '@Url.Action("kjørerValg", "Bruker")',
+                dataType: 'json',
+                success: function (data) {
+                    if(data == "Ja")
+                    {
+
+                        $("#feilmeldingValgKjører").show();
+                    }
+                    else if(data == "Nei")
+                    {
+                        $.ajax({
+                            url: '@Url.Action("startPersonvalg", "Bruker")',
+                            data: { id: data_id },
+                            success: function (data) {
+                                if (data == "true") {
+                                    $("#oversikt").hide();
+                                    $("#stop").show();
+                                    $("#personvalgmelding").show();
+                                    $("#personvalgmeldingID").show();
+                                    $("#antallstemtmsg").show();
+                                    $("#antallvalgtemsg").show();
+                                    $("#tabell").hide();
+                                    $.ajax({
+                                        url: '@Url.Action("PersonvalgKjørerID", "Bruker")',
+                                        success: function (data) {
+                                            $('#personvalgmeldingID').html(data);
+
+                                            setInterval(function () {
+                                                antallStemte();
+                                            }, 250); // 250 milleskunder
+                                        }
+
+                                    });
+                                    $.ajax({
+                                        url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
+                                        success: function (data) {
+                                            $('#antallbrukere').html(data);
+                                        }
+                                    });
+                                }
+                                else if (data == "false") {
+                                    $("#feilmelding").show();
+
+                                }
+
+                            }
+                        });
+
+                        function antallStemte() {
+                            $.ajax({
+                                url: '@Url.Action("hentAntallStemtePersonvalg_int", "Bruker")',
+                                success: function (data) {
+
+                                    $('#antallstemt').html(data);
+                                }
+                            });
+                        }
+                    }
+                }
+
+            });
+
+        }
+
         $(document).ready(function () {
+
+
             var full_url = document.URL; // Get current url
-            var url_array = full_url.split('=') // Split the string into an array with / as separator
-            var data_id = url_array[url_array.length - 1];  // Get the last part of the array (-1)
-            if (isNaN(data_id))
+            var url_array = full_url.split('=') // Split the string into an array with = as separator
+            var data_id = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            var feilmelding = url_array[url_array.length - 2];
+            if(feilmelding == "feilendre&id3" )    // Feilmelding det er avlagt stemme i valget, ikke lov til å endre informasjon
             {
-               
-            }
-            else if(data_id == 0)
-            {
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagretID", "Bruker")',
+                    data: { id: data_id },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+
+                        }
+
+                        $("#listeKandidater").append(listeKandidaterContent);
+                        $("#feilmeldingPersonvalgWarning").append("Du kan ikke gjøre endringer på kandidater siden det er blitt avlagt stemme");
+                        $("#feilmeldingPersonvalgWarning").show();
+                        $('#valgtypeID2').val(data_id);
+                    }
+                });
                 $("#sletteModal").modal();
+            }
+        else if (feilmelding == "feilPassord2&id3") // feilPassord slettePersonvalgModal
+            {
+                $('#personvalgID').html(data_id);
+                $('.Valgtype3').val(data_id);
+                $('#sletteModal').hide();
+                $('#feilmeldingslettePersonvalg').show()
+                $("#feilmeldingslettePersonvalg").append("Du har har oppgitt feil passord");
+                $("#slettePersonvalgModal").modal();
+            }
+            else if (feilmelding == "feilPassord&id3") // feilPassord personvalgmodal
+            {
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagretID", "Bruker")',
+                    data: { id: data_id },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+
+                        }
+
+                        $("#listeKandidater").append(listeKandidaterContent);
+                        $("#feilmeldingPersonvalg").append("Du har har oppgitt feil passord");
+                        $("#feilmeldingPersonvalg").show();
+                        $('#valgtypeID2').val(data_id);
+                    }
+                });
+                $("#sletteModal").modal();
+            }
+            else if(feilmelding == "feilKandiatnr&id3")
+            {
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagretID", "Bruker")',
+                    data: { id: data_id },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+
+                        }
+
+                        $("#listeKandidater").append(listeKandidaterContent);
+                        $("#feilmeldingPersonvalg").append("Du har har oppgitt feil kandidatID");
+                        $("#feilmeldingPersonvalg").show();
+                        $('#valgtypeID2').val(data_id);
+                    }
+                });
+                $("#sletteModal").modal();
+            }
+
+            else if (isNaN(data_id))  // vanlig request
+            {
+            
             }
             else
             {
@@ -33,7 +181,9 @@
 
                         }
                         $("#listeKandidater").append(listeKandidaterContent);
-                        $('#valgtypeID2').val(0);
+                       
+                        
+                        $('#valgtypeID2').val(data_id);
                     }
                 });
                 $("#sletteModal").modal();
@@ -96,6 +246,8 @@
                     }
                 });
             }
+
+
             $("#start").click(function () {
                 $("#feilmelding").hide();
                 var data_id = $('input[name="ValgtypeID"]').val();
@@ -103,7 +255,7 @@
                 {
                     $("#feilmelding").show();
                 }
-               
+
                 $.ajax({
                     url: '@Url.Action("startPersonvalg", "Bruker")',
                     data: { id: data_id },
@@ -112,7 +264,7 @@
                         {
                             $("#start").hide();
                             $("#input").hide();
-                            $("#oversikt").hide();                            
+                            $("#oversikt").hide();
                             $("#feilmelding").hide();
                             $("#inputmelding").hide();
                             $("#stop").show();
@@ -147,7 +299,7 @@
 
                     }
                 });
-                
+
                 function antallStemte() {
                     $.ajax({
                         url: '@Url.Action("hentAntallStemtePersonvalg_int", "Bruker")',
@@ -158,7 +310,7 @@
                     });
                 }
 
-            
+
 
             });
             $("#stop").click(function () {
@@ -194,7 +346,7 @@
 
                         }
                         $("#listeKandidater").append(listeKandidaterContent);
-                        $('#valgtypeID2').val(0);
+                        $('#valgtypeID2').val(data_id);
                     }
                 });
 
@@ -202,17 +354,21 @@
 
 
 
-               
+
             })
             $('a[data-slettePersonvalgModal=true]').click(function () {
                 var personvalg_id = $(this).data('navn');
                 var valgtype_id = $(this).data('id')
-                // legg ut dataene i div'en i modal-view'et
-                $('#valgtypeID3').val(valgtype_id);
+                
+                $('#valgtypeID3').val(personvalg_id);
+                $('.Valgtype3').val(personvalg_id);
+
                 $('#personvalgID').html(personvalg_id);
+                
             }
-          )  
-        });        
+          )
+
+        });
     </script>
 </head>
 <body>
@@ -229,18 +385,15 @@
                 </ul>
             </div>
         </div>
-           <h1>Personvalg</h1> 
+           <h1><b>Personvalg</b></h1> 
             <div id="meldingLagretPersonvalg">
                 <div id="oversikt"><h3>Her finner du oversikt over alle lagrede personvalg og alle utførte personvalg</h3></div>
                 <br />
-                <button id="start" class="btn btn-success" style="display: none;">Start</button>
+                
 
 
                 
-                <div id="inputmelding" style="display: none;"> <p> Skriv inn ValgtypeID for å starte personvalg</p></div>
-                <div id="input" style="display: none;"><input type="text" pattern="[0-9]*" id="valgtypeID" name="ValgtypeID" style="width: 5em" /><br></div>
-                <div id="feilmelding" style="display: none;"> <p> Skriv inn gyldig ValgtypeID for å starte personvalg</p></div>
-
+               
                 <div align="center">
                     <div id="personvalgmelding" style="display: none;"> <h2>Kjører med valgtypeID</h2><div id="personvalgmeldingID" style="display: none;"></div></div>
                     <div id="antallstemtmsg" style="display: none;"><h3>Antall stemte</h3></div> <div id="antallstemt"></div>
@@ -270,6 +423,11 @@
                                     <th>
                                         Antal stemmer personvalg
                                     </th>
+                                    <th>
+                                        <div id="feilmeldingValgKjører"class="alert alert-warning" style="display: none;">
+                                        Det kjøres allerede et valg, vennligst stopp valget
+                                            </div>
+                                    </th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -279,6 +437,7 @@
                                 @foreach (var item in Model)
             {
                                     <tr>
+
                                         <td>
                                             @Html.DisplayFor(modelItem => item.valgtypeid)
                                         </td>
@@ -294,7 +453,8 @@
                                         <td>
                                             @Html.DisplayFor(modelItem => item.totalantallStemmer)
                                         </td>
-
+                                        <td><button id="@item.valgtypeid" class="btn btn-success" onclick="startPersonvalg(this.id)">Start</button></td>
+                                        
                                         <td></td>
                                         <td>
                                             <a href="#sletteModal" class="btn btn-large btn-info" id="sletteKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-sletteModal="true">Se Kandidater</a>
@@ -312,9 +472,10 @@
                         </table>
                     </div>
                 </div>
-
+                
                 @Html.Partial("PersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
                 @Html.Partial("slettePersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
+                
             </div>
         </div>
 </body>

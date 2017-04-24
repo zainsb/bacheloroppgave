@@ -28,9 +28,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.etternavn)
                         </td>
-
-                        <td></td>
-                        <td>
+                         <td>
                             @Html.ActionLink("Slett", "slettKandidat", new { id = item.id }, new { @class = "btn btn-danger" })
                         </td>
                     </tr>
@@ -38,10 +36,13 @@
             </tbody>
 
         </table>
+        
+        <div id="PersonvalgTableFooter">
+            <div class="alert alert-success" style="display: none;" id="sucess"></div>
+            <div class="alert alert-danger" style="display: none;" id="feil"></div>
+            @Html.ActionLink("Lagre personvalg", "LagrePersonvalg", new {/* tom = "" */}, new { @class = "btn btn-success" })
+            @Html.ActionLink("Gå til lagrede personvalg", "lagretPersonvalg", new { /* tom = "" */ }, new { @class = "btn btn-success" })
+        </div>
+    </div>
 
-    </div>
-    <div class="pull-right">
-        @Html.ActionLink("Lagre personvalg", "LagrePersonvalg", new {/* tom = "" */}, new { @class = "btn btn-success" })
-        @Html.ActionLink("Gå til lagrede personvalg", "lagretPersonvalg", new { /* tom = "" */ }, new { @class = "btn btn-success" })
-    </div>
     </div>

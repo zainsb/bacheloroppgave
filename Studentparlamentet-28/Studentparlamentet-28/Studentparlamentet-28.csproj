@@ -190,7 +190,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Style\StyleSheet16.css" />
+    <Content Include="Style\StyleSheet17.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -276,6 +276,8 @@
     <Content Include="Views\Bruker\PreferansevalgBruker.cshtml" />
     <Content Include="Views\Bruker\stemmeModal.cshtml" />
     <Content Include="Views\Bruker\UtførLagretPreferansevalg.cshtml" />
+    <Content Include="Views\User\PersonvalgStemmeEng.cshtml" />
+    <Content Include="Views\User\PersonvalgStemmeModalEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
