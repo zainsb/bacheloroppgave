@@ -8,6 +8,19 @@
     <title>Liste</title>
     <script type="text/javascript">
         $(document).ready(function () {
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('=') // Split the string into an array with = as separator
+            var feilmelding = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            if (isNaN(feilmelding) == false)
+            {
+                $('#slettNavn').val(feilmelding);
+                $('#slettNavnDiv').html("<h3>ValgNr: " + feilmelding + " Valgtype: Votering</h3>");
+                $("#feilmeldingslettemodal").append("Du har skrevet inn feil passord");
+                $("#feilmeldingslettemodal").show();
+                $("#sletteModal").modal();
+
+            }
+           
             // lag en hendelse som utføres når en a-href med "data-SletteModal = true" trykkes.
             $('a[data-sletteModal=true]').click(function () {
 
@@ -45,12 +58,12 @@
     
     <br /> 
 <div class="col-sm-12" id="box2">
-        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        
     <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake_VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
+                    Norsk
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
@@ -68,7 +81,7 @@
     
     </div>
         <br /><br />
-        @Html.Partial("sletteModal", new Studentparlamentet_28.Models.Bruker())
+        @Html.Partial("sletteModal", new Studentparlamentet_28.Models.Kandidat())
 </body>
 </html>
 

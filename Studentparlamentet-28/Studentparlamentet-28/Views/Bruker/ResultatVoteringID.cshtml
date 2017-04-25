@@ -94,7 +94,7 @@
                             url: '@Url.Action("antallForDiv_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 // legger antall i div
-                                $('#antall').html(data);
+                                $('#antallfor').html(data);
                             }
                         });
                         // hent antall mot
@@ -136,44 +136,48 @@
 </head>
 
 <body>
-    <div class="col-sm-12" id="LoginForm">
+    <div class="col-sm-12" id="LoginFormResultatVotering">
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Resultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-            <div class="dropdown" style="float:right;">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("ResultatVoteringEng", "Bruker")">English</a></li>
-                </ul>
-            </div>
+
         </div>
         <br /><br />
-        <div>
+        <div class="containerVotering">
             <div id="forProgress">
-                <p>For stemmer</p> <div id="forBar">0%</div>
+                <h3>For stemmer</h3>
+                <div id="forBar">0%</div>
+            </div>
+            <div id="motProgress">
+                <h3>Mot stemmer</h3><div id="motBar">0%</div>
             </div>
 
-            <div id="motProgress">
-                <p>Mot stemmer</p><div id="motBar">0%</div>
-            </div>
             <div id="blankProgress">
-                <p>Blanke stemmer</p><div id="blankBar">0%</div>
+                <h3>Blanke stemmer</h3><div id="blankBar">0%</div>
             </div>
+
+        </div>
+
+
+
+
+        <div>
+
+
+
 
 
 
 
             <div id="msg">
                 <h1>Vinner </h1><h1 id="vinner"></h1>
-                <div>Antall For stemmer : </div><div id="antall"></div>
-                <div>Antall Mot stemmer : </div><div id="antallmot"></div>
-                <div>Antall Blanke stemmer : </div><div id="antallblank"></div>
+                <div><h3>Antall For stemmer</h3></div><div id="antallfor"></div>
+                <div><h3>Antall Mot stemmer</h3></div><div id="antallmot"></div>
+                <div><h3>Antall Blanke stemmer</h3></div><div id="antallblank"></div>
             </div>
         </div>
 
     </div>
+
 
 
 </body>

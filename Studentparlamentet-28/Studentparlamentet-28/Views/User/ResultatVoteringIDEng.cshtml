@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  
+
     <script type="text/javascript">
         $(document).ready(function () {
 
@@ -94,7 +94,7 @@
                             url: '@Url.Action("antallForDiv_ID", "Bruker", new { id = Model.valgtypeid })',
                             success: function (data) {
                                 // legger antall i div
-                                $('#antall').html(data);
+                                $('#antallfor').html(data);
                             }
                         });
                         // hent antall mot
@@ -136,47 +136,47 @@
 </head>
 
 <body>
-
-
-    <div class="col-sm-12" id="LoginForm">
-        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+    <div class="col-sm-12" id="LoginFormResultatVotering">
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Back", "ResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-            <div class="dropdown" style="float:right;">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("ResultatVoteringID", "Bruker", new { id = Model.valgtypeid })">Norsk</a></li>
-                </ul>
-            </div>
+            @Html.ActionLink("Back", "ResultatEng", new {  }, new { @class = "btn btn-default" })
         </div>
         <br /><br />
-        <div>
+        <div class="containerVotering">
             <div id="forProgress">
-                <p>For votes</p> <div id="forBar">0%</div>
+                <h3>For votes</h3>
+                <div id="forBar">0%</div>
+            </div>
+            <div id="motProgress">
+                <h3>Against votes</h3><div id="motBar">0%</div>
             </div>
 
-            <div id="motProgress">
-                <p>Against votes</p><div id="motBar">0%</div>
-            </div>
             <div id="blankProgress">
-                <p>Blank votes</p><div id="blankBar">0%</div>
+                <h3>Blank votes</h3><div id="blankBar">0%</div>
             </div>
+
+        </div>
+
+
+
+
+        <div>
+
+
+
 
 
 
 
             <div id="msg">
                 <h1>Winner </h1><h1 id="vinner"></h1>
-                <div>Number of For votes : </div><div id="antall"></div>
-                <div>Number of Against votes : </div><div id="antallmot"></div>
-                <div>Number of Blank votes : </div><div id="antallblank"></div>
+                <div><h3>Number of For votes</h3></div><div id="antallfor"></div>
+                <div><h3>Number of Against votes</h3></div><div id="antallmot"></div>
+                <div><h3>Number of Blank votes</h3></div><div id="antallblank"></div>
             </div>
         </div>
 
     </div>
+
 
 
 </body>

@@ -43,6 +43,7 @@ namespace Studentparlamentet_28.DAL
         public string svarMot { get; set; }
         public string svarBlank { get; set; }
         public int ValgtypeID { get; set; }
+
     }
     public class Valgtyper_db
     {
@@ -50,7 +51,7 @@ namespace Studentparlamentet_28.DAL
         public int ValgtypeID { get; set; }
         public string Valgtype { get; set; }
         public bool Start { get; set; }
-
+        public string Melding { get; set; }
     }
 
     public class BrukereStemt_db

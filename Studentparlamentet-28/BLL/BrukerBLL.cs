@@ -12,7 +12,24 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+        public List<Valgtyper> hentValgTyperVotering()
+        {
+            var brukerDal = new DbDal();
+            List<Valgtyper> valgtyper = brukerDal.hentValgTyperVotering();
+            return valgtyper;
+        }
+        public Valgtyper valgPågår()
+        {
+            var brukerdal = new DbDal();
+            Valgtyper valg = brukerdal.valgPågår();
+            return valg;
+        }
         // BrukertestForbedring
+        public void LeggTilMeldingVotering(string id)
+        {
+            var brukerdal = new DbDal();
+            brukerdal.LeggTilMeldingVotering(id);
+        }
         public bool sjekkValgStemme(int ID)
         {
             var brukerdal = new DbDal();

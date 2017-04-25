@@ -13,6 +13,96 @@ background: -ms-linear-gradient(-45deg, #e0dedf 50%,#e37d72 50%);
 background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 
 }
+#slettemodalText
+{
+    font-size:15px;
+}
+#feilmeldingslettemodal
+{
+    width: 199px;
+}
+#sucessSletteModal
+{
+    height: 400px;
+}
+#sletteModalText
+{
+    font-size:38px;
+   
+}
+#panelVoteringResultat
+{
+     border-radius: 25px;
+     background-color: whitesmoke;
+}
+#LoginFormVoteringAdmin {
+    background-color: whitesmoke;
+    border-radius: 25px;
+    max-width: 550px;
+    max-height: 750px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 4px solid rgba(0,0,0,0.1); 
+     
+}
+#vinner
+{
+       font-size: 58px;
+   font-weight: bold;
+}
+#antallmot{
+   font-size: 48px;
+   font-weight: bold;
+}
+#antallfor{
+   font-size: 48px;
+   font-weight: bold;
+}
+#antallblank{
+   font-size: 50px;
+   font-weight: bold;
+}
+#LoginFormResultatVotering
+{
+    background-color: whitesmoke;
+    border-radius: 25px;
+    max-width: 700px;
+    max-height: inherit;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    border: 4px solid rgba(0,0,0,0.1); 
+
+}
+.containerVotering {
+  display: flex;
+  height: 125px;
+
+ 
+}
+.containerVotering > div {
+  flex: 1; /*grow*/
+
+}
+#antallDeltagere
+{
+    font-size : 48px;
+}
+#antallstemt
+{
+    font-size : 48px;
+}
+#panelVotering
+{
+    text-align:center;
+}
+#beskrivelseVotering
+{
+    height: 50px;
+    width: 1000px;
+    font-size: 25px;
+    background-color:whitesmoke;
+    text-align:center;
+}
 #stemmeKnapp
 {
     color:white;
@@ -205,15 +295,17 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
         #forProgress {
             width: 100%;
             background-color: #ddd;
+
         }
 
         #forBar {
-            width: 10%;
-            height: 30px;
+            width: 20%;
+            height: 50px;
             background-color: #4CAF50;
             text-align: center;
-            line-height: 30px;
+            line-height: 50px;
             color: white;
+
         }
 
         #motProgress {
@@ -222,11 +314,11 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
         }
 
         #motBar {
-            width: 10%;
-            height: 30px;
+            width: 20%;
+            height: 50px;
             background-color: #ff0000;
             text-align: center;
-            line-height: 30px;
+            line-height: 50px;
             color: white;
         }
 
@@ -236,12 +328,13 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
         }
 
         #blankBar {
-            width: 10%;
-            height: 30px;
+            width: 20%;
+            height: 50px;
             background-color: #42aaf4;
             text-align: center;
-            line-height: 30px;
+            line-height: 50px;
             color: white;
+           
         }
 
 /*LoginForm*/
@@ -520,6 +613,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 	color: #31708f;
 	background-color: #d9edf7;
 	border-color: #bce8f1;
+    text-align:center;
 }
 
 
@@ -570,5 +664,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 
 #resultatVotering{
     background-color: whitesmoke;
+    border-radius: 25px;
     border: 4px solid rgba(0,0,0,0.1); 
+
 }

@@ -31,8 +31,8 @@
 
                             <p>Skriv inn administrator passord</p>
                                <div class="input-group">
-                                @Html.EditorFor(model => model.passordEng, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
-                                @Html.ValidationMessageFor(model => model.passordEng, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
+                                @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
                             </div>
                           
                             <br />

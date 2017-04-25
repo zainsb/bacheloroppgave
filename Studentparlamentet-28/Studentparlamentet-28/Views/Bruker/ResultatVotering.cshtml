@@ -88,12 +88,20 @@
 
                             }
                         });
+                        // hent vinner
+                        $.ajax({
+                            url: '@Url.Action("vinnerVotering", "Bruker")',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#vinner').html(data);
+                            }
+                        });
                         // hent antall for
                         $.ajax({
                             url: '@Url.Action("antallForDiv", "Bruker")',
                             success: function (data) {
                                 // legger antall i div
-                                $('#antall').html(data);
+                                $('#antallfor').html(data);
                             }
                         });
                         // hent antall mot
@@ -112,14 +120,8 @@
                                 $('#antallblank').html(data);
                             }
                         });
-                        // hent vinner
-                        $.ajax({
-                            url: '@Url.Action("vinnerVotering", "Bruker")',
-                            success: function (data) {
-                                // legger antall i div
-                                $('#vinner').html(data);
-                            }
-                        });
+               
+             
                         // hent antallstemte
                     }
                     else
@@ -136,8 +138,7 @@
 <body>
 
 
-    <div class="col-sm-12" id="LoginForm">
-        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+    <div class="col-sm-12" id="LoginFormResultatVotering">
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "VoteringAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
@@ -151,26 +152,36 @@
             </div>
         </div>
         <br /><br />
-        <div>
-            <div id="forProgress">
-                <p>For stemmer</p> <div id="forBar">0%</div>
+        <div class="containerVotering">
+            <div id="forProgress"><h3>For stemmer</h3>
+                <div id="forBar">0%</div>
+            </div>
+            <div id="motProgress">
+              <h3>Mot stemmer</h3><div id="motBar">0%</div>
             </div>
 
-            <div id="motProgress">
-                <p>Mot stemmer</p><div id="motBar">0%</div>
-            </div>
             <div id="blankProgress">
-                <p>Blanke stemmer</p><div id="blankBar">0%</div>
+              <h3>Blanke stemmer</h3><div id="blankBar">0%</div>
             </div>
+
+        </div>
+
+
+
+        
+        <div>
+           
+
+          
 
 
 
 
             <div id="msg">
                 <h1>Vinner </h1><h1 id="vinner"></h1>
-                <div>Antall For stemmer : </div><div id="antall"></div>
-                <div>Antall Mot stemmer : </div><div id="antallmot"></div>
-                <div>Antall Blanke stemmer : </div><div id="antallblank"></div>
+                <div><h3>Antall For stemmer</h3></div><div id="antallfor"></div>
+                <div><h3>Antall Mot stemmer</h3></div><div id="antallmot"></div>
+                <div><h3>Antall Blanke stemmer</h3></div><div id="antallblank"></div>
             </div>
         </div>
 

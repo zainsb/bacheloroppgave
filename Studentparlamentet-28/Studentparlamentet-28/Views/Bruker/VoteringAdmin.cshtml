@@ -18,7 +18,7 @@
                             url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
                             success: function (data) {
                                 var antallBrukere = data;
-                                $('#antall').html(antallBrukere);
+                                $('#antallDeltagere').html(antallBrukere);
 
                                 setInterval(function () {
                                     antallStemte();
@@ -34,29 +34,68 @@
                 }
             });
 
-            $("#start").click(function () {
-                $.ajax({
-                    url: '@Url.Action("startVotering", "Bruker")',
-                    success: function () {
-                        $("#start").hide();
-                        $("#resultat").hide();
-                        $("#stop").show();
-                        $("#melding").hide();
-                        $("#melding2").show();
+      $("#start").click(function () {
+          $.ajax({
+              url: '@Url.Action("kjørerValg", "Bruker")',
+              dataType: 'json',
+              success: function (data) {
+                  if(data == "Ja")
+                  {
 
-                    }
-                });
-                $.ajax({
-                    url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
-                    success: function (data) {
-                        var antallBrukere = data;
-                        $('#antall').html(antallBrukere);
+                      $("#feilmeldingValgKjører").show();
+                  }
+                  else if(data == "Nei")
+                  {
+                      var melding = $("#beskrivelseVotering").val(); // henter melding
 
-                        setInterval(function () {
-                            antallStemte();
-                        }, 250); // 250 milleskunder
-                    }
-                });
+                      $.ajax({
+                          url: '@Url.Action("startVotering", "Bruker")',
+                          success: function () {
+                              $("#start").hide();
+                              $("#resultat").hide();
+                              $("#stop").show();
+                              $("#melding").hide();
+                              $("#melding2").show();
+                              if(melding != null)
+                              {
+                                  $.ajax({
+                                      url: '@Url.Action("leggTilMeldingVotering", "Bruker")',
+                                      data: { id: melding },
+                                      success: function () {
+                                          
+                                      }
+                                  });
+                              }
+                              else
+                              {
+                                  melding = "";
+                                  $.ajax({
+                                      url: '@Url.Action("leggTilMeldingVotering", "Bruker")',
+                                      data: { id: melding },
+                                      success: function () {
+
+                                      }
+                                  });
+                              }
+                          }
+                      });
+                      $.ajax({
+                          url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
+                          success: function (data) {
+                              var antallBrukere = data;
+                              $('#antallDeltagere').html(antallBrukere);
+
+                              setInterval(function () {
+                                  antallStemte();
+                              }, 250); // 250 milleskunder
+                          }
+                      });
+                  }
+
+              }
+          });
+
+                
 
 
             });
@@ -67,6 +106,9 @@
                         $("#stop").hide();
                         $("#resultat").show();
                         $("#start").show();
+                        $("#melding").show();
+                        $("#melding2").hide();
+                        
                     }
                 });
 
@@ -86,7 +128,7 @@
     </script>
 </head>
 <body>
-    <div class="col-sm-12" id="LoginForm">
+    <div class="col-sm-12" id="LoginFormVoteringAdmin">
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
@@ -99,22 +141,38 @@
                 </ul>
             </div>
         </div>
-        <h2>Votering</h2>
-        <br/>
-        <div id="melding">
-            <p>Her kan du starte og stoppe voteringer</p>
-        </div>
-        <div id="melding2" style="display: none;">
-            <p><b>Antall valgdeltakere</b></p><div id="antall"></div>
-            <p><b>Antall stemte</b></p><div id="antallstemt"></div>
-        </div>
         <br />
-        <div>
-            <button id="start" class="btn btn-success"  style="display: none;">Start</button>
-            <button id="stop" class="btn btn-danger" style="display: none;">Stopp</button>
-            @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-info" })
+        <br />
+        <div id="panelVotering">
+         
+
+            <div id="melding">
+                <h1><b>Votering</b></h1>
+                <br />
+                <h3>Kan du du administrere voteringer</h3>
+                <h3>Trykk <b>Start</b> for å starte en votering</h3>
+                <h3>Trykk <b>Vis voteringer</b> for se oversikt over alle voteringene</h3>
+                <br />
+                <h3>Her kan du legge inn en beskrivelse som kommer opp hos valgdeltagere</h3>
+                <input type="text" id="beskrivelseVotering" name="beskrivelse" placeholder="Beskrivelse">
+            </div>
+            <div id="melding2" style="display: none;">
+                <h2><b>Votering pågår</b></h2>
+                <br />
+                <br />
+                <h3>Antall valgdeltakere</h3><div id="antallDeltagere"></div>
+                <h3>Antall stemte</h3><div id="antallstemt"></div>
+            </div>
+            <br />
+            <br />
+            <div class="alert alert-danger" style="display:none" id="feilmeldingValgKjører"><h3>En valgtype kjører allrede, vennligst stopp valget</h3></div>
+            <button id="start" class="btn btn-success btn-lg" style="display: none;">Start</button>
+            <button id="stop" class="btn btn-danger btn-lg" style="display: none;">Stopp</button>
+            @Html.ActionLink("Resultat", "ResultatVotering", new { id = "" }, new { @style= "display: none;", @class = "btn btn-info btn-lg", @id="resultat" })  
+            @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-info btn-lg" })
+           
             <br /><br />
-            <div id="resultat" style="display: none;">@Html.ActionLink("Resultat", "ResultatVotering", new { tom = "" }, new { @class = "btn btn-primary" })</div>
+            
         </div>
 
     </div>

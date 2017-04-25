@@ -21,6 +21,11 @@ namespace Studentparlamentet_28.Controllers
     public class BrukerController : Controller
     {
         // BrukertestForbedring
+        public void LeggTilMeldingVotering(string id)
+        {
+            var db = new BrukerBLL();
+            db.LeggTilMeldingVotering(id);
+        }
         public string kjørerValg()
         {
             var db = new BrukerBLL();
@@ -1445,97 +1450,7 @@ namespace Studentparlamentet_28.Controllers
           return RedirectToAction("Index");
 
       }
-      [Authorize(Roles = "true")]
-      public ActionResult VoteringAdmin()
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  return View();
-              }
-          }
-
-          return RedirectToAction("Index");
-      }
-      [Authorize(Roles = "true")]
-      public ActionResult ResultatVotering()
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  return View();
-              }
-          }
-
-          return RedirectToAction("Index");
-      }
-      [HttpPost]
-      [Authorize(Roles = "true")]
-      public ActionResult Resultat(Bruker innAdmin, int id)
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  var db = new BrukerBLL();
-                  string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
-                  if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
-                  {
-                      db.slettValg(id);
-                      return RedirectToAction("Resultat");
-                  }
-                  else
-                  {
-                      return RedirectToAction("Resultat");
-                  }
-              }
-          }
-
-          return RedirectToAction("Index");
-
-
-      }
-      [Authorize(Roles = "true")]
-      public ActionResult Resultat()
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  var db = new BrukerBLL();
-                  List<Valgtyper> alleValgTyper = db.hentValgTyper();
-                  return View(alleValgTyper);
-              }
-
-          }
-
-          return RedirectToAction("Index");
-
-      }
-      [Authorize(Roles = "true")]
-      public ActionResult ResultatVoteringID(int id)
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  var db = new BrukerBLL();
-                  Valgtyper Valg = db.hentValg(id);
-                  return View(Valg);
-              }
-          }
-
-          return RedirectToAction("Index");
-
-      }
+    
       [Authorize(Roles = "true")]
       public ActionResult HentResultat()
       {
@@ -1650,97 +1565,7 @@ namespace Studentparlamentet_28.Controllers
 
           return RedirectToAction("Index");
       }
-      [Authorize(Roles = "true")]
-      public ActionResult VoteringAdminEng()
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  return View("../User/VoteringAdminEng");
-              }
-          }
-
-          return RedirectToAction("Index");
-
-      }
-      [Authorize(Roles = "true")]
-      public ActionResult ResultatVoteringEng()
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  return View("../User/ResultatVoteringEng");
-              }
-          }
-
-          return RedirectToAction("Index");
-
-      }
-      [HttpPost]
-      [Authorize(Roles = "true")]
-      public ActionResult ResultatEng(Bruker innAdmin, int id)
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  var db = new BrukerBLL();
-                  string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
-                  if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
-                  {
-                      db.slettValg(id);
-                      return RedirectToAction("ResultatEng");
-                  }
-                  else
-                  {
-                      return RedirectToAction("ResultatEng");
-                  }
-              }
-          }
-
-          return RedirectToAction("Index");
-
-      }
-      [Authorize(Roles = "true")]
-      public ActionResult ResultatEng()
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  var db = new BrukerBLL();
-                  List<Valgtyper> alleValgTyper = db.hentValgTyper();
-                  return View("../User/ResultatEng", alleValgTyper);
-              }
-          }
-
-          return RedirectToAction("Index");
-
-      }
-      [Authorize(Roles = "true")]
-      public ActionResult ResultatVoteringIDEng(int id)
-      {
-          if (Session["LoggetInn"] != null)
-          {
-              bool loggetinn = (bool)Session["LoggetInn"];
-              if (loggetinn)
-              {
-                  var db = new BrukerBLL();
-                  Valgtyper Valg = db.hentValg(id);
-                  return View("../User/ResultatVoteringIDEng", Valg);
-              }
-          }
-
-          return RedirectToAction("Index");
-
-      }
+     
 
 
       // ActionResult Administrator funksjoner
@@ -2012,22 +1837,246 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "false")]
-        public ActionResult Votering()
+
+
+        [Authorize(Roles = "true")]
+        public ActionResult VoteringAdminEng()
         {
             if (Session["LoggetInn"] != null)
             {
-            bool loggetinn = (bool)Session["LoggetInn"];
-            if (loggetinn)
-            {
-            return View();
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    return View("../User/VoteringAdminEng");
+                }
             }
+
+            return RedirectToAction("Index");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult VoteringAdmin()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    return View();
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatVotering()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    return View();
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        [Authorize(Roles = "true")]
+        public ActionResult Resultat(Kandidat innAdmin, int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    bool ok = db.SjekkPassord(innAdmin, brukernavn);
+                    if (ok == true) // passord riktig
+                    {
+                        Bruker bruker = new Bruker();
+                        bruker.passord = innAdmin.passord;
+                        if (db.admin_i_db_innlogget(bruker, brukernavn) == (bool)true)
+                        {
+                            db.slettValg(id);
+                            return RedirectToAction("Resultat");
+                        }
+                        else
+                        {
+                            return RedirectToAction("Resultat");
+                        }
+                    }
+                    else // feil passord
+                    {
+                        return RedirectToAction("Resultat", new { id = "e", id2 = id });
+                    }
+
+                }
+            }
+
+            return RedirectToAction("Index");
+
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult Resultat()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Valgtyper> alleValgTyper = db.hentValgTyperVotering();
+                    return View(alleValgTyper);
+                }
+
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatVoteringEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    return View("../User/ResultatVoteringEng");
+                }
             }
 
             return RedirectToAction("Index");
 
         }
         [HttpPost]
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatEng(Kandidat innAdmin, int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    bool ok = db.SjekkPassordEng(innAdmin, brukernavn);
+                    if (ok == true) // passord riktig
+                    {
+                        Bruker bruker = new Bruker();
+                        bruker.passord = innAdmin.passordEng;
+                        if (db.admin_i_db_innlogget(bruker, brukernavn) == (bool)true)
+                        {
+                            db.slettValg(id);
+                            return RedirectToAction("ResultatEng");
+                        }
+                        else
+                        {
+                            return RedirectToAction("ResultatEng");
+                        }
+                    }
+                    else // feil passord
+                    {
+                        return RedirectToAction("ResultatEng", new { id = "e", id2 = id });
+                    }
+
+                }
+            }
+
+            return RedirectToAction("IndexEng");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Valgtyper> alleValgTyper = db.hentValgTyper();
+                    return View("../User/ResultatEng", alleValgTyper);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatVoteringID(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    Valgtyper Valg = db.hentValg(id);
+                    return View(Valg);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatVoteringIDEng(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    Valgtyper Valg = db.hentValg(id);
+                    return View("../User/ResultatVoteringIDEng", Valg);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        public ActionResult Votering()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    var votering = db.valgPågår();
+                    return View(votering);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        public ActionResult VoteringEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    var votering = db.valgPågår();
+                    return View("../User/VoteringEng", votering);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+
+
+
+
         [Authorize(Roles = "false")]
         public ActionResult Voteringsvar()
         {
@@ -2068,10 +2117,7 @@ namespace Studentparlamentet_28.Controllers
             return RedirectToAction("Index");
 
         }
-
-
-        // ActionResult Bruker Engelsk
-        [Authorize(Roles = "false")] // sikkerhetsmekanisme med cookie informasjon og sessionID
+        [Authorize(Roles = "false")]
         public ActionResult BrukerLoggetInnEng(string id)
         {
 
@@ -2089,23 +2135,6 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("IndexEng");
         }
-        [Authorize(Roles = "false")]
-        public ActionResult VoteringEng()
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-
-                    return View("../User/VoteringEng");
-                }
-            }
-
-            return RedirectToAction("Index");
-
-        }
-
         // Funksjoner og Metoder
         public void startVotering()
         {
@@ -2153,7 +2182,6 @@ namespace Studentparlamentet_28.Controllers
 
 
         }
-
         public string vinnerVoteringIDEng(int id)
         {
             double forProsent = prosentFor_ID(id);
@@ -2334,10 +2362,52 @@ namespace Studentparlamentet_28.Controllers
 
             else
             {
-                return "ingen valgresultat";
+                return "Ingen valgresultat";
             }
             
-        }              
+        }
+        public string vinnerVotering_IDEng(int id)
+        {
+            double forProsent = prosentFor_ID(id);
+            double motProsent = prosentMot_ID(id);
+            double blankProsent = prosentBlank_ID(id);
+            // for vinner
+            if (forProsent > motProsent && forProsent > blankProsent)
+            {
+                return "For";
+            }
+            // mot vinner
+            else if (motProsent > forProsent && motProsent > blankProsent)
+            {
+                return "Against";
+            }
+            //blank vinner
+            else if (blankProsent > forProsent && blankProsent > motProsent)
+            {
+                return "Blank";
+            }
+            // for == mot && for == blank  
+            else if (forProsent == motProsent && forProsent == blankProsent)
+            {
+                return "Equal For, Against and Blank";
+            }
+            // for == mot
+            else if (forProsent == motProsent)
+            {
+                return "Equal For and Against For og Mot";
+            }
+            // for == blank
+            else if (forProsent == blankProsent)
+            {
+                return "Equal For and Against";
+            }
+
+            else
+            {
+                return "No Election Result";
+            }
+
+        }
         public int hentAntallStemte_int()
         {
             var db = new BrukerBLL();

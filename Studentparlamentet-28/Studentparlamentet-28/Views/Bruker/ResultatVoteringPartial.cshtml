@@ -1,17 +1,17 @@
 ﻿@model Studentparlamentet_28.Models.Valgtyper
 
-<div class="panel panel-default">
+<div class="panel panel-default" id="panelVoteringResultat">
     <div class="panel-body" id="resultatVotering">
         <table class="table">
             <tr>
                 <th>ValgNr</th>
+                <th>Kjører</th>
                 <th>Valgtype</th>
-                <th>Kjører </th>
+                <th></th>
             </tr>
             <tr>
                 <td>@Model.valgtypeid</td>
-                <td>@Model.valgtype</td>
-                <td>
+                 <td>
                     @if (@Model.start != false)
                     {
                         <p>Ja</p>
@@ -21,16 +21,21 @@
                         <p>Nei</p>
                     }
                 </td>
+                <td>@Model.valgtype                    
+                </td>
+                <td>
+                    <div class="pull-left">
+                        <a href="@Url.Action("ResultatVoteringID", "Bruker", new {  id = Model.valgtypeid })" class="btn btn-info">Se Resultat</a>
+                        <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+                           data-navn="<h3>ValgNr @Model.valgtypeid ValgType @Model.valgtype</h3>"
+                           data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
+                    </div>
+                </td>
             </tr>
         </table>
 
         <div class="panel-footer clearfix">
-            <div class="pull-left">
-                <a href="@Url.Action("ResultatVoteringID", "Bruker", new {  id = Model.valgtypeid })" class="btn btn-success ">Vis Resultat</a>
-                <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
-                   data-navn="ValgNr: @Model.valgtypeid ValgType: @Model.valgtype"
-                   data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
-            </div>
+
         </div>
     </div>
 </div>

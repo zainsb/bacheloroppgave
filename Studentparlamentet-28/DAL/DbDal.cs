@@ -16,6 +16,30 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public List<Valgtyper> hentValgTyperVotering()
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
+                {
+                    valgtypeid = k.ValgtypeID,
+                    valgtype = k.Valgtype,
+                    start = k.Start,
+
+                }).Where(k => k.valgtype == "Votering").ToList();
+
+
+
+                return listeAvValgTyper;
+            }
+        }
+        public void LeggTilMeldingVotering(string id)
+        {
+            var db = new BrukerContext();
+            Valgtyper_db votering = db.Valgtyper.FirstOrDefault(b => b.Start == true);
+            votering.Melding = id;
+            db.SaveChanges();
+        }
         public bool sjekkValgStemme(int ID)
         {
             var db = new BrukerContext();
@@ -461,7 +485,8 @@ namespace Studentparlamentet_28.DAL
                 {
                     valgtypeid = valgtype_db.ValgtypeID,
                     valgtype = valgtype_db.Valgtype,
-                    start = valgtype_db.Start
+                    start = valgtype_db.Start,
+                    melding = valgtype_db.Melding
                 };
                 return valgtype;
             }
