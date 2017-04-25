@@ -28,6 +28,19 @@
 
         <div class="form-horizontal">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div>
+                @if (ViewBag.Innlogget == null)
+                {
+
+                }
+                else
+                {
+                    <p class="alert alert-danger">Username or password is wrong, try again.</p>
+                }
+            </div>
+
+
             <div class="form-group">
                 <div class="col-md-10">
                     <div class="input-group">

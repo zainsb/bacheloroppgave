@@ -11,7 +11,7 @@
 
             //Skal kalle på hentAlleValgteKandidater metoden her
             $.ajax({
-                url: '/Bruker/hentAlleValgteKandidater',
+                url: '/Bruker/hentValgteKandidater',
                 data: { valgtypeid: @Model.valgtypeid },
                 type: 'GET',
                 dataType: 'json',
@@ -21,7 +21,6 @@
                         $("#testforelopig").html("Lista var tom");
                     }
                     else {
-
                         visListe(alleKandidater);
                     }
                 }
@@ -77,6 +76,7 @@
 <body>
 
     <div class="col-sm-12" id="containerSTVBruker">
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "AlleUtfortePreferansevalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
@@ -92,11 +92,11 @@
 
         <br /><br />
         <center><h2>Preferansevalg resultat</h2></center>
-        
+
         <br />
         <div class="alert alert-success">
             <center><h4>Valgte representanter</h4></center><br />
-            <ul class="list-group" id="listeValgt"></ul>
+            <div id="divListeValg"><ul class="list-group" id="listeValgt"></ul></div>
             <br />
             <div class="col-sm-12"><hr id="hrSTV" /></div>
             <br />
@@ -118,6 +118,14 @@
                         <div id="antallKandidaterPreferansevalg" class="col-lg-offset-3"></div>
                     </div>
 
+                </div>
+            </div>
+            <br /><br />
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-lg-4 pull-left">
+                        @Html.ActionLink("Vis valgte Varaer", "VisVaraResultatPreferansevalg", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-primary" })
+                    </div>
                 </div>
             </div>
         </div>

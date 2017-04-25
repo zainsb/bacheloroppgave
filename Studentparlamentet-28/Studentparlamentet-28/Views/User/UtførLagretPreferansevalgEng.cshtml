@@ -62,6 +62,11 @@
                 }
             });
 
+            //Lagrer kandidat i db og legger til en ny rad
+            $("#btnLeggTilKandidat").click(function () {
+                var navn = $('#kandidatNavn').val(); //Henter inn data fra felt
+                leggTilRad(navn);
+            });
 
             //Starte preferansevalg
             $("#btnStartLagretSTV").click(function () {
@@ -94,7 +99,24 @@
 
 
         //Funksjon som legger til kandidater fortløpende
+        function leggTilRad(navn) {
 
+            $.ajax({
+                url: '/Bruker/utførLagreKandidatIListe',
+                data: {
+                    navn: navn,
+                    valgtypeid: valgtypeid
+                },
+                type: 'GET',
+                dataType: 'json',
+                success: function (melding) {
+                    location.reload();
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }
 
         //Hjelpefunksjon
         function urlResulat(hjelpeID) {
@@ -108,46 +130,46 @@
 </head>
 <body>
     <div class="col-sm-12" id="containerSTV">
-        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Tilbake", "ForhåndsLagredePreferansevalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "ForhåndsLagredePreferansevalgEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     Norsk
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("UtførLagretPreferansevalgEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("UtførLagretPreferansevalg", "Bruker")">Norsk</a></li>
                 </ul>
             </div>
         </div>
         <br />
         <h2>Administrer preferansevalg</h2>
         <br />
-        <p class="text-info">Her kan du starte følgende preferansevalg.</p>
+        <p class="text-info">You are about to start the following Single Transferable Vote.</p>
         <br />
         <div class="tstdiv"></div>
 
         <div class="form-horizontal">
             <div class="form-group form-inline">
                 <div class="row col-sm-11">
-                    <p class="col-sm-2"><b>Beskrivelse:</b></p> <p id="BeskrivelseSTV"></p>
+                    <p class="col-sm-2"><b>Description:</b></p> <p id="BeskrivelseSTV"></p>
                 </div>
             </div>
             <div class="form-group form-inline">
                 <div class="row col-sm-11">
-                    <p class="col-sm-4" for="antRepresentanter"><b>Antall valgrepresentanter:</b></p><p id="antRepresentanter"></p>
+                    <p class="col-sm-4" for="antRepresentanter"><b>Deputy representatives:</b></p><p id="antRepresentanter"></p>
                 </div>
             </div>
             <br />
 
 
             <table class="table table-hover table-nonfluid" id="tablePreferansevalg">
-                <caption><h4 class="pull-left">Registrerte kandidater</h4></caption>
+                <caption><h4 class="pull-left">Registered candidates</h4></caption>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Navn</th>
+                        <th>Name</th>
                         <th>
                             <div class="pull-right">
                             </div>
@@ -183,7 +205,7 @@
                 <div class="row">
                     <div class="col-sm-4"></div>
                     <div class="col-sm-4">
-                        <input type="button" id="btnStartLagretSTV" value="Start preferansevalg" class="btn btn-primary" />
+                        <input type="button" id="btnStartLagretSTV" value="Start STV" class="btn btn-primary" />
                     </div>
                     <div class="col-sm-4"></div>
                 </div>

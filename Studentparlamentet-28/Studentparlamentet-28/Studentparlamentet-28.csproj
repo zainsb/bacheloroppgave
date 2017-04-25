@@ -278,6 +278,9 @@
     <Content Include="Views\Bruker\UtførLagretPreferansevalg.cshtml" />
     <Content Include="Views\User\PersonvalgStemmeEng.cshtml" />
     <Content Include="Views\User\PersonvalgStemmeModalEng.cshtml" />
+    <Content Include="Views\User\UtførLagretPreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\VisVaraResultatPreferansevalg.cshtml" />
+    <Content Include="Views\User\VisVaraResultatPreferansevalgEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

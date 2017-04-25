@@ -123,6 +123,7 @@ namespace Studentparlamentet_28.DAL
         public int Id { get; set; }
         public string Beskrivelse { get; set; }
         public int AntallRepresentanter { get; set; }
+        public int AntallVaraRepresentanter { get; set; }
         public bool Utført { get; set; }
         public int ValgtypeID { get; set; }
     }
@@ -158,6 +159,24 @@ namespace Studentparlamentet_28.DAL
         public int ValgtypeID { get; set; }
     }
 
+    public class VaraListeSTV
+    {
+        [Key]
+        public int VaraKandidatID { get; set; }
+        public string Navn { get; set; }
+        public int Stemmetall { get; set; }
+        public bool StemmetallSatt { get; set; }
+        public int ValgtypeID { get; set; }
+    }
+    public class PreferansevalgValgt_db
+    {
+        [Key]
+        public int ValgtID { get; set; }
+        public string Navn { get; set; }
+
+        public int ValgtypeID { get; set; }
+    }
+
     public class BrukerContext : DbContext
     {
         public BrukerContext()
@@ -177,6 +196,8 @@ namespace Studentparlamentet_28.DAL
         public DbSet<PersonvalgKandidatResultat_db> PersonvalgKandidatResultat { get; set; }
         public DbSet<Preferansevalg_db> PreferanseValg { get; set; }
         public DbSet<KandidatListeSTV> KandidaterSTV { get; set; }
+        public DbSet<VaraListeSTV> PreferansevalgVaraer { get; set; }
+        public DbSet<PreferansevalgValgt_db> PreferansevalgValgt { get; set; }
 
         public DbSet<Stemmeseddel_db> Stemmesedler { get; set; }
         

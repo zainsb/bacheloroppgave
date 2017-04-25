@@ -1,74 +1,102 @@
 ﻿@model Studentparlamentet_28.Models.Admin
-<div class="col-sm-12" id="LoginForm">
-    <div class="panel-body" id="panelAdminIndex">
+<div class="col-sm-12" id="containerSTV">
 
-        <div class="dropdown" style="float:right;">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                Norsk
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a href="@Url.Action("AdminLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
-            </ul>
+    <div class="dropdown" style="float:right;">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            Norsk
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("AdminLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
+        </ul>
+    </div>
+
+    <br /><br /><br /><br />
+    <div class="list-group">
+
+        <!--            <div id="borderListGroup">
+                        <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Legg til administratorer</h5>
+                            </div>
+                            <small>Klikk her for å lage flere administrator brukere</small>
+                        </a>
+                    </div>
+        -->
+        <div class="form-group form-inline">
+            <div class="row col-sm-12">
+                <div class="col-lg-4 col-lg-offset-2">
+                    <div id="borderListGroup" class="pull-left">
+                        <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Generer valgdeltagere</h5>
+                            </div>
+                            <small>Klikk her for å generere valgdeltaker liste for møtet.</small>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div id="borderListGroup">
+                        <a href="@Url.Action("HentResultat", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Hent resultater</h5>
+                            </div>
+                            <small>Klikk her for å hente rapporter av resultat</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-
         <br /><br />
-        <div class="list-group">
-
-<!--            <div id="borderListGroup">
-                <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Legg til administratorer</h5>
+        <div class="form-group form-inline">
+            <div class="row col-sm-12">
+                <div class="col-lg-4">
+                    <div id="borderListGroup">
+                        <a href="@Url.Action("VoteringAdmin", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Votering</h5>
+                            </div>
+                            <small>Klikk her for å starte og administrere voteringer</small>
+                        </a>
                     </div>
-                    <small>Klikk her for å lage flere administrator brukere</small>
-                </a>
-            </div>
--->
-            <div id="borderListGroup">
-                <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Generer liste med valgdeltagere</h5>
+                </div>
+                <div class="col-lg-4">
+                    <div id="borderListGroup">
+                        <a href="@Url.Action("Personvalg", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Personvalg</h5>
+                            </div>
+                            <small>Klikk her for å starte og administrere personvalg</small>
+                        </a>
                     </div>
-                    <small>Klikk her for å generer en liste og last ned brukernavn og passord for valgdeltagere</small>
-                </a>
-            </div>
-
-            <div id="borderListGroup">
-                <a href="@Url.Action("VoteringAdmin", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Votering</h5>
+                </div>
+                <div class="col-lg-4">
+                    <div id="borderListGroup">
+                        <a href="@Url.Action("PreferansevalgAdmin", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Preferansevalg</h5>
+                            </div>
+                            <small>Klikk her for å starte og administrere preferansevalg</small>
+                        </a>
                     </div>
-                    <small>Klikk her for å starte og stoppe votering og for å se oversikt over alle voteringer</small>
-                </a>
-            </div>
-
-            <div id="borderListGroup">
-                <a href="@Url.Action("PreferansevalgAdmin", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Preferansevalg</h5>
-                    </div>
-                    <small>Klikk her for å starte og stoppe preferansevalg og for å se oversikt over alle preferansevalg</small>
-                </a>
-            </div>
-
-            <div id="borderListGroup">
-                <a href="@Url.Action("Personvalg", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Personvalg</h5>
-                    </div>
-                    <small>Klikk her for å starte og stoppe personvalg og for å se oversikt over alle personvalgene</small>
-                </a>
-            </div>
-
-            <div id="borderListGroup">
-                <a href="@Url.Action("HentResultat", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Resultater</h5>
-                    </div>
-                    <small>Klikk her for å hente rapporter av resultatene</small>
-                </a>
+                </div>
             </div>
         </div>
-       @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger" })
+
+
+        <br />
+       
+        <div class="row">
+            <div class="col-lg-4">
+
+            </div>
+            <div class="col-lg-4">
+                @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger col-lg-10" })
+            </div>
+            <div class="col-lg-4">
+
+            </div>
+
+        </div>
     </div>
-    </div>
+</div>

@@ -22,7 +22,7 @@
                     }
                 },
                 error: function (x, y, z) {
-                    alert(x + '\n' + y + '\n' + z);
+                    //alert(x + '\n' + y + '\n' + z);
                 }
             });
 
@@ -36,7 +36,7 @@
                         $("#antStemtDiv").html("<h4>" + melding + "</h4>");
                     },
                     error: function (x, y, z) {
-                        alert(x + '\n' + y + '\n' + z);
+                        //alert(x + '\n' + y + '\n' + z);
                     }
                 });
             };
@@ -54,7 +54,7 @@
                         }
                     },
                     error: function (x, y, z) {
-                        alert(x + '\n' + y + '\n' + z);
+                        //alert(x + '\n' + y + '\n' + z);
                     }
                 });
             });
@@ -68,7 +68,7 @@
 </head>
 <body>
     <div class="col-sm-12" id="containerSTV">
-
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
@@ -77,7 +77,7 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("PreferansevalgEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("PreferanseStartetEng", "Bruker")">English</a></li>
                 </ul>
             </div>
         </div>

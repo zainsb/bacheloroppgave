@@ -68,6 +68,7 @@
 </head>
 <body>
     <div class="col-sm-12" id="containerSTV">
+        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
 
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Back", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
@@ -89,7 +90,7 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-4"><h4>Number of candidates</h4></div>
+            <div class="col-lg-3"><h4>Participating</h4></div>
             <div class="col-lg-7"><div class="col-lg-7" id="antDeltakereDiv"></div></div>
         </div>
         <br />

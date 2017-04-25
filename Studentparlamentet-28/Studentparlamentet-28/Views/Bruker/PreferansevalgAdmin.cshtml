@@ -24,11 +24,9 @@
                     }
                     else if (data == "false") {
                         $("#start").show();
-
                     }
                 }
             });
-
 
             if(antallKandidaterIListe == 0){
                 $('#btnNullstillKandidater').attr("disabled", true);
@@ -63,6 +61,9 @@
             $("#btnStartSTV ").click(function () {
                 var beskrivelse = $('#BeskrivelseSTV').val(); //Henter inn data fra felt
                 var antallRepresentanter = $("#antRepresentanter").val();
+                var antallVaraRepresentanter = $("#antVaraRepresentanter").val();
+                var grenseAntallVara = @Model.Count() - antallRepresentanter;
+
                 $("#divFeilmld").hide();
                 $("#divFeilTxt").html(" ");
                 $("#divFeilRep").html(" ");
@@ -101,12 +102,35 @@
                     $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
                     $("#divFeilRep").html("<p style='color: red;'>*Må være et tall</p>");
                 }
+                else if(antallVaraRepresentanter == ""){
+                    if(beskrivelse == ""){
+                        $("#divFeilmld").show();
+                        $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                        $("#divFeilBeskrivelse").html("<p style='color: red;'>*Ikke fylt ut</p>");
+                    }
+                    antallRepresentanter = "-";
+                    $("#divFeilmld").show();
+                    $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divFeilVaraRep").html("<p style='color: red;'>*Ikke fylt ut</p>");
+                }
+                else if(isNaN(antallVaraRepresentanter))
+                {
+                    $("#divFeilmld").show();
+                    $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divFeilVaraRep").html("<p style='color: red;'>*Må være et tall</p>");
+                }
+                else if(antallVaraRepresentanter > grenseAntallVara){
+                    $("#divFeilmld").show();
+                    $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divFeilVaraRep").html("<p style='color: red;'>*Ugyldig verdig, prøv igjen</p>");
+                }
                 else{
                     $.ajax({
                         url: '/Bruker/startPreferansevalg',
                         data: {
                             beskrivelse: beskrivelse,
-                            antallRepresentanter: antallRepresentanter
+                            antallRepresentanter: antallRepresentanter,
+                            antallVaraRepresentanter: antallVaraRepresentanter
                         },
                         type: 'GET',
                         dataType: 'json',
@@ -140,7 +164,6 @@
                 }
             });
 
-
         }) //Her stopper function()
 
 
@@ -167,12 +190,11 @@
                 }
             });
         }
-
     </script>
 </head>
 <body>
     <div class="col-sm-12" id="containerSTV">
-
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
@@ -215,6 +237,19 @@
                         <input type="text" class="form-control" id="antRepresentanter" />
                     </div>
                     <div class="col-sm-5" id="divFeilRep">
+
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-4">
+                        <label for="antVaraRepresentanter">Antall vararepresentanter</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="antVaraRepresentanter" />
+                    </div>
+                    <div class="col-sm-5" id="divFeilVaraRep">
 
                     </div>
                 </div>

@@ -24,15 +24,25 @@ namespace Studentparlamentet_28.BLL
             return brukerdal.kjørerValg();
         }
         //Preferansevalg
+        public List<PreferansevalgValgte> hentValgteKandidater(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentValgteKandidater(valgtypeid);
+        }
+        public List<VaraSTV> hentValgteVaraer(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentValgteVaraer(valgtypeid);
+        }
         public string HarBrukerStemtSTV(string brukernavn)
         {
             var brukerdal = new DbDal();
             return brukerdal.HarBrukerStemtSTV(brukernavn);
         }
-        public string startLagretPreferansevalg(int valgtypeid, string beskrivelse, int antallRepresentanter)
+        public string startLagretPreferansevalg(int valgtypeid, string beskrivelse)
         {
             var brukerDal = new DbDal();
-            return brukerDal.startLagretPreferansevalg(valgtypeid, beskrivelse, antallRepresentanter);
+            return brukerDal.startLagretPreferansevalg(valgtypeid, beskrivelse);
         }
         public Valgtyper PreferansevalgPågår()
         {
@@ -95,10 +105,10 @@ namespace Studentparlamentet_28.BLL
             var brukderDal = new DbDal();
             brukderDal.BeregnStemmetallFørsteRunde(valgtypeid);
         }
-        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter)
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
         {
             var brukderDal = new DbDal();
-            return brukderDal.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter);
+            return brukderDal.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
         }
         public string NullstillKandidatliste(int valgtypeid)
         {
@@ -142,10 +152,10 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.lagreKandidatSTV(id);
         }
-        public string startPreferansevalg(string beskrivelse, int antallRepresentanter)
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
         {
             var brukderDal = new DbDal();
-            return brukderDal.startPreferansevalg(beskrivelse, antallRepresentanter);
+            return brukderDal.startPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
         }
         public bool startPreferansevalg(Valgtyper valg)
         {

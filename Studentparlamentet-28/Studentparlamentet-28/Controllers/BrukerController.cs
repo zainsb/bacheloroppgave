@@ -30,12 +30,56 @@ namespace Studentparlamentet_28.Controllers
         }
 
         //PREFERANSEVALG
+        public string hentValgteKandidater(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+            List<PreferansevalgValgte> alleKandidater = db.hentValgteKandidater(valgtypeid);
 
-        public string startLagretPreferansevalg(int valgtypeid, string beskrivelse, int antallRepresentanter)
+            var jsonSerializer = new JavaScriptSerializer();
+            string json = jsonSerializer.Serialize(alleKandidater);
+            return json;
+        }
+        public string hentValgteVaraer(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+            List<VaraSTV> alleKandidater = db.hentValgteVaraer(valgtypeid);
+
+            var jsonSerializer = new JavaScriptSerializer();
+            string json = jsonSerializer.Serialize(alleKandidater);
+            return json;
+        }
+        public ActionResult VisVaraResultatPreferansevalg(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+                return View(valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+        public ActionResult VisVaraResultatPreferansevalgEng(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+                return View("../User/VisVaraResultatPreferansevalgEng", valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+
+        public string startLagretPreferansevalg(int valgtypeid, string beskrivelse)
         {
             var db = new BrukerBLL();
 
-            string melding = db.startLagretPreferansevalg(valgtypeid, beskrivelse, antallRepresentanter);
+            string melding = db.startLagretPreferansevalg(valgtypeid, beskrivelse);
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(melding);
         }
@@ -194,11 +238,11 @@ namespace Studentparlamentet_28.Controllers
             }
         }
 
-        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter)
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
         {
             var db = new BrukerBLL();
 
-            string melding = db.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter);
+            string melding = db.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(melding);
         }
@@ -405,11 +449,11 @@ namespace Studentparlamentet_28.Controllers
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(melding);
         }
-        public string startPreferansevalg(string beskrivelse, int antallRepresentanter)
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
         {
             var db = new BrukerBLL();
 
-            string melding = db.startPreferansevalg(beskrivelse, antallRepresentanter);
+            string melding = db.startPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(melding);
         }
@@ -427,13 +471,13 @@ namespace Studentparlamentet_28.Controllers
                 return RedirectToAction("index");
             }
         }
-        public ActionResult PreferansevalgStartetEng()
+        public ActionResult PreferanseStartetEng()
         {
             var db = new BrukerBLL();
             if (Session["LoggetInn"] != null)
             {
                 Preferansevalg valg = db.PreferansevalgHarStartet();
-                return View("../User/PreferansevalgStartetEng", valg);
+                return View("../User/PreferanseStartetEng", valg);
             }
             else
             {
@@ -1179,7 +1223,8 @@ namespace Studentparlamentet_28.Controllers
               }
               else
               {
-                  return View();
+                    ViewBag.Innlogget = false;
+                    return View();
               }
           }
           else
@@ -1240,18 +1285,17 @@ namespace Studentparlamentet_28.Controllers
               var roles = db.hentRolleAdmin(iD);
               if (roles != null)
               {
-                  return RedirectToAction("AdminLoggetInn", new { id = iD });
+                  return RedirectToAction("AdminLoggetInnEng", new { id = iD });
               }
               else
               {
-                  return RedirectToAction("BrukerLoggetInn", new { id = iD });
+                  return RedirectToAction("BrukerLoggetInnEng", new { id = iD });
               }
 
           }
           else
           {
               return View("../User/IndexEng");
-
           }
       }
       [HttpPost]
@@ -1270,7 +1314,7 @@ namespace Studentparlamentet_28.Controllers
                   Session["LoggetInn"] = true;
 
                   FormsAuthentication.SetAuthCookie(brukernavn, false);
-
+                  
                   if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                       && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
                   {
@@ -1304,7 +1348,8 @@ namespace Studentparlamentet_28.Controllers
               }
               else
               {
-                  return View("../User/IndexEng");
+                    ViewBag.Innlogget = false;
+                    return View("../User/IndexEng");
               }
           }
           else

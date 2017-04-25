@@ -10,9 +10,9 @@ namespace Studentparlamentet_28.Models
     {
         public int id { get; set; }
 
-
         public string beskrivelse { get; set; }
         public int antallrepresentanter { get; set; }
+        public int antallvararepresentanter { get; set; }
         public bool utført { get; set; }
         public int valgtypeid { get; set; }
     }

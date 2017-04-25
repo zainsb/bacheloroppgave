@@ -11,7 +11,7 @@
 
             //Skal kalle på hentAlleValgteKandidater metoden her
             $.ajax({
-                url: '/Bruker/hentValgteKandidater',
+                url: '/Bruker/hentValgteVaraer',
                 data: { valgtypeid: @Model.valgtypeid },
                 type: 'GET',
                 dataType: 'json',
@@ -62,10 +62,10 @@
 
         }) //Her stopper function()
 
-        function visListe(alleKandidater) {
+        function visListe(alleVaraer) {
             var utskrift = "";
-            for (var i in alleKandidater) {
-                utskrift += "<li class='list-group-item' style='text-align:center'>"+ alleKandidater[i].navn + "</li>";
+            for (var i in alleVaraer) {
+                utskrift += "<li class='list-group-item' style='text-align:center'>"+ alleVaraer[i].navn + "</li>";
             }
 
             $("#listeValgt").append(utskrift);
@@ -76,26 +76,26 @@
 <body>
 
     <div class="col-sm-12" id="containerSTVBruker">
-        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "AlleUtfortePreferansevalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
+                    Norsk
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("ResultatPreferansevalg", "Bruker", new { valgtypeid = Model.valgtypeid})">Norsk</a></li>
+                    <li><a href="@Url.Action("VisVaraResultatPreferansevalgEng", "Bruker", new { valgtypeid = Model.valgtypeid})">English</a></li>
                 </ul>
             </div>
         </div>
 
         <br /><br />
-        <center><h2>Single Tranferable Vote result</h2></center>
+        <center><h2>Single Transferable Vote result</h2></center>
 
         <br />
         <div class="alert alert-success">
-            <center><h4>Elected representatives</h4></center><br />
+            <center><h4>Deputy representatives</h4></center><br />
             <div id="divListeValg"><ul class="list-group" id="listeValgt"></ul></div>
             <br />
             <div class="col-sm-12"><hr id="hrSTV" /></div>
@@ -110,11 +110,11 @@
             <div class="form-group form-inline">
                 <div class="row col-sm-12">
                     <div class="col-lg-4 pull-left">
-                        <p><b>Votes</b></p>
+                        <p><b>Participated</b></p>
                         <div id="antallDeltakerePreferansevalg" class="col-lg-offset-2"></div>
                     </div>
                     <div class="col-lg-4 pull-left">
-                        <p><b>Participating</b></p>
+                        <p><b>Candidates</b></p>
                         <div id="antallKandidaterPreferansevalg" class="col-lg-offset-3"></div>
                     </div>
 
@@ -124,7 +124,7 @@
             <div class="form-group form-inline">
                 <div class="row col-sm-12">
                     <div class="col-lg-4 pull-left">
-                        @Html.ActionLink("Show Deputies", "VisVaraResultatPreferansevalgEng", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("Show representatives", "ResultatPreferansevalgEng", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-primary" })
                     </div>
                 </div>
             </div>

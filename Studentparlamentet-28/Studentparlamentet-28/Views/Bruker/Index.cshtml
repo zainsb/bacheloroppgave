@@ -19,7 +19,7 @@
     <h2 style="text-align:left;">Velkommen</h2>   
     <h4 class="LoginHeader">Vennligst logg inn</h4>
 
-
+        
         <br /><br />
         
         @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
@@ -28,6 +28,19 @@
 
             <div class="form-horizontal">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div>
+                    @if (ViewBag.Innlogget == null)
+                    {
+
+                    }
+                    else
+                    {
+                        <p class="alert alert-danger">Brukernavn eller passord er feil, vennligst prøv igjen.</p>
+                    }
+                </div>
+
+
+
 
                 <div class="form-group">
                     <div class="col-md-10">

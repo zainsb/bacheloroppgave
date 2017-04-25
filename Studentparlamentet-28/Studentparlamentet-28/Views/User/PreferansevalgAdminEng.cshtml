@@ -62,6 +62,9 @@
             $("#btnStartSTV ").click(function () {
                 var beskrivelse = $('#BeskrivelseSTV').val(); //Henter inn data fra felt
                 var antallRepresentanter = $("#antRepresentanter").val();
+                var antallVaraRepresentanter = $("#antVaraRepresentanter").val();
+                var grenseAntallVara = @Model.Count() + antallRepresentanter;
+
                 $("#divFeilmld").hide();
                 $("#divFeilTxt").html(" ");
                 $("#divFeilRep").html(" ");
@@ -93,6 +96,28 @@
                     $("#divFeilmld").show();
                     $("#divFeilTxt").html("Error, try again.");
                     $("#divFeilRep").html("<p style='color: red;'>*Fill in</p>");
+                }
+                else if(antallVaraRepresentanter == ""){
+                    if(beskrivelse == ""){
+                        $("#divFeilmld").show();
+                        $("#divFeilTxt").html("Error, try again.");
+                        $("#divFeilBeskrivelse").html("<p style='color: red;'>*Fill in</p>");
+                    }
+                    antallRepresentanter = "-";
+                    $("#divFeilmld").show();
+                    $("#divFeilTxt").html("Error, please try again.");
+                    $("#divFeilVaraRep").html("<p style='color: red;'>*Fill in</p>");
+                }
+                else if(isNaN(antallVaraRepresentanter))
+                {
+                    $("#divFeilmld").show();
+                    $("#divFeilTxt").html("Error, please try again.");
+                    $("#divFeilVaraRep").html("<p style='color: red;'>*Has to be a number</p>");
+                }
+                else if(antallVaraRepresentanter < grenseAntallVara){
+                    $("#divFeilmld").show();
+                    $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divFeilVaraRep").html("<p style='color: red;'>*Unvalid number, try again.</p>");
                 }
                 else if(isNaN(antallRepresentanter))
                 {
@@ -139,7 +164,6 @@
                 }
             });
 
-
         }) //Her stopper function()
 
 
@@ -171,12 +195,12 @@
 </head>
 <body>
     <div class="col-sm-12" id="containerSTV">
-
+        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Back", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
+                    English 
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
@@ -218,11 +242,24 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-4">
+                        <label for="antVaraRepresentanter">Deputy representatives</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="antVaraRepresentanter" />
+                    </div>
+                    <div class="col-sm-5" id="divFeilVaraRep">
+
+                    </div>
+                </div>
+            </div>
             <br /><br />
             <div class="form-group form-inline">
                 <div class="row col-sm-11">
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" id="kandidatNavn" placeholder="Skriv inn navn for kandidat" />
+                        <input type="text" class="form-control" id="kandidatNavn" placeholder="Name of the participating candidate" />
                         <small class="text-muted">Name for the new candidate.</small>
                     </div>
                     <div class="col-sm-2">
@@ -285,7 +322,7 @@
                     <div id="divResultat" class="col-sm-8 pull-left alert alert-info">
                         <div class="col-sm-5 pull-left"><div id="divResultatTxt"></div></div>
                         <div class="col-sm-3">
-                            <input type="button" class="form-control btn-sm btn-info" id="divResultatBtn" value="Se resultat" />
+                            <input type="button" class="form-control btn-sm btn-info" id="divResultatBtn" value="See result" />
                         </div>
                     </div>
                 </div>
@@ -295,7 +332,7 @@
 
                 <div class="row">
                     <div class="col-sm-4"></div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-6 col-lg-offset-1">
                         <input type="button" id="btnStartSTV" value="Start STV" class="btn btn-primary" />
                     </div>
                 </div>
@@ -304,7 +341,7 @@
                 <div class="row col-sm-11">
                     <div class="col-sm-12">
                         @Html.ActionLink("Registered S.T.V", "ForhåndslagredePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-2" })
-                        @Html.ActionLink("STV finished", "AlleUtfortePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-1" })
+                        @Html.ActionLink("Executed STV ", "AlleUtfortePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-1" })
                     </div>
                 </div>
             </div>
