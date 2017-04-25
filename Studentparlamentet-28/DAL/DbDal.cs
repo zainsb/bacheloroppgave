@@ -110,17 +110,17 @@ namespace Studentparlamentet_28.DAL
             //int stemmetallEkskludert = 0;
             bool valgAvsluttes = false;
             bool fortsettRunde = true;
-
             VaraSTV vara = new VaraSTV();
 
+
             //Fjerner de som allerede er valgt
-            for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
+            for (int i = 0; i < alleredeValgt.Count(); i++)
             {
-                for (int k = 0; k < alleredeValgt.Count(); k++)
+                for (int k = 0; k < tilgjengeligeKandidater.Count(); k++)
                 {
-                    if (tilgjengeligeKandidater[i].navn == alleredeValgt[k].navn)
+                    if (alleredeValgt[i].navn == tilgjengeligeKandidater[k].navn)
                     {
-                        tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[i]);
+                        tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[k]);
                     }
                 }
             }
@@ -169,13 +169,14 @@ namespace Studentparlamentet_28.DAL
 
                     tilgjengeligeKandidater.Clear();
                     tilgjengeligeKandidater = hentVaralisteMedID(valgtypeid);
-                    for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
+                    
+                    for (int i = 0; i < alleredeValgt.Count(); i++)
                     {
-                        for (int k = 0; k < alleredeValgt.Count(); k++)
+                        for (int k = 0; k < tilgjengeligeKandidater.Count(); k++)
                         {
-                            if (tilgjengeligeKandidater[i].navn == alleredeValgt[k].navn)
+                            if (alleredeValgt[i].navn == tilgjengeligeKandidater[k].navn)
                             {
-                                tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[i]);
+                                tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[k]);
                             }
                         }
                     }

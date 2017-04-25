@@ -281,6 +281,8 @@
     <Content Include="Views\User\UtførLagretPreferansevalgEng.cshtml" />
     <Content Include="Views\Bruker\VisVaraResultatPreferansevalg.cshtml" />
     <Content Include="Views\User\VisVaraResultatPreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\SletteModalPreferansevalg.cshtml" />
+    <Content Include="Views\User\SletteModalPreferansevalgEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
