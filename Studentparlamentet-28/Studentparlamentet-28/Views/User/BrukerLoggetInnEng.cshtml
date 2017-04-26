@@ -1,23 +1,123 @@
 ﻿@model Studentparlamentet_28.Models.Bruker
-<div class="panel-body" id="panelBrukerIndex">
+<!DOCTYPE html>
 
-    <div class="dropdown" style="float:right;">
-        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            English
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a href="@Url.Action("Index", "Bruker")">Norsk</a></li>
-        </ul>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+
+        $(function () {
+
+            var ajax_kall_STV = function () {
+                $.ajax({
+                    url: '/Bruker/stvMelding',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        if (melding == "Preferansevalg")
+                        {
+                            $.ajax({
+                                url: '/Bruker/BrukerStemtMldSTV',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (mld) {
+                                    if(mld == "NEI")
+                                    {
+                                        window.location = "@Url.Action("PreferansevalgBruker", "Bruker")";
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function (x, y, z) {
+
+                    }
+                });
+            };
+
+
+            var ajax_kall = function () {
+                $.ajax({
+                    url: '/Bruker/VoteringMelding',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        if(melding == "Votering")
+                        {
+                            // sjekke om brukernavn, valgtypeid og valgtype finnes i tabellen
+                            $.ajax({
+                                url: '/Bruker/BrukerStemtMld',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (mld) {
+                                    if(mld == "NEI")
+                                    {
+                                        window.location = "@Url.Action("VoteringEng", "Bruker")";
+                                    }
+                                }
+                            });
+
+                        }
+                        else if(melding == "Personvalg")
+                        {
+                            // sjekke om brukernavn, valgtypeid og valgtype finnes i tabellen
+                            $.ajax({
+                                url: '/Bruker/BrukerStemtMld',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (mld) {
+                                    if(mld == "NEI")
+                                    {
+                                        window.location = "@Url.Action("PersonvalgStemmeEng", "Bruker")";
+                                    }
+                                }
+                            });
+
+                        }
+                    },
+                    error: function (x, y, z) {
+
+                    }
+                });
+            };
+
+            setInterval(ajax_kall_STV, 1000 * 3);
+            setInterval(ajax_kall, 1000 * 3);
+        })
+
+
+    </script>
+</head>
+<body>
+    <div class="panel-body" id="panelBrukerIndex">
+        <div id="mainBrukerContainer">
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    English
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("BrukerLoggetInn", "Bruker", new { id = Model.brukernavn })">Norsk</a></li>
+                </ul>
+            </div>
+            <h3 class="brukerHeader">Vote</h3>
+            <div id="txtBruker">
+                <p>There are no votes that currently is running</p>
+                <p>Please stay logged in while waiting for a vote...</p>
+            </div>
+        </div>
+
+        <div id="VoteringBruker">
+
+
+        </div>
+
+
+        @Html.ActionLink("Logg ut", "Sign out", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
+
     </div>
 
-    <h3 class="brukerHeader">Valg og votering</h3>
 
-    <div id="txtBruker">
-        <p>Please stay logged in.</p>
-        <p>Waiting for a vote or election...</p>
-    </div>
+</body>
 
-    @Html.ActionLink("Sign out", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
-
-</div>
+</html>

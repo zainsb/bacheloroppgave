@@ -101,7 +101,7 @@
                     $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
                     $("#divFeilVaraRep").html("<p style='color: red;'>*Må være et tall</p>");
                 }
-                else if(antallVaraRepresentanter < grenseAntallVara){
+                else if(antallVaraRepresentanter > grenseAntallVara){
                     $("#divFeilmld").show();
                     $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
                     $("#divFeilVaraRep").html("<p style='color: red;'>*Ugyldig verdig, prøv igjen</p>");
@@ -141,7 +141,7 @@
                             }
                         },
                         error: function (x, y, z) {
-                            alert(x + '\n' + y + '\n' + z);
+
                         }
                     });
                 }
@@ -169,7 +169,7 @@
                     }
                 },
                 error: function (x, y, z) {
-                    alert(x + '\n' + y + '\n' + z);
+
                 }
             });
         }
