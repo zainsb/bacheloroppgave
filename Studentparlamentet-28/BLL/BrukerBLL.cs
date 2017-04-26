@@ -12,6 +12,11 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+        public bool slettForhåndslagredePreferanseValg(int id)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.slettForhåndslagredePreferanseValg(id);
+        }
         public List<Valgtyper> hentValgTyperVotering()
         {
             var brukerDal = new DbDal();

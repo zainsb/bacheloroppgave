@@ -417,6 +417,31 @@ namespace Studentparlamentet_28.Controllers
 
             return RedirectToAction("Index");
         }
+        [HttpPost]
+        public ActionResult ForhåndslagredePreferansevalg(Bruker innAdmin, int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        db.slettForhåndslagredePreferanseValg(id);
+                        return RedirectToAction("ForhåndslagredePreferansevalg");
+                    }
+                    else
+                    {
+                        return RedirectToAction("ForhåndslagredePreferansevalg");
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
         public ActionResult ForhåndslagredePreferansevalgEng()
         {
             if (Session["LoggetInn"] != null)
@@ -427,6 +452,31 @@ namespace Studentparlamentet_28.Controllers
                     var db = new BrukerBLL();
                     List<Preferansevalg> alleIkkeUtforte = db.hentAlleIkkeUtfortePreferansevalg();
                     return View("../User/ForhåndslagredePreferansevalgEng", alleIkkeUtforte);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public ActionResult ForhåndslagredePreferansevalgEng(Bruker innAdmin, int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        db.slettForhåndslagredePreferanseValg(id);
+                        return RedirectToAction("ForhåndslagredePreferansevalgEng");
+                    }
+                    else
+                    {
+                        return RedirectToAction("ForhåndslagredePreferansevalgEng");
+                    }
                 }
             }
 

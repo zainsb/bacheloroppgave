@@ -195,7 +195,16 @@ namespace Studentparlamentet_28.DAL
                 }
 
                 //Finner laveste stemmetallet i gj.kandidater etter overført etter første runde
-                stemmetallEkskludert = tilgjengeligeKandidater[0].stemmetall;
+                
+                if(tilgjengeligeKandidater.Count() > 0)
+                {
+                    stemmetallEkskludert = tilgjengeligeKandidater[0].stemmetall;
+                }
+                else
+                {
+                    valgAvsluttes = true;
+                    fortsettRunde = false;
+                }
                 for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
                 {
                     if (stemmetallEkskludert == 0)
@@ -1687,12 +1696,27 @@ namespace Studentparlamentet_28.DAL
                 Preferansevalg_db preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == id);
                 db.PreferanseValg.Remove(preferansevalg);
 
+                List<PreferansevalgValgt_db> preferansevalgValgt = db.PreferansevalgValgt.Where(p => p.ValgtypeID == id).ToList();
+                for (int i = 0; i < preferansevalgValgt.Count(); i++)
+                {
+                    db.PreferansevalgValgt.Remove(preferansevalgValgt[i]);
+                }
+
                 List<KandidatListeSTV> kandidatListe = db.KandidaterSTV.Where(v => v.ValgtypeID == id).ToList();
                 for (int i = 0; i < kandidatListe.Count(); i++)
                 {
                     if (kandidatListe[i].ValgtypeID == id)
                     {
                         db.KandidaterSTV.Remove(kandidatListe[i]);
+                    }
+                }
+
+                List<VaraListeSTV> varaListe = db.PreferansevalgVaraer.Where(v => v.ValgtypeID == id).ToList();
+                for (int i = 0; i < varaListe.Count(); i++)
+                {
+                    if (varaListe[i].ValgtypeID == id)
+                    {
+                        db.PreferansevalgVaraer.Remove(varaListe[i]);
                     }
                 }
 
@@ -1705,6 +1729,59 @@ namespace Studentparlamentet_28.DAL
                     }
                 }
                 db.SaveChanges();
+
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool slettForhåndslagredePreferanseValg(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Valgtyper_db valgtyper = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+                db.Valgtyper.Remove(valgtyper);
+                // slett også 
+                Preferansevalg_db preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == id);
+                db.PreferanseValg.Remove(preferansevalg);
+
+                List<PreferansevalgValgt_db> preferansevalgValgt = db.PreferansevalgValgt.Where(p => p.ValgtypeID == id).ToList();
+                for (int i = 0; i < preferansevalgValgt.Count(); i++)
+                {
+                    db.PreferansevalgValgt.Remove(preferansevalgValgt[i]);
+                }
+
+                List<KandidatListeSTV> kandidatListe = db.KandidaterSTV.Where(v => v.ValgtypeID == id).ToList();
+                for (int i = 0; i < kandidatListe.Count(); i++)
+                {
+                    if (kandidatListe[i].ValgtypeID == id)
+                    {
+                        db.KandidaterSTV.Remove(kandidatListe[i]);
+                    }
+                }
+
+                List<VaraListeSTV> varaListe = db.PreferansevalgVaraer.Where(v => v.ValgtypeID == id).ToList();
+                for (int i = 0; i < varaListe.Count(); i++)
+                {
+                    if (varaListe[i].ValgtypeID == id)
+                    {
+                        db.PreferansevalgVaraer.Remove(varaListe[i]);
+                    }
+                }
+
+                List<Stemmeseddel_db> stemmeListe = db.Stemmesedler.Where(v => v.ValgtypeID == id).ToList();
+                for (int i = 0; i < stemmeListe.Count(); i++)
+                {
+                    if (stemmeListe[i].ValgtypeID == id)
+                    {
+                        db.Stemmesedler.Remove(stemmeListe[i]);
+                    }
+                }
+                db.SaveChanges();
+
                 return true;
             }
             catch (Exception feil)

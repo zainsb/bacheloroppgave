@@ -27,7 +27,7 @@
                         success: function () {
                             // må kalle liste-metoden for å vise den nye listen av kunder
                             $.ajax({
-                                url: '@Url.Action("AlleUtførtePreferansevalg", "Bruker")',
+                                url: '@Url.Action("AlleUtfortePreferansevalg", "Bruker")',
                                 success: function () {
                                     // så må siden reloades!
                                     window.location.reload();
