@@ -190,7 +190,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Style\StyleSheet17.css" />
+    <Content Include="Style\StyleSheet19.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -246,7 +246,6 @@
     <Content Include="Views\Bruker\lagretPersonvalg.cshtml" />
     <Content Include="Views\Bruker\PersonvalgModal.cshtml" />
     <Content Include="Views\Bruker\PersonvalgStemme.cshtml" />
-    <Content Include="Views\Bruker\PersonvalgStemmeModal.cshtml" />
     <Content Include="Views\Bruker\slettePersonvalgModal.cshtml" />
     <Content Include="Views\User\PersonvalgEng.cshtml" />
     <Content Include="Views\User\PersonvalgPartialEng.cshtml" />
@@ -277,12 +276,13 @@
     <Content Include="Views\Bruker\stemmeModal.cshtml" />
     <Content Include="Views\Bruker\UtførLagretPreferansevalg.cshtml" />
     <Content Include="Views\User\PersonvalgStemmeEng.cshtml" />
-    <Content Include="Views\User\PersonvalgStemmeModalEng.cshtml" />
     <Content Include="Views\User\UtførLagretPreferansevalgEng.cshtml" />
     <Content Include="Views\Bruker\VisVaraResultatPreferansevalg.cshtml" />
     <Content Include="Views\User\VisVaraResultatPreferansevalgEng.cshtml" />
     <Content Include="Views\Bruker\SletteModalPreferansevalg.cshtml" />
     <Content Include="Views\User\SletteModalPreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\LeggtilkandidatModal.cshtml" />
+    <Content Include="Views\User\LeggtilkandidatModalEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

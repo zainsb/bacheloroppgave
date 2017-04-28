@@ -8,6 +8,18 @@
     <title>Liste</title>
     <script type="text/javascript">
         $(document).ready(function () {
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
+            var feilmelding = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            if (isNaN(feilmelding) == false) // er et tall i sise del av url'n
+            {
+                $('#slettNavn').val(feilmelding);
+                $('#slettNavnDiv').hide();
+                $('#feilpassord').show();
+                $('#sletteModal').modal();
+            }
+
+
             // lag en hendelse som utføres når en a-href med "data-SletteModal = true" trykkes.
             $('a[data-sletteModal=true]').click(function () {
 
@@ -18,27 +30,9 @@
                 // legg ut dataene i div'en i modal-view'et
                 $('#slettNavn').val(data_navn);
                 $('#slettNavnDiv').html(data_id_valgtype);
-                // lag en hendelse for knappen for å slette via ajax, knappen ligger i modal-view'et
-                // må ligge inne i denne overordnede funksjonen for at id'én som er valgt kan brukes
-                $("#sletteModalKnapp").click(function () {
-                    // id som skal slettes ligger i data_id
-                    $.ajax({
-                        url: '@Url.Action("slettPreferanseValg", "Bruker")',
-                        data: { id: data_id },  // en parameter inn i slett(id)-metoden i kunde-kontrolleren (JSON-objekt)
-                        success: function () {
-                            // må kalle liste-metoden for å vise den nye listen av kunder
-                            $.ajax({
-                                url: '@Url.Action("AlleUtfortePreferansevalgEng", "Bruker")',
-                                success: function () {
-                                    // så må siden reloades!
-                                    window.location.reload();
-                                }
-                            });
-                        }
-                    });
-                })
-            })
 
+
+            })
         });
 
 
@@ -71,6 +65,6 @@
 
     </div>
     <br /><br />
-    @Html.Partial("../User/SletteModalPreferansevalgEng", new Studentparlamentet_28.Models.Bruker())
+    @Html.Partial("../User/SletteModalPreferansevalgEng", new Studentparlamentet_28.Models.Kandidat())
 </body>
 </html>

@@ -1695,7 +1695,7 @@ namespace Studentparlamentet_28.DAL
                 // slett også 
                 Preferansevalg_db preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == id);
                 db.PreferanseValg.Remove(preferansevalg);
-
+                db.SaveChanges();
                 List<PreferansevalgValgt_db> preferansevalgValgt = db.PreferansevalgValgt.Where(p => p.ValgtypeID == id).ToList();
                 for (int i = 0; i < preferansevalgValgt.Count(); i++)
                 {
@@ -1998,81 +1998,82 @@ namespace Studentparlamentet_28.DAL
                         db.PersonvalgKandidatResultat.Remove(slett);
                         db.SaveChanges();
                     }
-                    
+
                 }
-                 var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    valgtypeid = k.ValgtypeID
+                }).ToList();
+                int teller = listeAvKandidater.Count();
+
+                var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn
+
+                }).ToList();
+
+                for (int i = 0; i < teller; i++)
+                {
+                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != id);
+                    if (itemToRemove != null)
                     {
-                        id = k.ID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn,
-                        valgtypeid = k.ValgtypeID
-                    }).ToList();
-                    int teller = listeAvKandidater.Count();
+                        listeAvKandidater.Remove(itemToRemove);
 
-                    var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-                    {
-                        id = k.ID,
-                        valgtypeid = k.ValgtypeID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn
-
-                    }).ToList();
-
-                    for (int i = 0; i < teller; i++)
-                    {
-                        var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != id);
-                        if (itemToRemove != null)
-                        {
-                            listeAvKandidater.Remove(itemToRemove);
-
-                        }
                     }
-                    int antallkandidater = listeAvKandidater.Count();
-                    int[] stemmer = new int[antallkandidater];
-                    string[] kandidater = new string[antallkandidater];
-                    for (int i = 0; i < antallkandidater; i++)
-                    {
-                        var kandidat = listeAvKandidater.FirstOrDefault();
-                        int antallstemmer = listeAvStemmesedler.Count(r => r.valgtypeid == id && r.fornavn == kandidat.fornavn && r.etternavn == kandidat.etternavn);
-                        var test = db.PersonvalgKandidatResultat.FirstOrDefault(r => r.Fornavn == kandidat.fornavn && r.Etternavn == kandidat.etternavn && r.ValgtypeID == id);
-                        if (test == null)
-                        {
-                            var kandidatResultat = new PersonvalgKandidatResultat_db()
-                            {
-                                ValgtypeID = id,
-                                Fornavn = kandidat.fornavn,
-                                Etternavn = kandidat.etternavn,
-                                Stemmer = antallstemmer,
-                            };
-                            db.PersonvalgKandidatResultat.Add(kandidatResultat);
-                            db.SaveChanges();
-                        }
-                        listeAvKandidater.Remove(kandidat);
-                    }
-
-                    var listeResultat = db.PersonvalgKandidatResultat.Select(k => new PersonvalgKandidatResultat()
-                    {
-                        id = k.ID,
-                        valgtypeid = k.ValgtypeID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn,
-                        stemmer = k.Stemmer
-
-                    }).ToList();
-                    teller = listeResultat.Count();
-                    for (int i = 0; i < teller; i++)
-                    {
-                        var itemRemove = listeResultat.FirstOrDefault(r => r.valgtypeid != id);
-                        if (itemRemove != null)
-                        {
-                            listeResultat.Remove(itemRemove);
-
-                        }
-                    }
-
-                    return listeResultat;
                 }
-            
+                int antallkandidater = listeAvKandidater.Count();
+                int[] stemmer = new int[antallkandidater];
+                string[] kandidater = new string[antallkandidater];
+                for (int i = 0; i < antallkandidater; i++)
+                {
+                    var kandidat = listeAvKandidater.FirstOrDefault();
+                    int antallstemmer = listeAvStemmesedler.Count(r => r.valgtypeid == id && r.fornavn == kandidat.fornavn && r.etternavn == kandidat.etternavn);
+                    var test = db.PersonvalgKandidatResultat.FirstOrDefault(r => r.Fornavn == kandidat.fornavn && r.Etternavn == kandidat.etternavn && r.ValgtypeID == id);
+                    if (test == null)
+                    {
+                        var kandidatResultat = new PersonvalgKandidatResultat_db()
+                        {
+                            ValgtypeID = id,
+                            Fornavn = kandidat.fornavn,
+                            Etternavn = kandidat.etternavn,
+                            Stemmer = antallstemmer,
+                        };
+                        db.PersonvalgKandidatResultat.Add(kandidatResultat);
+                        db.SaveChanges();
+                    }
+                    listeAvKandidater.Remove(kandidat);
+
+                }
+
+                var listeResultat = db.PersonvalgKandidatResultat.Select(k => new PersonvalgKandidatResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    stemmer = k.Stemmer
+
+                }).ToList();
+                int teller3 = listeResultat.Count();
+                for (int i = 0; i < teller3; i++)
+                {
+                    var itemRemove = listeResultat.FirstOrDefault(r => r.valgtypeid != id);
+                    if (itemRemove != null)
+                    {
+                        listeResultat.Remove(itemRemove);
+
+                    }
+                }
+               
+                return listeResultat;
+            }
+
         }        
         public void SlettPersonvalg(int id)
         {
@@ -2895,7 +2896,7 @@ namespace Studentparlamentet_28.DAL
                 Valgtype = "Personvalg",
                 Start = false
             };
-            db2.Valgtyper.Add(start);
+            db2.Valgtyper.Add(start); // lager nytt Personvalg
             db2.SaveChanges();
 
             var db = new BrukerContext();
@@ -2906,11 +2907,11 @@ namespace Studentparlamentet_28.DAL
                     valgtypeid = k.ValgtypeID,
                     valgtype = k.Valgtype,
                     start = k.Start
-                }).ToList();
+                }).ToList(); // henter alle valg
 
-                var listedescendingOrder = liste.OrderByDescending(i => i.valgtypeid);
+                var listedescendingOrder = liste.OrderByDescending(i => i.valgtypeid); // lister de i ut basert på valgtypeID
                  
-                var PersonvalgID = listedescendingOrder.FirstOrDefault(i => i.valgtype == "Personvalg" && i.start == false);
+                var PersonvalgID = listedescendingOrder.FirstOrDefault(i => i.valgtype == "Personvalg" && i.start == false); // henter inn siste personvalg som ble lagt inn
                 
                 var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
                 {
@@ -2919,13 +2920,13 @@ namespace Studentparlamentet_28.DAL
                     etternavn = k.Etternavn,
                     lagret = k.Lagret,
                     valgtypeid = k.ValgtypeID
-                }).ToList();
-            int tellersjekk = listeAvKandidater.Count(b => b.valgtypeid == 0);
+                }).ToList(); // henter alle kandidater
+            int tellersjekk = listeAvKandidater.Count(b => b.valgtypeid == 0); // sjekker om det er kandidater
             if(tellersjekk == 0)
             {
                 return false;
             }
-                int teller = listeAvKandidater.Count();
+            int teller = listeAvKandidater.Count(); // teller kandidater
                 for(int i = 0; i < teller; i++)
                 {
                     var listeAvKandidater2 = db.Personvalger.Select(k => new Kandidat()
@@ -2935,9 +2936,13 @@ namespace Studentparlamentet_28.DAL
                     etternavn = k.Etternavn,
                     lagret = k.Lagret,
                     valgtypeid = k.ValgtypeID
-                     }).ToList();
-                     var itemToChange = listeAvKandidater2.FirstOrDefault(r => r.lagret == false);
-                    if(itemToChange != null)
+                     }).ToList(); // henter alle kandidater
+                  
+
+
+    
+                       var itemToChange = listeAvKandidater2.FirstOrDefault(r => r.lagret == false); // hente rut bruker som ikke er lagret
+                      if(itemToChange != null)
                 {
                     if (itemToChange.lagret == false)
                     {
@@ -2947,8 +2952,8 @@ namespace Studentparlamentet_28.DAL
                             int valgID = PersonvalgID.valgtypeid;
 
                             Personvalg_db endre = db.Personvalger.FirstOrDefault(r => r.ID == id);
-                            endre.ValgtypeID = valgID;
-                            endre.Lagret = (bool)true;
+                            endre.ValgtypeID = valgID; // legger til valgtypeID
+                            endre.Lagret = (bool)true; // markerer at bruker er lagret
                             db.SaveChanges();
                         }
                         catch (Exception feil)
@@ -2962,9 +2967,26 @@ namespace Studentparlamentet_28.DAL
 
                 }
            }
-            return true;
-        
-            
+                try
+            {
+                int valgID = PersonvalgID.valgtypeid; // legger til blank "Kandidat
+                var blank = new Personvalg_db()
+                {
+                    Fornavn = "Blank",
+                    Etternavn = "Blank",
+                    ValgtypeID = valgID,
+                    Lagret = true,
+                };
+
+                db.Personvalger.Add(blank);
+                db.SaveChanges();
+                return true;
+            }
+   
+               catch (Exception feil)
+            {
+                return false;
+            }
 
         }
         public bool slettKandidat(int id)
@@ -3045,6 +3067,77 @@ namespace Studentparlamentet_28.DAL
 
 
 
+
+
+        }
+        public bool leggtilPersonvalgKandidatPersonvalgEng(Kandidat innKandidat, int id)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_RequiredEng && b.etternavn == innKandidat.etternavn_RequiredEng && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+                return false;
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_RequiredEng,
+                    Etternavn = innKandidat.etternavn_RequiredEng,
+                    Lagret = (bool)true,
+
+                    ValgtypeID = id
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+
+
+
+        }
+        public bool leggtilPersonvalgKandidatPersonvalg(Kandidat innKandidat, int id)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_Required && b.etternavn == innKandidat.etternavn_Required && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+
+                return false;
+
+
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_Required,
+                    Etternavn = innKandidat.etternavn_Required,
+                    Lagret = (bool)true,
+
+                    ValgtypeID = id
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+           
 
 
         }

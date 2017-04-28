@@ -81,8 +81,8 @@
                 });
             };
 
-            setInterval(ajax_kall_STV, 1000 * 3);
-            setInterval(ajax_kall, 1000 * 3);
+            setInterval(ajax_kall_STV, 1000);
+            setInterval(ajax_kall, 1000);
         })
 
 
@@ -100,10 +100,11 @@
                     <li><a href="@Url.Action("BrukerLoggetInn", "Bruker", new { id = Model.brukernavn })">Norsk</a></li>
                 </ul>
             </div>
-            <h3 class="brukerHeader">Vote</h3>
+            <br />
+            <h1 class="brukerHeader">Vote</h1>
             <div id="txtBruker">
-                <p>There are no votes that currently is running</p>
-                <p>Please stay logged in while waiting for a vote...</p>
+                <p>Please stay logged in</p>
+                <p>Waiting for election..</p>              
             </div>
         </div>
 
@@ -113,7 +114,7 @@
         </div>
 
 
-        @Html.ActionLink("Logg ut", "Sign out", new { id = Model.brukernavn }, new { @class = "btn btn-danger", id = "loggUtBtn" })
+        @Html.ActionLink("Logg ut", "Sign out", new { id = Model.brukernavn }, new { @class = "btn btn-danger btn-lg", id = "loggUtBtn",})
 
     </div>
 

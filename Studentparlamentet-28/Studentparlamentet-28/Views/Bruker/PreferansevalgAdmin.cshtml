@@ -123,6 +123,7 @@
                     $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
                     $("#divFeilVaraRep").html("<p style='color: red;'>*Ugyldig verdig, prøv igjen</p>");
                 }
+
                 else{
                     $.ajax({
                         url: '/Bruker/startPreferansevalg',
@@ -205,54 +206,12 @@
             </div>
         </div>
         <br />
-        <h2>Administrer preferansevalg</h2>
+        <h2><b>Administrer preferansevalg</b></h2>
         <br />
         <p class="text-info">For å starte et nytt preferansevalg nå, vennligst fyll ut skjema under.</p>
         <br />
         <div class="form-horizontal">
-
-            <div class="form-group form-inline">
-                <div class="row col-sm-11">
-                    <div class="col-sm-2">
-                        <label for="BeskrivelseSTV">Beskrivelse</label>
-                    </div>
-                    <div class="col-sm-5 col-sm-offset-2">
-                        <input type="text" class="form-control" id="BeskrivelseSTV" />
-                    </div>
-                    <div class="col-sm-3" id="divFeilBeskrivelse">
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group form-inline">
-                <div class="row col-sm-11">
-                    <div class="col-sm-4">
-                        <label for="antRepresentanter">Antall valgrepresentanter</label>
-                    </div>
-                    <div class="col-sm-2">
-                        <input type="text" class="form-control" id="antRepresentanter" />
-                    </div>
-                    <div class="col-sm-5" id="divFeilRep">
-
-                    </div>
-                </div>
-            </div>
-            <div class="form-group form-inline">
-                <div class="row col-sm-11">
-                    <div class="col-sm-4">
-                        <label for="antVaraRepresentanter">Antall vararepresentanter</label>
-                    </div>
-                    <div class="col-sm-2">
-                        <input type="text" class="form-control" id="antVaraRepresentanter" />
-                    </div>
-                    <div class="col-sm-5" id="divFeilVaraRep">
-
-                    </div>
-                </div>
-            </div>
-            <br /><br />
-            <div class="form-group form-inline">
+         <div class="form-group form-inline">
                 <div class="row col-sm-11">
                     <div class="col-sm-8">
                         <input type="text" class="form-control" id="kandidatNavn" placeholder="Skriv inn navn for kandidat" />
@@ -301,12 +260,10 @@
                     }
                 </tbody>
             </table>
-
-            <br />
-            <div class="form-group form-inline">
+             <div class="form-group form-inline">
                 <div class="row">
                     <div class="col-sm-2"></div>
-                    <div id="divFeilmld" class="col-sm-8 pull-left alert alert-danger">
+                    <div id="divFeilmld" class="col-sm-8 pull-left alert alert-danger" style="display:none">
                         <div class="col-sm-12 pull-left"><div id="divFeilTxt"></div></div>
                     </div>
                 </div>
@@ -314,7 +271,7 @@
             <div class="form-group form-inline">
                 <div class="row">
                     <div class="col-sm-4"></div>
-                    <div id="divResultat" class="col-sm-8 pull-left alert alert-info">
+                    <div id="divResultat" class="col-sm-8 pull-left alert alert-info" style="display:none">
                         <div class="col-sm-5 pull-left"><div id="divResultatTxt"></div></div>
                         <div class="col-sm-3">
                             <input type="button" class="form-control btn-sm btn-info" id="divResultatBtn" value="Se resultat" />
@@ -322,7 +279,46 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-2">
+                        <label for="BeskrivelseSTV">Beskrivelse</label>
+                    </div>
+                    <div class="col-sm-5 col-sm-offset-2">
+                        <input type="text" class="form-control" id="BeskrivelseSTV" />
+                    </div>
+                    <div class="col-sm-3" id="divFeilBeskrivelse">
 
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-4">
+                        <label for="antRepresentanter">Antall valgrepresentanter</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="antRepresentanter" />
+                    </div>
+                    <div class="col-sm-5" id="divFeilRep">
+
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-11">
+                    <div class="col-sm-4">
+                        <label for="antVaraRepresentanter">Antall vararepresentanter</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="antVaraRepresentanter" />
+                    </div>
+                    <div class="col-sm-5" id="divFeilVaraRep">
+
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
 
                 <div class="row">

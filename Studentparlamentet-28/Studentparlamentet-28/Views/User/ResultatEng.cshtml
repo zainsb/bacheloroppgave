@@ -31,26 +31,7 @@
                 // legg ut dataene i div'en i modal-view'et
                 $('#slettNavn').val(data_navn);
                 $('#slettNavnDiv').html(data_id_valgtype);
-                // lag en hendelse for knappen for å slette via ajax, knappen ligger i modal-view'et
-                // må ligge inne i denne overordnede funksjonen for at id'én som er valgt kan brukes
-                $("#sletteModalKnapp").click(function () {
-                    // id som skal slettes ligger i data_id
-                    $.ajax({
-                        url: '@Url.Action("slettValg", "Bruker")',
-                        data: { id: data_id },  // en parameter inn i slett(id)-metoden i kunde-kontrolleren (JSON-objekt)
-                        success: function () {
-                            // må kalle liste-metoden for å vise den nye listen av kunder
-                            $.ajax({
-                                url: '@Url.Action("Resultat", "Bruker")',
-                                success: function () {
-                                    // så må siden reloades!
-                                    window.location.reload();
-                                }
-                            });
-                        }
-                    });
-                })
-            })
+
         });
     </script>
 </head>
@@ -58,7 +39,9 @@
 
     <br />
     <div class="col-sm-12" id="box2">
-
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        </div>
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Back", "VoteringAdminEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">

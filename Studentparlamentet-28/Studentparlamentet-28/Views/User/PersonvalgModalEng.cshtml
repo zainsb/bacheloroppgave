@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h2 class="modal-title">Confirm deleting</h2>
+                <h3 class="modal-title">Confirm deleting</h3>
             </div>
 
 
@@ -25,7 +25,7 @@
                             <p>Fill in Election ID to make a change or to delete</p>
 
                             <div class="input-group">
-                                @Html.EditorFor(model => model.id, new { htmlAttributes = new { @type = "text", @class = "form-control", placeholder = "ElectionID" } })
+                                @Html.EditorFor(model => model.id, new { htmlAttributes = new { @type = "text", @class = "form-control", placeholder = "Fill in Election ID", Value = Model.id == 0 ? "" : Model.id.ToString() }})
                                 @Html.ValidationMessageFor(model => model.id, "", new { @class = "text-danger" })
                             </div>
 

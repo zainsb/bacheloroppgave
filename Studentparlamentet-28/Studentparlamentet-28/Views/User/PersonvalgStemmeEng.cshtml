@@ -4,23 +4,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            $('a[data-PersonvalgStemmeModal=true]').click(function () {
-
-                // hent inn data-taggene fra denne a-hef lenken
-                var data_id = $(this).data('id');
-                var data_navn = $(this).data('navn')
-
-                // legg ut dataene i div'en i modal-view'et
-                $('#IDKandidat').val(data_id);
-                $('#Kandidat').html(data_navn);
-                // lag en hendelse for knappen for å slette via ajax, knappen ligger i modal-view'et
-                // må ligge inne i denne overordnede funksjonen for at id'én som er valgt kan brukes
-            })
-        });
-    </script>
 </head>
 <body>
 
@@ -44,19 +27,29 @@
             <br />
             <div align="center"><h2>Choose a Candidate and use your Vote</h2></div>
             <br />
-            <ul align="center" class="list-group" id="PersonvalgStemmeContainerList">
-                @foreach (var item in Model)
-                {
+            @using (Html.BeginForm("PersonvaglregisterStemme", "Bruker"))
+            {
+                <div class="funkyradio">
+                    @foreach (var item in Model)
+                    {
+                        <div class="funkyradio-success">
 
-                    <a href="#PersonvalgStemmeModal" class="list-group-item" id="stemmeKnapp" data-id="@item.id" data-navn="@item.fornavn @item.etternavn" data-toggle="modal" data-PersonvalgStemmeModal="true">@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</a>
+                            <input type="radio" name="radio" id="@item.id" value="@item.id" />
+                            <label for="@item.id">@item.fornavn @item.etternavn</label>
+                        </div>
+                    }
+                    <div class="funkyradio-success">
+                        <input type="radio" name="radio" id="0" value="0" />
+                        <label for="0">Blank vote</label>
+                    </div>
+                </div>
+                <div id="stemBtn">
+                    <button type="submit" class="btn btn-success btn-lg">Vote</button>
+                </div>
 
-                }
-                <a href="#PersonvalgStemmeModal" class="list-group-item" id="stemmeKnapp2" data-id="0" data-navn="Blank" data-toggle="modal" data-PersonvalgStemmeModal="true" style="background-color:indianred">Not Voting</a>
-            </ul>
-
-
-        </div>
-        @Html.Partial("../user/PersonvalgStemmeModalEng", new Studentparlamentet_28.Models.Kandidat())
+            }
+            <br />
+            </div>
     </div>
 </body>
 </html>

@@ -11,7 +11,9 @@
         </ul>
     </div>
 
-    <br /><br /><br /><br />
+    <br /><br />
+    <div id="overskriftAdmin">Election and Voting</div>
+    <br /><br />
     <div class="list-group">
 
         <!--            <div id="borderListGroup">
@@ -26,12 +28,12 @@
         <div class="form-group form-inline">
             <div class="row col-sm-12">
                 <div class="col-lg-4 col-lg-offset-2">
-                    <div id="borderListGroup" class="pull-left">
+                    <div id="borderListGroup">
                         <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Generate participations</h5>
                             </div>
-                            <small>Click here generate a participation list.</small>
+                            <small>Click here generate a participation list</small>
                         </a>
                     </div>
                 </div>
@@ -41,48 +43,48 @@
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Get results</h5>
                             </div>
-                            <small>Click her to get reports, and results of elections.</small>
+                            <small>Click her to get reports, and results of elections</small>
                         </a>
                     </div>
                 </div>
             </div>
-        </div>
-        <br /><br />
-        <div class="form-group form-inline">
-            <div class="row col-sm-12">
-                <div class="col-lg-4">
-                    <div id="borderListGroup">
-                        <a href="@Url.Action("VoteringAdminEng", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Vote</h5>
-                            </div>
-                            <small>Click here to start and register a Vote.</small>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div id="borderListGroup">
-                        <a href="@Url.Action("PersonvalgEng", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Person election</h5>
-                            </div>
-                            <small>Click here to start and register a Person election.</small>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div id="borderListGroup">
-                        <a href="@Url.Action("PreferansevalgAdminEng", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Single transferable Vote</h5>
-                            </div>
-                            <small>Click here to start and register a S.T.V</small>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
+            <br /><br />
+
+                <div class="row col-sm-14">
+                    <div class="col-lg-4">
+                        <div id="borderListGroup">
+                            <a href="@Url.Action("VoteringAdminEng", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">Vote</h5>
+                                </div>
+                                <small>Click here to start and register a Vote</small>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div id="borderListGroup">
+                            <a href="@Url.Action("PersonvalgEng", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">Person election</h5>
+                                </div>
+                                <small>Click here to start and register a Person election</small>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div id="borderListGroup">
+                            <a href="@Url.Action("PreferansevalgAdminEng", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">Single transferable Vote</h5>
+                                </div>
+                                <small>Click here to start and register a S.T.V</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+           
+        </div>
         <br />
        
         <div class="row">
@@ -90,7 +92,8 @@
 
             </div>
             <div class="col-lg-4">
-                @Html.ActionLink("Sign out", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger col-lg-10" })
+                <a href="@Url.Action("LoggUt", "Bruker", new { id = Model.brukernavn })" class="btn btn-danger col-lg-10"><span class="glyphicon glyphicon-log-out"></span>SignOut</a>
+
             </div>
             <div class="col-lg-4">
 

@@ -11,7 +11,9 @@
         </ul>
     </div>
 
-    <br /><br /><br /><br />
+    <br /><br />
+    <div id="overskriftAdmin">Valg og Votering</div>
+    <br /><br />
     <div class="list-group">
 
         <!--            <div id="borderListGroup">
@@ -26,12 +28,12 @@
         <div class="form-group form-inline">
             <div class="row col-sm-12">
                 <div class="col-lg-4 col-lg-offset-2">
-                    <div id="borderListGroup" class="pull-left">
+                    <div id="borderListGroup">
                         <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Generer valgdeltagere</h5>
                             </div>
-                            <small>Klikk her for å generere valgdeltaker liste for møtet.</small>
+                            <small>Klikk her for å generere valgdeltaker liste for møtet</small>
                         </a>
                     </div>
                 </div>
@@ -46,10 +48,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <br /><br />
-        <div class="form-group form-inline">
-            <div class="row col-sm-12">
+      <br /><br />
+            <div class="row col-sm-14">
                 <div class="col-lg-4">
                     <div id="borderListGroup">
                         <a href="@Url.Action("VoteringAdmin", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start">
@@ -91,7 +91,8 @@
 
             </div>
             <div class="col-lg-4">
-                @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger col-lg-10" })
+                <a href="@Url.Action("LoggUt", "Bruker", new { id = Model.brukernavn })" class="btn btn-danger col-lg-10"><span class="glyphicon glyphicon-log-out"></span>Logg ut</a>
+               
             </div>
             <div class="col-lg-4">
 

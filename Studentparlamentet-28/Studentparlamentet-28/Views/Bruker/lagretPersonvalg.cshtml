@@ -77,9 +77,64 @@
 
             var full_url = document.URL; // Get current url
             var url_array = full_url.split('=') // Split the string into an array with = as separator
+            var url_array2 = full_url.split('=e') // kandidat lagt til
+            var url_array3 = full_url.split('=f') // det er avlagt stemme, ikke lov til å legge til kandidat
+            var leggtilkandidatfeil = url_array3[url_array.length - 1];
+            var leggtilkandidat = url_array2[url_array.length - 1];// Get the last part of the array (-1)
             var data_id = url_array[url_array.length - 1];// Get the last part of the array (-1)
             var feilmelding = url_array[url_array.length - 2];
-            if(feilmelding == "feilendre&id3" )    // Feilmelding det er avlagt stemme i valget, ikke lov til å endre informasjon
+            if (isNaN(leggtilkandidatfeil) == false)
+            {
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagret", "Bruker")',
+                    data: { id: leggtilkandidatfeil },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater2").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
+
+                        }
+                        $("#listeKandidater2").append(listeKandidaterContent);
+                        $("#feilmeldingPersonvalg5").show();
+                    
+                        $(".LeggtilKandidat").val(leggtilkandidat);
+                    }
+
+
+                }
+)
+                $("#LeggtilkandidatModal").modal();
+            }
+            
+            if (isNaN(leggtilkandidat) == false)
+            {
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagret", "Bruker")',
+                    data: { id: leggtilkandidat },
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater2").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
+
+                        }
+                        $("#listeKandidater2").append(listeKandidaterContent);
+                        $(".LeggtilKandidat").val(leggtilkandidat);
+                    }
+
+
+                }
+)
+                $("#LeggtilkandidatModal").modal();
+            }
+            if (feilmelding == "feilendre&id3")    // Feilmelding det er avlagt stemme i valget, ikke lov til å endre informasjon
             {
                 $.ajax({
                     url: '@Url.Action("HentKandidaterLagretID", "Bruker")',
@@ -91,7 +146,7 @@
                         var listeKandidaterContent = '';
 
                         for (var i = 0; i < data.length; i++) {
-                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
 
                         }
 
@@ -101,8 +156,10 @@
                         $('#valgtypeID2').val(data_id);
                     }
                 });
+               
                 $("#sletteModal").modal();
             }
+
         else if (feilmelding == "feilPassord2&id3") // feilPassord slettePersonvalgModal
             {
                 $('#personvalgID').html(data_id);
@@ -124,7 +181,7 @@
                         var listeKandidaterContent = '';
 
                         for (var i = 0; i < data.length; i++) {
-                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
 
                         }
 
@@ -148,7 +205,7 @@
                         var listeKandidaterContent = '';
 
                         for (var i = 0; i < data.length; i++) {
-                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
 
                         }
 
@@ -177,7 +234,7 @@
                         var listeKandidaterContent = '';
 
                         for (var i = 0; i < data.length; i++) {
-                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
 
                         }
                         $("#listeKandidater").append(listeKandidaterContent);
@@ -342,7 +399,7 @@
                         var listeKandidaterContent = '';
 
                         for (var i = 0; i < data.length; i++) {
-                            listeKandidaterContent += '<p>' + data[i] + '<p>' + '<br />';
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
 
                         }
                         $("#listeKandidater").append(listeKandidaterContent);
@@ -360,13 +417,39 @@
                 var personvalg_id = $(this).data('navn');
                 var valgtype_id = $(this).data('id')
                 
-                $('#valgtypeID3').val(personvalg_id);
-                $('.Valgtype3').val(personvalg_id);
+                $('#valgtypeID3').val(valgtype_id);
+                $('.Valgtype3').val(valgtype_id);
 
-                $('#personvalgID').html(personvalg_id);
+                $('#personvalgID').html(valgtype_id);
                 
             }
           )
+            $('a[data-LeggtilkandidatModal=true]').click(function () {
+                var personvalg_id = $(this).data('navn');
+                var valgtype_id = $(this).data('id');
+                $("#feilmeldingPersonvalg5").hide();
+                $.ajax({
+                    url: '@Url.Action("HentKandidaterLagret", "Bruker")',
+                    data: { id: valgtype_id},
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#listeKandidater2").html('');
+                        var listeKandidaterContent = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            listeKandidaterContent += '<p>' + data[i] + '<p>';
+
+                        }
+                        $("#listeKandidater2").append(listeKandidaterContent);
+                        $(".LeggtilKandidat").val(valgtype_id);
+                         }
+
+
+            }
+)
+            
+            });
 
         });
     </script>
@@ -415,9 +498,10 @@
                                     <th>
                                         Antall kandidater
                                     </th>
-                                    <th>
+                                    <th width="100%">
                                         Vinner
                                     </th>
+                                
                                     <th>
                                         Antall stemmer vinner
                                     </th>
@@ -437,35 +521,51 @@
                             <tbody class="table-bordered">
                                 @foreach (var item in Model)
             {
+
                                     <tr>
 
-                                        <td>
+                                        <td height="100">
                                             @Html.DisplayFor(modelItem => item.valgtypeid)
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.antallkandidater)
                                         </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.vinner)
+                                        <td width="100%">
+                                            @if (item.vinner == "Blank Blank")
+                                            {
+                                                <p>Flest stemte Blankt, se resultat</p>
+                                            }
+                                            else
+                                            {
+                                                @Html.DisplayFor(modelItem => item.vinner)
+                                            }
+                                            
                                         </td>
-                                        <td>
+                                       <td>
                                             @Html.DisplayFor(modelItem => item.stemmer)
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.totalantallStemmer)
                                         </td>
-                                        <td><button id="@item.valgtypeid" class="btn btn-success" onclick="startPersonvalg(this.id)">Start</button></td>
+                                        <td><br /><button id="@item.valgtypeid" class="btn btn-success" onclick="startPersonvalg(this.id)">Start</button></td>
                                         
-                                        <td></td>
                                         <td>
-                                            <a href="#sletteModal" class="btn btn-large btn-info" id="sletteKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-sletteModal="true">Se Kandidater</a>
-                                        </td>
-                                        <td>
-                                            @Html.ActionLink("Vis Resultat i ny fane", "PersonvalgResultat", "Bruker", new { id = item.valgtypeid }, new { target = "_blank", @class = "btn btn-info" })
-                                        </td>
-                                        <td>
-                                            <a href="#slettePersonvalgModal" class="btn btn-large btn-danger" id="slettePersonvalgKnapp" data-navn="@item.id" data-id="@item.valgtypeid" data-toggle="modal" data-slettePersonvalgModal="true">Slett personvalg</a>
-                                        </td>
+                                            <br />
+                                            <a href="#LeggtilkandidatModal" class="btn btn-large btn-info" id="leggetilKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-LeggtilkandidatModal="true">Legg til Kandidater</a>
+                                           
+                                                <td>
+                                           <br />
+                                                <a href="#sletteModal" class="btn btn-large btn-info" id="sletteKnapp" data-id="@item.valgtypeid" data-toggle="modal" data-sletteModal="true">Se/Endre/Slett Kandidater</a>
+                                               <td>
+                                            <br />
+                                                @Html.ActionLink("Vis Resultat", "PersonvalgResultat", "Bruker", new { id = item.valgtypeid }, new { target = "_blank", @class = "btn btn-info" })
+                                            </td>
+                                      
+                                            <td>
+                                                <br />
+                                                 <a href="#slettePersonvalgModal" class="btn btn-large btn-danger" id="slettePersonvalgKnapp" data-navn="@item.id" data-id="@item.valgtypeid" data-toggle="modal" data-slettePersonvalgModal="true">Slett</a>
+                                            </td>
+                                       
                                     </tr>
                                 }
                             </tbody>
@@ -476,7 +576,10 @@
                 
                 @Html.Partial("PersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
                 @Html.Partial("slettePersonvalgModal", new Studentparlamentet_28.Models.Kandidat())
-                
+                @Html.Partial("LeggtilkandidatModal", new Studentparlamentet_28.Models.Kandidat())
+
+
+
             </div>
         </div>
 </body>

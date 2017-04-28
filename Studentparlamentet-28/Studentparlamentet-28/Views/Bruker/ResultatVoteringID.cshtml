@@ -137,6 +137,9 @@
 
 <body>
     <div class="col-sm-12" id="LoginFormResultatVotering">
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        </div>
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Resultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
 

@@ -13,6 +13,9 @@
                     if (data == "true") {
                         $("#stop").show();
                         $("#melding").hide();
+                        $("#start").hide();
+                        $("#visresultat").hide();
+                        $("#resultat").hide();
                         $("#melding2").show();
                         $.ajax({
                             url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
@@ -29,6 +32,7 @@
                     else if(data == "false")
                     {
                         $("#start").show();
+                        $("#VisVoteringer").show();
                     }
 
                 }
@@ -52,10 +56,12 @@
                           url: '@Url.Action("startVotering", "Bruker")',
                           success: function () {
                               $("#start").hide();
+                              $("#visresultat").hide();
                               $("#resultat").hide();
                               $("#stop").show();
                               $("#melding").hide();
                               $("#melding2").show();
+                                                          
                               if(melding != null)
                               {
                                   $.ajax({
@@ -104,11 +110,12 @@
                     url: '@Url.Action("stopVotering", "Bruker")',
                     success: function () {
                         $("#stop").hide();
+                        $("#visresultat").show();
                         $("#resultat").show();
                         $("#start").show();
                         $("#melding").show();
                         $("#melding2").hide();
-                        
+                      
                     }
                 });
 
@@ -129,6 +136,9 @@
 </head>
 <body>
     <div class="col-sm-12" id="LoginFormVoteringAdmin">
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        </div>
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
@@ -147,14 +157,15 @@
          
 
             <div id="melding">
-                <h1><b>Votering</b></h1>
+                <h2><b>Votering</b></h2>
+                <h3>Her kan du administrere voteringer</h3>
                 <br />
-                <h3>Kan du du administrere voteringer</h3>
-                <h3>Trykk <b>Start</b> for å starte en votering</h3>
-                <h3>Trykk <b>Vis voteringer</b> for se oversikt over alle voteringene</h3>
+                <p>Trykk <b>Start</b> for å starte en votering</p>
+                <p>Trykk <b>Vis voteringer</b> for se oversikt over alle voteringene</p>
                 <br />
-                <h3>Her kan du legge inn en beskrivelse som kommer opp hos valgdeltagere</h3>
-                <input type="text" id="beskrivelseVotering" name="beskrivelse" placeholder="Beskrivelse">
+                <p>Her kan du legge inn en beskrivelse som kommer opp hos valgdeltagere</p>
+
+                <input type="text" id="beskrivelseVotering" style="position:center" name="beskrivelse" placeholder="Beskrivelse">
             </div>
             <div id="melding2" style="display: none;">
                 <h2><b>Votering pågår</b></h2>
@@ -162,14 +173,21 @@
                 <br />
                 <h3>Antall valgdeltakere</h3><div id="antallDeltagere"></div>
                 <h3>Antall stemte</h3><div id="antallstemt"></div>
+               <br /><br />
+                <button id="stop" class="btn btn-danger" style="display: none;">Stopp</button>
+
+
+
             </div>
-            <br />
-            <br />
+            <br /><br />
             <div class="alert alert-danger" style="display:none" id="feilmeldingValgKjører"><h3>En valgtype kjører allrede, vennligst stopp valget</h3></div>
-            <button id="start" class="btn btn-success btn-lg" style="display: none;">Start</button>
-            <button id="stop" class="btn btn-danger btn-lg" style="display: none;">Stopp</button>
-            @Html.ActionLink("Resultat", "ResultatVotering", new { id = "" }, new { @style= "display: none;", @class = "btn btn-info btn-lg", @id="resultat" })  
-            @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-info btn-lg" })
+
+                <button id="start" class="btn btn-success">Start</button>
+            
+                @Html.ActionLink("Resultat", "ResultatVotering", new { id = "" }, new { @class = "btn btn-info", @style = "display: none", @id = "resultat" })
+                @Html.ActionLink("Vis voteringer", "Resultat", new { tom = "" }, new { @class = "btn btn-info", @id = "visresultat" })
+         
+                <br />
            
             <br /><br />
             

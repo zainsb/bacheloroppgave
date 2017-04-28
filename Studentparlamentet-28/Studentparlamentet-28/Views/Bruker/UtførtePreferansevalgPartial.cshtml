@@ -1,12 +1,13 @@
 ﻿@model Studentparlamentet_28.Models.Preferansevalg
 
-<div class="panel panel-default">
-    <div class="panel-body" id="UtfortePreferansevalg">
+<div class="panel panel-default" id="panelVoteringResultat">
+    <div class="panel-body" id="resultatVotering">
         <table class="table">
             <tr>
-                <th>#</th>
+                <th>ValgNr</th>
                 <th>Beskrivelse</th>
                 <th>Utført </th>
+                <th></th>
             </tr>
             <tr>
                 <td>@Model.id</td>
@@ -21,16 +22,19 @@
                         <p>Nei</p>
                     }
                 </td>
+                <td>
+                    <div class="pull-left">
+                        <a href="@Url.Action("ResultatPreferansevalg", "Bruker", new {  valgtypeid = Model.valgtypeid })" class="btn btn-info ">Vis Resultat</a>
+                        <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+                           data-navn="ValgNr: @Model.valgtypeid Beskrivelse: @Model.beskrivelse"
+                           data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
+                    </div>
+                </td>
             </tr>
         </table>
 
         <div class="panel-footer clearfix">
-            <div class="pull-left">
-                <a href="@Url.Action("ResultatPreferansevalg", "Bruker", new {  valgtypeid = Model.valgtypeid })" class="btn btn-success ">Vis Resultat</a>
-                <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
-                   data-navn="ValgNr: @Model.valgtypeid Beskrivelse: @Model.beskrivelse"
-                   data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
-            </div>
+
         </div>
     </div>
 </div>

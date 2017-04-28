@@ -12,6 +12,7 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+
         public bool slettForhåndslagredePreferanseValg(int id)
         {
             var brukerdal = new DbDal();
@@ -337,6 +338,16 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             List<Kandidat> tabell = brukerDal.hentKandidater();
             return tabell;
+        }
+        public bool leggtilPersonvalgKandidatPersonvalgEng(Kandidat innKandidat, int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.leggtilPersonvalgKandidatPersonvalgEng(innKandidat, id);
+        }
+        public bool leggtilPersonvalgKandidatPersonvalg(Kandidat innKandidat, int id)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.leggtilPersonvalgKandidatPersonvalg(innKandidat, id);
         }
         public bool leggtilPersonvalgKandidat(Kandidat innKandidat)
         {

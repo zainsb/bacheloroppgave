@@ -13,6 +13,9 @@
                     if (data == "true") {
                         $("#stop").show();
                         $("#melding").hide();
+                        $("#start").hide();
+                        $("#visresultat").hide();
+                        $("#resultat").hide();
                         $("#melding2").show();
                         $.ajax({
                             url: '@Url.Action("hentAntallBrukere_int", "Bruker")',
@@ -29,6 +32,7 @@
                     else if(data == "false")
                     {
                         $("#start").show();
+                        $("#VisVoteringer").show();
                     }
 
                 }
@@ -52,6 +56,7 @@
                           url: '@Url.Action("startVotering", "Bruker")',
                           success: function () {
                               $("#start").hide();
+                              $("#visresultat").hide();
                               $("#resultat").hide();
                               $("#stop").show();
                               $("#melding").hide();
@@ -104,6 +109,7 @@
                     url: '@Url.Action("stopVotering", "Bruker")',
                     success: function () {
                         $("#stop").hide();
+                        $("#visresultat").show();
                         $("#resultat").show();
                         $("#start").show();
                         $("#melding").show();
@@ -129,15 +135,18 @@
 </head>
 <body>
     <div class="col-sm-12" id="LoginFormVoteringAdmin">
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        </div>
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Back", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
+                   English
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("VoteringAdminEng", "Bruker")">English</a></li>
+                    <li><a href="@Url.Action("VoteringAdmin", "Bruker")">Norsk</a></li>
                 </ul>
             </div>
         </div>
@@ -147,13 +156,13 @@
 
 
             <div id="melding">
-                <h1><b>Voting</b></h1>
-                <br />
+                <h2><b>Voting</b></h2>
                 <h3>Here you can operate and get a overview of the Votes</h3>
-                <h3>Push <b>Start</b> to start a Vote</h3>
-                <h3>Push <b>View Votes</b> to get an overview of all the Votes</h3>
                 <br />
-                <h3>Here you can add a message or a description that will show up on the voters side</h3>
+                <p>Push <b>Start</b> to start a Vote</p>
+                <p>Push <b>View Votes</b> to get an overview of all the Votes</p>
+                <br />
+                <p>Here you can add a message or a description that will show up on the voters side</p>
                 <input type="text" id="beskrivelseVotering" name="beskrivelse" placeholder="Description">
             </div>
             <div id="melding2" style="display: none;">
@@ -162,15 +171,17 @@
                 <br />
                 <h3>Number of participants</h3><div id="antallDeltagere"></div>
                 <h3>Number of votes</h3><div id="antallstemt"></div>
-            </div>
-            <br />
-            <br />
-            <div class="alert alert-danger" style="display:none" id="feilmeldingValgKjører"><h3>An election type is already running, please stop this election</h3></div>
-            <button id="start" class="btn btn-success btn-lg" style="display: none;">Start</button>
-            <button id="stop" class="btn btn-danger btn-lg" style="display: none;">Stop</button>
-            @Html.ActionLink("Result", "ResultatVoteringEng", new { id = "" }, new { @style = "display: none;", @class = "btn btn-info btn-lg", @id = "resultat" })
-            @Html.ActionLink("Show Votes", "ResultatEng", new { tom = "" }, new { @class = "btn btn-info btn-lg" })
+                <br /><br />
+                <button id="stop" class="btn btn-danger" style="display: none;">Stop</button>
 
+            </div>
+            <br /><br />
+                <div class="alert alert-danger" style="display:none" id="feilmeldingValgKjører"><h3>An election type is already running, please stop this election</h3></div>
+                <button id="start" class="btn btn-success">Start</button>
+                
+                @Html.ActionLink("Result", "ResultatVoteringEng", new { id = "" }, new { @style = "display: none;", @class = "btn btn-info", @id = "resultat" })
+                @Html.ActionLink("Show Votes", "ResultatEng", new { tom = "" }, new { @class = "btn btn-info", @id = "visresultat" })
+     
             <br /><br />
 
         </div>

@@ -6,39 +6,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+  
     <div class="col-sm-12" align="center" id="PersonvalgResultat">
-        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
-        <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Tilbake", "lagretPersonvalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-            <div class="dropdown" style="float:right;">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("PersonvalgResultatEng", "Bruker")">English</a></li>
-                </ul>
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
             </div>
-        </div>
-        <br />
-        <h1>Resultat av personvalg i kronologisk rekkefølge </h1>
-        <br /><br/>
-        <div id="PersonvalgResultatContainer">
-            @foreach (var item in Model)
+            <div class="form-inline" style="float:right;">
+                @Html.ActionLink("Tilbake", "lagretPersonvalg", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+                <div class="dropdown" style="float:right;">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        Norsk
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("PersonvalgResultatEng", "Bruker")">English</a></li>
+                    </ul>
+                </div>
+            </div>
+            <br />
+            <h1>Resultat av personvalg i kronologisk rekkefølge </h1>
+            <br /><br />
+            <div id="PersonvalgResultatContainer">
+                @foreach (var item in Model)
             {
 
-                <ul class="list-group" id="ListeResultat" align="center">
+                    <ul class="list-group" id="ListeResultat" align="center">
 
-                    <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Kandidat</h3></li>
-                    <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</b></h1></li>
-                    <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Antall Stemmer</h3></li>
-                    <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.stemmer)</b></h1></li>
-                </ul>
+                        <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Kandidat</h3></li>
+                        <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</b></h1></li>
+                        <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Antall Stemmer</h3></li>
+                        <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.stemmer)</b></h1></li>
+                        
+                    </ul>
 
 
-            }
+                }
+            </div>
         </div>
-    </div>
 
    
 </body>

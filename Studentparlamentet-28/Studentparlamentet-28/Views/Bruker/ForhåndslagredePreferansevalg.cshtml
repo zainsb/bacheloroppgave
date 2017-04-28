@@ -8,6 +8,17 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
+            var feilmelding = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            if (isNaN(feilmelding) == false) // er et tall i sise del av url'n
+            {
+                $('#slettNavn').val(feilmelding);
+                $('#slettNavnDiv').hide();
+                $('#feilpassord').show();
+                $('#sletteModal').modal();
+            }
+
             //Disable utfør-knappen om et valg kjører
             //Sjekker om et preferansevalg kjører
             $.ajax({
@@ -72,13 +83,14 @@
 <body>
 
     <br />
-    <div class="col-sm-12" id="box2">
+    <div class="col-sm-12" id="panelVoteringResultat">
+        <br />
         @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Tilbake", "PreferansevalgAdmin", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    English
+                   Norsk
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">

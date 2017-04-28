@@ -1,16 +1,17 @@
 ﻿@model Studentparlamentet_28.Models.Preferansevalg
 
-<div class="panel panel-default">
-    <div class="panel-body" id="IkkeUtførtePreferansevalg">
+<div class="panel panel-default" id="panelVoteringResultat">
+    <div class="panel-body" id="resultatVotering">
         <table class="table">
             <tr>
-                <th>#</th>
+                <th>ValgNr</th>
                 <th>Beskrivelse</th>
                 <th>Antall velges</th>
                 <th>Utført </th>
+                <th></th>
             </tr>
             <tr>
-                <td>@Model.id</td>
+                <td>@Model.valgtypeid</td>
                 <td>@Model.beskrivelse</td>
                 <td>@Model.antallrepresentanter</td>
                 <td>
@@ -23,17 +24,23 @@
                         <p>Nei</p>
                     }
                 </td>
+                <td>
+                    <div class="pull-left">
+                        @{int i = 1;}
+                        @Html.ActionLink("Start", "UtførLagretPreferansevalg", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-success", id = "HiddenID" + @i })
+                        <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
+                           data-navn="ValgNr: @Model.valgtypeid Beskrivelse: @Model.beskrivelse"
+                           data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
+                    </div>
+                 </td>
+                <td>
+
+                </td>
             </tr>
         </table>
 
         <div class="panel-footer clearfix">
-            <div class="pull-left">
-                @{int i = 1;}
-                @Html.ActionLink("Utfør", "UtførLagretPreferansevalg", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-success", id = "HiddenID" + @i })
-                <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
-                   data-navn="ValgNr: @Model.valgtypeid Beskrivelse: @Model.beskrivelse"
-                   data-id="@Model.valgtypeid" data-toggle="modal" data-sletteModal="true">Slett</a>
-            </div>
+           
         </div>
     </div>
 </div>
