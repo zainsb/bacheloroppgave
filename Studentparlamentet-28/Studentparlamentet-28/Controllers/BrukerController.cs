@@ -356,7 +356,7 @@ namespace Studentparlamentet_28.Controllers
                     Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
                     var jsonSerializer = new JavaScriptSerializer();
 
-                    return jsonSerializer.Serialize(valg););
+                    return jsonSerializer.Serialize(valg);
                 }
             }
             return "feil";
