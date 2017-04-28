@@ -38,23 +38,15 @@ namespace Studentparlamentet_28.Controllers
         
      
         }
-        [Authorize(Roles = "false")]
+    
         public string kjørerValg()
         {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
 
                     var db = new BrukerBLL();
                     string melding = db.kjørerValg();
                     var jsonSerializer = new JavaScriptSerializer();
                     return jsonSerializer.Serialize(melding);
-                }
-            }
-            return "feil";
-
+            
         }
 
         //PREFERANSEVALG
