@@ -262,7 +262,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 #PersonvalgStemme
 {
     background-color: whitesmoke;
-    border-radius: 25px;
+    border-radius: 15px;
     max-width: inherit;
     max-height: inherit;
     padding: 15px 35px 45px;
@@ -489,7 +489,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 	border: 1px solid #D1D3D4;
   
 	font-weight: normal;
-     font-size: x-large;
+    font-size: large;
 
 }
 
