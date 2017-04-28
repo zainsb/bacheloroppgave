@@ -3311,6 +3311,32 @@ namespace Studentparlamentet_28.DAL
 
             return true;
         }
+        public bool GenererEnNyBruker()
+        {
+            var db = new BrukerContext();
+
+            PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
+            String brukernavn = "SP";
+            int teller = db.Brukere.Count();
+            int spNummer = teller + 1;
+            String passord = "";
+
+            for (int i = 0; i < 1; i++)
+            {
+                passord = randPassord.Next();
+
+                var nyBruker = new Bruker_db()
+                {
+                    Brukernavn = brukernavn + "" + spNummer,
+                    Passord = passord
+                };
+                teller++;
+                db.Brukere.Add(nyBruker);
+                db.SaveChanges();
+            }
+
+            return true;
+        }
         public List<Bruker> hentData()
         {
 

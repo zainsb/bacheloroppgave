@@ -419,6 +419,11 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.GenererBrukere(antallBrukere);
         }
+        public bool GenererEnNyBruker()
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.GenererEnNyBruker();
+        }
 
         public List<Bruker> hentData()
         {

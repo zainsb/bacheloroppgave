@@ -2107,6 +2107,54 @@ namespace Studentparlamentet_28.Controllers
             }
             return RedirectToAction("Index");
         }
+        [HttpPost]
+        [Authorize(Roles = "true")]
+        public ActionResult LeggTilNyBruker()
+        {
+
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    bool ok = db.GenererEnNyBruker();
+                    if (ok)
+                    {
+                        return RedirectToAction("VisListe");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        [Authorize(Roles = "true")]
+        public ActionResult LeggTilNyBrukerEng()
+        {
+
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    bool ok = db.GenererEnNyBruker();
+                    if (ok)
+                    {
+                        return RedirectToAction("VisListeEng");
+                    }
+                    else
+                    {
+                        return RedirectToAction("IndexEng");
+                    }
+                }
+            }
+            return RedirectToAction("IndexEng");
+        }
         [Authorize(Roles = "true")]
         public ActionResult LastNedListe()
         {

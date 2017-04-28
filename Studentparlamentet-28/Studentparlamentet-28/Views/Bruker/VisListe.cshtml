@@ -101,7 +101,12 @@
             </table>
 
         </div>
-
+        @using (Html.BeginForm("LeggTilNyBruker", "Bruker"))
+        {
+            <div class="form-group">
+                <input type="submit" value="Legg til ny bruker" class="btn btn-primary" />
+            </div>
+        }
         <br />
 
 
