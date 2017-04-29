@@ -173,23 +173,17 @@ namespace Studentparlamentet_28.Controllers
             return RedirectToAction("index");
         }
 
-        [Authorize(Roles = "true")]
+
         public string hentKandidaterMedID()
         {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
+
                     var db = new BrukerBLL();
                     List<KandidatSTV> alleKandidater = db.hentKandidaterPreferansevalgBruker();
 
                     var jsonSerializer = new JavaScriptSerializer();
                     string json = jsonSerializer.Serialize(alleKandidater);
                     return json;
-                }
-            }
-            return "feil";
+
 
         }
         [Authorize(Roles = "false")]
