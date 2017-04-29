@@ -250,7 +250,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 {
     height: inherit;
   
-        font-size: 35px;
+        font-size: 25px;
        
 }
 #PersonvalgStemmeContainer
@@ -489,7 +489,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 	border: 1px solid #D1D3D4;
   
 	font-weight: normal;
-    font-size: large;
+    font-size: small;
 
 }
 
