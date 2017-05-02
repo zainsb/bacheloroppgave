@@ -16,68 +16,69 @@
     </div>
 
     <br />
-    <h2 style="text-align:left;">Velkommen</h2>   
+    <h2 style="text-align:left;">Velkommen</h2>
     <h4 class="LoginHeader">Vennligst logg inn</h4>
 
-        
-        <br /><br />
-        
-        @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
-        {
-            @Html.AntiForgeryToken()
 
-            <div class="form-horizontal">
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                <div>
-                    @if (ViewBag.Innlogget == null)
-                    {
+    <br /><br />
 
-                    }
-                    else
-                    {
-                        <p id="indexFeilmelding" class="alert alert-danger">Brukernavn eller passord er feil, vennligst prøv igjen.</p>
-                    }
-                </div>
+    @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
+    {
+        @Html.AntiForgeryToken()
 
+        <div class="form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div>
+                @if (ViewBag.Innlogget == null)
+                {
 
-
-
-                <div class="form-group">
-                    <div class="col-md-10">
-                        <div class="input-group">
-                      
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                @Html.EditorFor(model => model.brukernavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Brukernavn" } })
-                    
-                            <div>@Html.ValidationMessageFor(model => model.brukernavn, "", new { @class = "text-danger" })</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-10">
-                        <div class="input-group">
-                          
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
-                           
-                            <div>
-                                @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
-                            </div>
-                         </div>
-                    </div>
-                </div>
-
-                <div class="form-group" id="LogginnBtn">
-                    <div class="col-md-10">
-                        <input type="submit" value="Logg inn" class="btn btn-primary" />
-                    </div>
-                </div>
-
+                }
+                else
+                {
+                    <p id="indexFeilmelding" class="alert alert-danger">Brukernavn eller passord er feil, vennligst prøv igjen.</p>
+                }
             </div>
-        }
-    
 
-    </div>
+
+
+
+            <div class="form-group">
+                <div class="col-md-10">
+                    <div class="input-group">
+
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        @Html.EditorFor(model => model.brukernavn, new { htmlAttributes = new { @class = "form-control", placeholder = "Brukernavn" } })
+                    </div>
+                    <div>
+                        @Html.ValidationMessageFor(model => model.brukernavn, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10">
+                    <div class="input-group">
+
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
+                    </div>
+                    <div>
+                        @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-group" id="LogginnBtn">
+                <div class="col-md-10">
+                    <input type="submit" value="Logg inn" class="btn btn-primary" />
+                </div>
+            </div>
+
+        </div>
+    }
+
+
+</div>
 
 

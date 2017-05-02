@@ -104,7 +104,7 @@
             <h1 class="brukerHeader">Vote</h1>
             <div id="txtBruker">
                 <p>Please stay logged in</p>
-                <p>Waiting for election..</p>              
+                <p>Waiting for election..</p>
             </div>
         </div>
 
@@ -114,8 +114,19 @@
         </div>
 
 
-        @Html.ActionLink("Logg ut", "Sign out", new { id = Model.brukernavn }, new { @class = "btn btn-danger btn-lg", id = "loggUtBtn",})
+        <div class="row">
+            <div class="col-lg-4">
 
+            </div>
+            <div class="col-lg-4">
+                <a href="@Url.Action("LoggUt", "Bruker", new { id = Model.brukernavn })" class="btn btn-danger col-lg-15"><span class="glyphicon glyphicon-log-out"></span>  Log out</a>
+
+            </div>
+            <div class="col-lg-4">
+
+            </div>
+
+        </div>
     </div>
 
 

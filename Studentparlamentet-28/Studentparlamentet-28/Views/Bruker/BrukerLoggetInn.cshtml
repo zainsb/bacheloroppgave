@@ -90,33 +90,47 @@
 </head>
 <body>
     <div class="panel-body" id="panelBrukerIndex">
-              <div id="mainBrukerContainer">
-                <div class="dropdown" style="float:right;">
-                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                        Norsk
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="@Url.Action("BrukerLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
-                    </ul>
-                </div>
-                  <br />
-                <h1 class="brukerHeader">Valg og votering</h1>
-                <div id="txtBruker">
-                    <p>Vennligst forbli innlogget</p>
-                    <p>Venter på valg...</p>
-                </div>
+        <div id="mainBrukerContainer">
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("BrukerLoggetInnEng", "Bruker", new { id = Model.brukernavn })">English</a></li>
+                </ul>
             </div>
-
-            <div id="VoteringBruker">
-
-
+            <br />
+            <h1 class="brukerHeader">Valg og votering</h1>
+            <div id="txtBruker">
+                <p>Vennligst forbli innlogget</p>
+                <p>Venter på valg...</p>
             </div>
+        </div>
 
+        <div id="VoteringBruker">
 
-            @Html.ActionLink("Logg ut", "LoggUt", new { id = Model.brukernavn }, new { @class = "btn btn-danger btn-lg", id = "loggUtBtn" })
 
         </div>
+
+
+        <div class="row">
+            <div class="col-lg-4">
+
+            </div>
+            <div class="col-lg-4">
+                <a href="@Url.Action("LoggUt", "Bruker", new { id = Model.brukernavn })" class="btn btn-danger col-lg-15"><span class="glyphicon glyphicon-log-out"></span>  Logg ut</a>
+
+            </div>
+            <div class="col-lg-4">
+
+            </div>
+
+        </div>
+
+
+
+    </div>
 
 
 </body>
