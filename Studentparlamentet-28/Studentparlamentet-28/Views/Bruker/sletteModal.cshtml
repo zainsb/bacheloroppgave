@@ -1,5 +1,4 @@
 ﻿@model Studentparlamentet_28.Models.Kandidat
-
 <div id="sletteModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -11,44 +10,36 @@
             @using (Html.BeginForm())
             {
                 <div class="modal-body">
-
-
+                    <p>Vennligst skriv inn passord at følgende valg og resultat skal slettes :</p>
                     <input type="hidden" id="slettNavn" name="id" />
-
-                    <div class="alert alert-success" id="sucessSletteModal">
-                        <h3>Vennligst skriv inn passord at følgende valg og resultat skal slettes</h3>
-                        <div class="alert alert-success" id="slettNavnDiv">
-
+                    <div id="txtPreferansevalgModal">
+                        <div class="alert alert-danger" id="slettNavnDiv">
                         </div>
-                        @Html.AntiForgeryToken()
-                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                        <div class="form-group">
-                            <div class="col-md-10">
-                                <div class="input-group" id="sletteModalText">
-                                    <div>@Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })</div>
-                                    <div id="slettemodalText">@Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })</div>
+                        <div class="alert alert-warning" id="feilpassord" style="display:none">
+                            Feil passord
+                        </div>
+                    </div>
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
 
-                                </div>
-                                <div class="alert alert-danger" id="feilmeldingslettemodal" style="display: none;">
-
-                                </div>
-                                <input name="submit" type="submit" value="Slett" class="btn btn-success btn-lg" />
-                            </div>
-
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
+                        </div>
+                        <div>
+                            @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
                         </div>
 
                     </div>
 
-
-
-
                 </div>
+
+                    <div class="modal-footer">
+                        <input name="submit" type="submit" value="Slett" class="btn btn-danger" />
+                        <button type="button" class="btn btn-success" data-dismiss="modal">Lukk</button>
+                    </div>
             }
-            <div class="modal-footer">
-
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Lukk</button>
-            </div>
-
         </div>
     </div>
 </div>

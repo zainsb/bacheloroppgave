@@ -12,33 +12,30 @@
                     <p>Vennligst skriv inn passord at følgende valg og resultat skal slettes :</p>
                     <input type="hidden" id="slettNavn" name="id" />
                     <div id="txtPreferansevalgModal">
-                        <div class="alert alert-success" id="slettNavnDiv">
+                        <div class="alert alert-danger" id="slettNavnDiv">
                         </div>
                         <div class="alert alert-warning" id="feilpassord" style="display:none">
                             Feil passord
                         </div>
-                        </div>
-
-                        @Html.AntiForgeryToken()
-                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                        <div class="form-group">
-                            <div class="col-md-10">
-                                <div class="input-group">
-                                @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
-                                    </div>
-                                <div>
-                                    @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                        </div>
-                        <br />
-
-
                     </div>
-                <div class="modal-footer">
-                    <input name="submit" type="submit" value="Slett" class="btn btn-danger" />
-                    <button type="button" class="btn btn-success" data-dismiss="modal">Lukk</button>
+
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
+                        </div>
+                        <div>
+                            @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
                 </div>
+
+                    <div class="modal-footer">
+                        <input name="submit" type="submit" value="Slett" class="btn btn-danger" />
+                        <button type="button" class="btn btn-success" data-dismiss="modal">Lukk</button>
+                    </div>
             }
         </div>
     </div>

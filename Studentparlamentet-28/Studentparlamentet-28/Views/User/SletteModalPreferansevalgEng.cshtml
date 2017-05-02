@@ -12,26 +12,24 @@
                     <p>Please enter your password to delete the election and the result</p>
                     <input type="hidden" id="slettNavn" name="id" />
                     <div id="txtPreferansevalgModal">
-                        <div class="alert alert-success" id="slettNavnDiv">
+                        <div class="alert alert-danger" id="slettNavnDiv">
                         </div>
                         <div class="alert alert-warning" id="feilpassord" style="display:none">
                             Wrong password
                         </div>
                     </div>
-             
+
                     @Html.AntiForgeryToken()
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                     <div class="form-group">
-                        <div class="col-md-10">
-                            <div class="input-group">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                             @Html.EditorFor(model => model.passordEng, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Password" } })
-                                </div>
-                            <div>
-                                @Html.ValidationMessageFor(model => model.passordEng, "", new { @class = "text-danger" })
-                            </div>
+                        </div>
+                        <div>
+                            @Html.ValidationMessageFor(model => model.passordEng, "", new { @class = "text-danger" })
                         </div>
                     </div>
-                    <br />
 
                 </div>
                 <div class="modal-footer">
