@@ -1,0 +1,79 @@
+﻿@model List<Studentparlamentet_28.Models.PersonvalgStemmer>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+
+</head>
+<body>
+    <div class="col-sm-12" id="box2">
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "HentResultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("stemmeseddelPersonvalgEng", "Bruker")">English</a></li>
+                </ul>
+            </div>
+        </div>
+        <h2><b>Oversikt over stemmesedler</b></h2>
+        @if (Model.Count > 0)
+        {
+            <h3>
+                Personvalg med valgNr @Html.DisplayFor(model => Model[0].valgtypeid)
+            </h3>
+            <br /><br />
+        }
+        else
+        {
+            <h3>Personvalg</h3>
+            <br /><br />
+
+        }
+        <div id="tableHentResultat">
+            <table class="table  table-responsive table-scrollable"  id="tableID">
+                <thead class="thead-default">
+                    <tr>
+                        <th>
+                            Stemmeseddel
+                        </th>
+                        <th>
+                            Fornavn
+                        </th>
+                        <th>
+                            Etternavn
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="table-bordered">
+                    @{int i = 1;}
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @i
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.fornavn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.etternavn)
+                            </td>
+
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+            </div>
+        </div>
+        
+</body>
+</html>

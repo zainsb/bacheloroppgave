@@ -180,6 +180,8 @@
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="resultat\resultatIDer.txt" />
+    <Content Include="resultat\stemmeseddelIDer.txt" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -231,7 +233,6 @@
     <Content Include="Views\Bruker\VisListe.cshtml" />
     <Content Include="Views\Bruker\ResultatVoteringPartial.cshtml" />
     <Content Include="Views\Bruker\sletteModal.cshtml" />
-    <Content Include="Views\Bruker\HentResultat.cshtml" />
     <Content Include="Views\Bruker\ResultatVotering.cshtml" />
     <Content Include="Views\User\VisListeEng.cshtml" />
     <Content Include="Views\Bruker\ResultatVoteringID.cshtml" />
@@ -283,6 +284,16 @@
     <Content Include="Views\User\SletteModalPreferansevalgEng.cshtml" />
     <Content Include="Views\Bruker\LeggtilkandidatModal.cshtml" />
     <Content Include="Views\User\LeggtilkandidatModalEng.cshtml" />
+    <Content Include="Views\Bruker\PersonvalgResultat_2.cshtml" />
+    <Content Include="Views\Bruker\ResultatVoteringID_2.cshtml" />
+    <Content Include="Views\Bruker\stemmeseddelVotering.cshtml" />
+    <Content Include="Views\Bruker\stemmeseddelPersonvalg.cshtml" />
+    <Content Include="Views\Bruker\HentResultat.cshtml" />
+    <Content Include="Views\User\HentResultatEng.cshtml" />
+    <Content Include="Views\User\stemmeseddelVoteringEng.cshtml" />
+    <Content Include="Views\User\stemmeseddelPersonvalgEng.cshtml" />
+    <Content Include="Views\User\ResultatVoteringID_2Eng.cshtml" />
+    <Content Include="Views\User\PersonvalgResultat_2Eng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -301,7 +312,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Models\" />
     <Folder Include="pdf\" />
   </ItemGroup>

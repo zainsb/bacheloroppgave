@@ -1,0 +1,173 @@
+﻿@model List<Studentparlamentet_28.Models.Valgtyper>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        var antallValg = @Model.Count +1; //Henter inn antall valg som er gjennomført
+        var hiddenData = "";
+        
+        $(function () {
+            for(var i = 1; i < antallValg; i++)
+            {
+                hiddenData = $("#HiddenID" + i).val();
+                ajaxKall(i, hiddenData);
+            }
+        })
+
+        //Funksjon som henter inn antall stemte og antall deltatt
+        function ajaxKall(i, hiddenid) {
+            $.ajax({
+                url: '/Bruker/HentResultatAntallStemt',
+                data: { id: hiddenid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (melding) {
+                    $("#divStemt" + i).html(melding);
+                },
+                error: function (x, y, z) {
+                }
+            });
+        }
+        function skrivfil(id)
+        {
+           
+            if (id > 1)
+            {
+
+            
+                var valgtypeider = new Array();
+                var valgtypeiderstemmeseddel = new Array();
+                for(i = 1; i < id; i++)
+                {
+                    if ($("#valgtypeID" + i).is(':checked')) //sjekker om valget er checked
+                    {
+                        valgtypeid = $('#valgtypeID' + i).val(); // henter ut valgtypeID til checkboxen
+                        valgtypeider[i] = valgtypeid;// legger den i arrayet
+           
+
+                    }
+                    if ($("#valgtypeIDstemmeseddel" + i).is(':checked')) //sjekker om valget er checked
+                    {
+                        valgtypeid = $('#valgtypeIDstemmeseddel' + i).val(); // henter ut valgtypeID til checkboxen
+                        valgtypeiderstemmeseddel[i] = valgtypeid;// legger den i arrayet
+
+
+                    }
+                                  
+                }
+                $.ajax({
+                    type: "POST",
+                    data: { valgider: valgtypeider, valgiderstemmeseddel: valgtypeiderstemmeseddel },
+                    url: '/Bruker/LastNedResultat',
+                  
+                    success: function (data) {
+                        window.location = '@Url.Action("LastNedResultatStemmesedlerEng", "Bruker")';
+                    },
+                    error: function (x, y, z) {
+                    }
+                });
+                // Starter funksjon i brukercontroll LastNedResultat
+                
+  
+    
+                
+            }
+            
+        }
+    </script>
+</head>
+<body>
+    <div class="col-sm-12" id="box2">
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "TilbakeEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    English
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("HentResultat", "Bruker")">Norsk</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <br /><br />
+
+        <div id="tableHentResultat">
+            <table class="table  table-responsive table-scrollable" id="tableID">
+                <thead class="thead-default">
+                    <tr>
+                        <th>
+                            Election type
+                        </th>
+                        <th width="150">
+                            Number of votes /<br />
+                            Number of participants
+                        </th>
+    
+                        <th>
+                            Add result to PDF
+                        </th>
+                        <th>
+                            Add voteslip to PDF
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody class="table-bordered">
+                  
+                    @{int i = 1;}
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.valgtype == "Votering")
+                                {
+                               <p>Vote</p>   
+                                }
+                                @if (item.valgtype == "Personvalg")
+                                {
+                                  <p>Person Election</p>
+                                }
+                                @if (item.valgtype == "Preferansevalg")
+                                {
+                                    <p>S.T.V</p>
+                                }
+                                
+                            </td>
+                            <td style="text-align:center">
+                                 @Html.HiddenFor(modelItem => item.valgtypeid, new { id = "HiddenID" + @i })
+                                <div id="@("divStemt"+i)"></div>
+                                
+                            </td>
+                            <td>
+                                @Html.CheckBox("valgtypeID"+ @i, new { value = item.valgtypeid, @checked = false })
+                            </td>
+                            <td>
+                                @Html.CheckBox("valgtypeIDstemmeseddel" + @i, new { value = item.valgtypeid, @checked = false })
+                            </td>
+                            <td>
+                                @Html.ActionLink("Result", "HentResultatKnappEng", new { valgtype = item.valgtype, valgtypeid = item.valgtypeid }, new { @class = "btn btn-info" })
+                            </td>
+                            <td>
+                                @Html.ActionLink("See Voteslips", "StemmesedlerEng", new { valgtype = item.valgtype, valgtypeid = item.valgtypeid }, new { @class = "btn btn-info" })
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        
+        </div>
+        <button type="button" id="@i" class="btn btn-success" onclick="skrivfil(this.id)" >Download PDF</button>
+     
+
+    </div>
+    <br />
+</body>
+</html>

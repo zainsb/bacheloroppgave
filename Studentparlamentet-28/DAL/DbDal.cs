@@ -16,6 +16,82 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public List<Stemmeseddel> preferansevalgsedler(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var stemmeseddel = db.Stemmesedler.Select(k => new Stemmeseddel() {
+                    valgtypeid = k.ValgtypeID,
+                    kandidatnrEn = k.KandidatnrEn,
+                    kandidatnrTo = k.KandidatnrTo,
+                    kandidatnrTre = k.KandidatnrTre,
+                    kandidatnrFire = k.KandidatnrFire,
+                    kandidatnrFem = k.KandidatnrFem,
+                    kandidatnrSeks = k.KandidatnrSeks,
+                    kandidatnrSju = k.KandidatnrSju,
+                    kandidatnrÅtte = k.KandidatnrÅtte,
+                    kandidatnrNi = k.KandidatnrNi,
+                    kandidatnrTi = k.KandidatnrTi,
+                    kandidatnrElleve = k.KandidatnrElleve,
+                    kandidatnrTolv = k.KandidatnrTolv,
+                    stemmeseddelID = k.StemmeseddelID
+                }).Where(k => k.valgtypeid == id).ToList();
+                return stemmeseddel;
+            }
+        }
+        public PersonvalgResultat hentinfoPersonvalg(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                PersonvalgResultat_db value = db.PersonvalgResultat.FirstOrDefault(b => b.ValgtypeID == id);
+                var utValue = new PersonvalgResultat()
+                {
+                    valgtypeid = value.ValgtypeID,
+                    vinner = value.Vinner,
+                    stemmer = value.Stemmer,
+                    totalantallStemmer = value.TotalantallStemmer,
+                    antallkandidater = value.AntallKandidater
+                };
+                return utValue;
+
+            }
+        }
+        public string valgtype(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var value = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+                string valgtype = Convert.ToString(value.Valgtype);
+                return valgtype;
+            }
+        }
+        public List<PersonvalgStemmer> hentPersonvalg(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var personvalg = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                {
+                    valgtypeid = k.ValgtypeID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn
+                }).Where(k => k.valgtypeid == id).ToList();
+                return personvalg;
+            }
+        }
+        public List<Votering> hentVoteringer(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var voteringer = db.Voteringer.Select(k => new Votering()
+                {
+                    valgtypeid = k.ValgtypeID,
+                    svarfor = k.svarFor,
+                    svarmot = k.svarMot,
+                    svarblank = k.svarBlank
+                }).Where(k => k.valgtypeid == id).ToList();
+                return voteringer;
+            }
+        }
         public List<Valgtyper> hentValgTyperVotering()
         {
             using (var db = new BrukerContext())

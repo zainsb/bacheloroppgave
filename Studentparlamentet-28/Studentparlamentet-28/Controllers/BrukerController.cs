@@ -20,6 +20,1870 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
+        //Hent Resultat
+        public ActionResult LastNedResultatStemmesedler()
+        {
+            // Lokal løsning med memoryStream
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<String> votering = new List<String>();
+                    List<String> personvalg = new List<String>();
+                    List<String> preferansevalg = new List<String>();
+                    List<String> voteringseddel = new List<String>();
+                    List<String> personvalgseddel = new List<String>();
+                    List<String> preferansevalgseddel = new List<String>();
+
+                    using (StreamReader reader = new StreamReader(Server.MapPath("/resultat/resultatIDer.txt")))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (line != "")
+                            {
+                                int ID = Convert.ToInt32(line);
+                                if (db.valgtype(ID) == "Votering")
+                                {
+                                    votering.Add(line);
+                                }
+                                else if (db.valgtype(ID) == "Personvalg")
+                                {
+                                    personvalg.Add(line);
+                                }
+                                // Preferansevalg
+                                else if (db.valgtype(ID) == "Preferansevalg")
+                                {
+                                    preferansevalg.Add(line);
+                                }
+                            }
+
+                        }
+
+
+
+
+                    }
+                    using (StreamReader reader = new StreamReader(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
+                    {
+                        string line2;
+                        while ((line2 = reader.ReadLine()) != null)
+                        {
+                            if (line2 != "")
+                            {
+                                int ID = Convert.ToInt32(line2);
+
+                                if (db.valgtype(ID) == "Votering")
+                                {
+                                    voteringseddel.Add(line2);
+                                }
+                                else if (db.valgtype(ID) == "Personvalg")
+                                {
+                                    personvalgseddel.Add(line2);
+                                }
+                                // Preferansevalg
+                                else if (db.valgtype(ID) == "Preferansevalg")
+                                {
+                                    preferansevalgseddel.Add(line2);
+                                }
+                            }
+
+                        }
+
+
+
+
+                    }
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                        {
+                            PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                            PdfPTable table = new PdfPTable(12);
+                            BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                            Font tablefont = new Font(bfTimes, 24, Font.BOLD);
+                            Font tablefont2 = new Font(bfTimes, 14);
+                            Font tablefont4 = new Font(bfTimes, 14, Font.BOLD);
+                            Font tablefont3 = new Font(bfTimes, 18, Font.BOLD);
+
+                            // antallvalgte valgtyper resultater
+                            int tellerVotering = votering.Count();
+                            int tellerPersonvalg = personvalg.Count();
+                            int tellerPreferansevalg = preferansevalg.Count();
+                            // antallvalgte valgtyper seddler
+                            int tellerVoteringseddler = voteringseddel.Count();
+                            int tellerPersonvalgseddler = personvalgseddel.Count();
+                            int tellerPreferansevalgseddler = preferansevalgseddel.Count();
+
+                            if (tellerVotering > 0 || tellerPersonvalg > 0 || tellerPreferansevalg > 0 )
+                            {
+                                PdfPCell cell = new PdfPCell(new Phrase(" \n Resultater \n ", tablefont));
+                                cell.Colspan = 12;
+                                cell.HorizontalAlignment = 1;
+                                table.AddCell(cell);
+
+                            }
+                            else
+                            {
+                                PdfPCell cell = new PdfPCell(new Phrase(" \n Ingen valgte resultater \n ", tablefont));
+                                cell.Colspan = 12;
+                                cell.HorizontalAlignment = 1;
+                                table.AddCell(cell);
+
+                            }
+
+
+                            // legg til Voteringer
+                            if (tellerVotering > 0)
+                            {
+                                for (int i = 0; i < tellerVotering; i++)
+                                {
+                                    var valg = votering[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell2 = new PdfPCell(new Phrase(" \n Votering med valgNr \n " + valgID + "\n \n", tablefont3));
+                                    cell2.Colspan = 12;
+                                    cell2.HorizontalAlignment = 1;
+                                    table.AddCell(cell2);
+
+                                    // For Stemmer
+                                    var a = new PdfPCell(new Paragraph("For stemmer", tablefont4));
+                                    a.FixedHeight = 50f;
+                                    a.Colspan = 2;
+                                    table.AddCell(a);
+                                    // Antall for stemmer
+
+                                    var antallFor = db.antallFor(valgID);
+                                    var b = new PdfPCell(new Paragraph(antallFor.ToString(), tablefont2));
+                                    b.FixedHeight = 50f;
+                                    table.AddCell(b);
+                                    // Mot stemmer
+                                    var c = new PdfPCell(new Paragraph("Mot stemmer", tablefont4));
+                                    c.FixedHeight = 50f;
+                                    c.Colspan = 2;
+                                    table.AddCell(c);
+                                    // Antall mot stemmer
+                                    var antallMot = db.antallMot(valgID);
+                                    var d = new PdfPCell(new Paragraph(antallMot.ToString(), tablefont2));
+                                    d.FixedHeight = 50f;
+                                    table.AddCell(d);
+                                    // Antall blank
+                                    var e = new PdfPCell(new Paragraph("Blanke stemmer", tablefont4));
+                                    e.FixedHeight = 50f;
+                                    e.Colspan = 2;
+                                    table.AddCell(e);
+                                    // Antall blanke stemmer
+                                    var antallBlank = db.antallBlank(valgID);
+                                    var f = new PdfPCell(new Paragraph(antallBlank.ToString(), tablefont2));
+                                    f.FixedHeight = 50f;
+                                    table.AddCell(f);
+                                    // Antall avlagte stemmer
+                                    var h = new PdfPCell(new Paragraph("Antall avlagte stemmer", tablefont4));
+                                    h.FixedHeight = 50f;
+                                    h.Colspan = 2;
+                                    table.AddCell(h);
+                                    var antallAvlagte = db.antallstemteVotering(valgID);
+                                    var j = new PdfPCell(new Paragraph(antallAvlagte.ToString(), tablefont2));
+                                    j.FixedHeight = 50f;
+                                    table.AddCell(j);
+
+
+
+                                }
+                            }
+
+
+
+                            // legg til Personvalgene
+                            if (tellerPersonvalg > 0)
+                            {
+                                for (int i = 0; i < tellerPersonvalg; i++)
+                                {
+
+                                    var valg = personvalg[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell2 = new PdfPCell(new Phrase(" \n Personvalg med valgNr \n " + valgID + "\n \n", tablefont3));
+                                    cell2.Colspan = 12;
+                                    cell2.HorizontalAlignment = 1;
+                                    table.AddCell(cell2);
+
+                                    PersonvalgResultat valginfo = db.hentinfoPersonvalg(valgID);
+
+                                    string vinner = "Vinner";
+                                    var a1 = new PdfPCell(new Paragraph(vinner, tablefont4));
+                                    a1.FixedHeight = 50f;
+                                    a1.Colspan = 6;
+                                    table.AddCell(a1);
+
+
+                                    string vinnerNavn = valginfo.vinner;
+                                    var b1 = new PdfPCell(new Paragraph(vinnerNavn, tablefont2));
+                                    b1.FixedHeight = 50f;
+                                    b1.Colspan = 6;
+                                    table.AddCell(b1);
+
+                                    string antallstemmer = "Antall stemmer vinner";
+                                    var c1 = new PdfPCell(new Paragraph(antallstemmer, tablefont4));
+                                    c1.FixedHeight = 50f;
+                                    c1.Colspan = 6;
+                                    table.AddCell(c1);
+
+                                    int nr = valginfo.stemmer;
+                                    string antallstemmerNr = Convert.ToString(nr);
+                                    var d1 = new PdfPCell(new Paragraph(antallstemmerNr, tablefont2));
+                                    d1.FixedHeight = 50f;
+                                    d1.Colspan = 6;
+                                    table.AddCell(d1);
+
+
+                                    string totalantall = "Antall avlagte stemmer";
+                                    var f1 = new PdfPCell(new Paragraph(totalantall, tablefont4));
+                                    f1.FixedHeight = 50f;
+                                    f1.Colspan = 6;
+                                    table.AddCell(f1);
+
+                                    int nr2 = valginfo.totalantallStemmer;
+                                    string totalantallStemmer = Convert.ToString(nr2);
+                                    var e1 = new PdfPCell(new Paragraph(totalantallStemmer, tablefont2));
+                                    e1.FixedHeight = 50f;
+                                    e1.Colspan = 6;
+                                    table.AddCell(e1);
+
+
+                                    string kandidater = "Antall kandidater";
+                                    var h1 = new PdfPCell(new Paragraph(kandidater, tablefont4));
+                                    h1.FixedHeight = 50f;
+                                    h1.Colspan = 6;
+                                    table.AddCell(h1);
+
+                                    int nr3 = valginfo.antallkandidater;
+                                    string antallkandidater = Convert.ToString(nr3);
+                                    var g1 = new PdfPCell(new Paragraph(antallkandidater, tablefont2));
+                                    g1.FixedHeight = 50f;
+                                    g1.Colspan = 6;
+                                    table.AddCell(g1);
+
+                                }
+                            }
+
+
+                            // legg til Preferansevalg
+                            if (tellerPreferansevalg > 0)
+                            {
+                                for (int i = 0; i < tellerPreferansevalg; i++)
+                                {
+                                    var valg = preferansevalg[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell7 = new PdfPCell(new Phrase(" \n Preferansevalg med valgNr \n " + valgID + "\n \n", tablefont3));
+                                    cell7.Colspan = 12;
+                                    cell7.HorizontalAlignment = 1;
+                                    table.AddCell(cell7);
+
+                                    List<PreferansevalgValgte> valgteKandidater = db.hentValgteKandidater(valgID);
+                                    int antallTeller = valgteKandidater.Count();
+
+                                    int antall = db.AntallstemtPreferansevalg(valgID);
+                                        string avlagtestemmer = "Antall avlagte stemmer";
+                                        var a2 = new PdfPCell(new Paragraph(avlagtestemmer, tablefont4));
+                                        a2.FixedHeight = 50f;
+                                        a2.Colspan = 8;
+                                        table.AddCell(a2);
+                                    if(antall > 0)
+                                    { 
+                                        string antall_string = Convert.ToString(antall);
+                                        var b2 = new PdfPCell(new Paragraph(antall_string, tablefont2));
+                                        b2.FixedHeight = 50f;
+                                        b2.Colspan = 4;
+                                        table.AddCell(b2);
+                                    }
+                                    else
+                                    {
+                                        string antall_string = Convert.ToString(0);
+                                        var b2 = new PdfPCell(new Paragraph(antall_string, tablefont2));
+                                        b2.FixedHeight = 50f;
+                                        b2.Colspan = 4;
+                                        table.AddCell(b2);
+                                    }
+                                    string beskrivelse = "Antall kandidater";
+                                    var a3 = new PdfPCell(new Paragraph(beskrivelse, tablefont4));
+                                    a3.FixedHeight = 50f;
+                                    a3.Colspan = 8;
+                                    table.AddCell(a3);
+
+                                    int antallkandidater = db.PreferansevalgAntallDeltatt(valgID);
+                                    string antalldb = Convert.ToString(antallkandidater);
+                                    var a4 = new PdfPCell(new Paragraph(antalldb, tablefont2));
+                                    a4.FixedHeight = 50f;
+                                    a4.Colspan = 4;
+                                    table.AddCell(a4);
+
+
+                                    if (antallTeller > 0)
+                                    {
+                                        string kandidater = "Valget kandidater";
+                                        var x = new PdfPCell(new Paragraph(kandidater, tablefont4));
+                                        x.FixedHeight = 50f;
+                                        x.Colspan = 12;
+                                        table.AddCell(x);
+                                        string kandidat = "";
+                                        for(int k = 0; k < antallTeller; k++)
+                                        {
+                                            kandidat = valgteKandidater[k].navn;
+                                            var z = new PdfPCell(new Paragraph(kandidat, tablefont2));
+                                            z.FixedHeight = 50f;
+                                            z.Colspan = 12;
+                                            table.AddCell(z);
+                                        }
+
+                                    }
+
+
+
+                                }
+                            }
+
+                                if (tellerVoteringseddler > 0 || tellerPersonvalgseddler > 0 || tellerPreferansevalgseddler > 0)
+                                {
+                                    PdfPCell cell4 = new PdfPCell(new Phrase(" \n Stemmesedler \n ", tablefont));
+                                    cell4.Colspan = 12;
+                                    cell4.HorizontalAlignment = 1;
+                                    table.AddCell(cell4);
+
+                                }
+                                else
+                                {
+                                    PdfPCell cell = new PdfPCell(new Phrase(" \n Ingen valgte Stemmesedler \n ", tablefont));
+                                    cell.Colspan = 12;
+                                    cell.HorizontalAlignment = 1;
+                                    table.AddCell(cell);
+
+                                }
+
+                                // legg til Voteringseddler
+                                if (tellerVoteringseddler > 0)
+                                {
+
+
+                                    for (int i = 0; i < tellerVoteringseddler; i++)
+                                    {
+
+
+                                        var valg = voteringseddel[i];
+                                        int valgID = Convert.ToInt32(valg);
+                                        // Overskrift med valgNr
+                                        PdfPCell cell3 = new PdfPCell(new Phrase(" \n Votering stemmesedler med valgNr \n " + valgID + "\n \n", tablefont3));
+                                        cell3.Colspan = 12;
+                                        cell3.HorizontalAlignment = 1;
+                                        table.AddCell(cell3);
+
+                                        List<Votering> allestemmesedler = db.hentVoteringer(valgID);
+                                        int teller6 = allestemmesedler.Count();
+                                        int teller7 = 1;
+                                        for (int j = 0; j < teller6; j++)
+                                        {
+                                            string stemme = "";
+                                            string vinner = "Stemmeseddel " + Convert.ToString(teller7);
+                                            var b1 = new PdfPCell(new Paragraph(vinner, tablefont4));
+                                            b1.FixedHeight = 50f;
+                                            b1.Colspan = 4;
+                                            table.AddCell(b1);
+                                            teller7++;
+
+                                            if (allestemmesedler[j].svarfor == "for")
+                                            {
+                                                stemme = "for";
+                                                var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+                                            else if (allestemmesedler[j].svarmot == "mot")
+                                            {
+                                                stemme = "mot";
+                                                var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+                                            else if (allestemmesedler[j].svarblank == "blank")
+                                            {
+                                                stemme = "blank";
+                                                var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+
+
+                                        }
+
+
+
+                                    }
+                                }
+                                // legg til personvalgsedler
+
+                                if (tellerPersonvalgseddler > 0)
+                                {
+
+                                    for (int i = 0; i < tellerPersonvalgseddler; i++)
+                                    {
+                                        var valg = personvalgseddel[i];
+                                        int valgID = Convert.ToInt32(valg);
+                                        // Overskrift med valgNr
+                                        PdfPCell cell5 = new PdfPCell(new Phrase(" \n Personvalg stemmesedler med valgNr \n " + valgID + "\n \n", tablefont3));
+                                        cell5.Colspan = 12;
+                                        cell5.HorizontalAlignment = 1;
+                                        table.AddCell(cell5);
+                                        List<PersonvalgStemmer> personvalgsedler = db.hentPersonvalg(valgID);
+                                        int teller8 = personvalgsedler.Count();
+                                        int teller7 = 1;
+                                        for (int k = 0; k < teller8; k++)
+                                        {
+                                            string stemme = "";
+
+                                            string vinner = "Stemmeseddel " + Convert.ToString(teller7);
+                                            var b1 = new PdfPCell(new Paragraph(vinner, tablefont4));
+                                            b1.FixedHeight = 50f;
+                                            b1.Colspan = 4;
+                                            table.AddCell(b1);
+                                            teller7++;
+
+                                            stemme = personvalgsedler[k].fornavn + " " + personvalgsedler[k].etternavn;
+                                            var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+
+
+
+                                    }
+                                }
+                                // legg til preferansevalgsedler                                                                                 
+                                if (tellerPreferansevalgseddler > 0)
+                                {
+                                    for (int i = 0; i < tellerPreferansevalgseddler; i++)
+                                    {
+                                        var valg = preferansevalgseddel[i];
+                                        int valgID = Convert.ToInt32(valg);
+                                        // Overskrift med valgNr
+                                        PdfPCell cell6 = new PdfPCell(new Phrase(" \n Preferansevalg stemmesedler med valgNr \n " + valgID + "\n \n", tablefont3));
+                                        cell6.Colspan = 12;
+                                        cell6.HorizontalAlignment = 1;
+                                        table.AddCell(cell6);
+                                        List<Stemmeseddel> preferansevalgsedler = db.preferansevalgsedler(valgID);
+                                        int sedlerTeller = preferansevalgsedler.Count();
+                                        if(sedlerTeller > 0)
+                                        {
+                                        string valgtKandidat = "";
+                                        string valgtKandidatNavn = "";
+
+                                        for (int j = 0; j < sedlerTeller; j++)
+                                        {
+                                            int stemmeID = preferansevalgsedler[j].stemmeseddelID;
+                                            PdfPCell cell7 = new PdfPCell(new Phrase(" \n Stemmesedler med stemmeID \n " + stemmeID + "\n \n", tablefont3));
+                                            cell7.Colspan = 12;
+                                            cell7.HorizontalAlignment = 1;
+                                            table.AddCell(cell7);
+
+                                            valgtKandidat = "Kandidatvalg 1";
+                                            var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b1.FixedHeight = 50f;
+                                            b1.Colspan = 4;
+                                            table.AddCell(b1);
+                                        
+                                            if(preferansevalgsedler[j].kandidatnrEn != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrEn;
+                                                var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+                             
+
+                                            valgtKandidat = "Kandidatvalg 2";
+                                            var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b2.FixedHeight = 50f;
+                                            b2.Colspan = 4;
+                                            table.AddCell(b2);
+
+                                            if (preferansevalgsedler[j].kandidatnrTo != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTo;
+                                                var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a2.FixedHeight = 50f;
+                                                a2.Colspan = 8;
+                                                table.AddCell(a2);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a2.FixedHeight = 50f;
+                                                a2.Colspan = 8;
+                                                table.AddCell(a2);
+                                            }
+                                            valgtKandidat = "Kandidatvalg 3";
+                                            var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b3.FixedHeight = 50f;
+                                            b3.Colspan = 4;
+                                            table.AddCell(b3);
+
+                                            if (preferansevalgsedler[j].kandidatnrTre != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTre;
+                                                var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a3.FixedHeight = 50f;
+                                                a3.Colspan = 8;
+                                                table.AddCell(a3);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a3.FixedHeight = 50f;
+                                                a3.Colspan = 8;
+                                                table.AddCell(a3);
+                                            }
+
+                                            valgtKandidat = "Kandidatvalg 4";
+                                            var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b4.FixedHeight = 50f;
+                                            b4.Colspan = 4;
+                                            table.AddCell(b4);
+
+                                            if (preferansevalgsedler[j].kandidatnrFire != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrFire;
+                                                var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a4.FixedHeight = 50f;
+                                                a4.Colspan = 8;
+                                                table.AddCell(a4);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a4.FixedHeight = 50f;
+                                                a4.Colspan = 8;
+                                                table.AddCell(a4);
+                                            }
+                                            valgtKandidat = "Kandidatvalg 5";
+                                            var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b5.FixedHeight = 50f;
+                                            b5.Colspan = 4;
+                                            table.AddCell(b5);
+
+                                            if (preferansevalgsedler[j].kandidatnrFem != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrFem;
+                                                var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a5.FixedHeight = 50f;
+                                                a5.Colspan = 8;
+                                                table.AddCell(a5);
+                                            }
+                                                else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a5.FixedHeight = 50f;
+                                                a5.Colspan = 8;
+                                                table.AddCell(a5);
+                                            }
+
+                                            valgtKandidat = "Kandidatvalg 6";
+                                            var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b6.FixedHeight = 50f;
+                                            b6.Colspan = 4;
+                                            table.AddCell(b6);
+
+                                            if (preferansevalgsedler[j].kandidatnrSeks != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrSeks;
+                                                var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a6.FixedHeight = 50f;
+                                                a6.Colspan = 8;
+                                                table.AddCell(a6);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a6.FixedHeight = 50f;
+                                                a6.Colspan = 8;
+                                                table.AddCell(a6);
+                                            }
+
+                                            valgtKandidat = "Kandidatvalg 7";
+                                            var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b7.FixedHeight = 50f;
+                                            b7.Colspan = 4;
+                                            table.AddCell(b7);
+
+
+                                            if (preferansevalgsedler[j].kandidatnrSju != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrSju;
+                                                var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a7.FixedHeight = 50f;
+                                                a7.Colspan = 8;
+                                                table.AddCell(a7);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a7.FixedHeight = 50f;
+                                                a7.Colspan = 8;
+                                                table.AddCell(a7);
+                                            }
+                                            valgtKandidat = "Kandidatvalg 8";
+                                            var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b8.FixedHeight = 50f;
+                                            b8.Colspan = 4;
+                                            table.AddCell(b8);
+
+                                            if(preferansevalgsedler[j].kandidatnrÅtte != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrÅtte;
+                                                var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a8.FixedHeight = 50f;
+                                                a8.Colspan = 8;
+                                                table.AddCell(a8);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a8.FixedHeight = 50f;
+                                                a8.Colspan = 8;
+                                                table.AddCell(a8);
+                                            }
+
+                                            valgtKandidat = "Kandidatvalg 9";
+                                            var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b9.FixedHeight = 50f;
+                                            b9.Colspan = 4;
+                                            table.AddCell(b9);
+
+                                            if (preferansevalgsedler[j].kandidatnrNi != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrNi;
+                                                var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a9.FixedHeight = 50f;
+                                                a9.Colspan = 8;
+                                                table.AddCell(a9);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a9.FixedHeight = 50f;
+                                                a9.Colspan = 8;
+                                                table.AddCell(a9);
+                                            }
+                                            valgtKandidat = "Kandidatvalg 10";
+                                            var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b10.FixedHeight = 50f;
+                                            b10.Colspan = 4;
+                                            table.AddCell(b10);
+
+                                            if (preferansevalgsedler[j].kandidatnrTi != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTi;
+                                                var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a10.FixedHeight = 50f;
+                                                a10.Colspan = 8;
+                                                table.AddCell(a10);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a10.FixedHeight = 50f;
+                                                a10.Colspan = 8;
+                                                table.AddCell(a10);
+                                            }
+                                            valgtKandidat = "Kandidatvalg 11";
+                                            var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b11.FixedHeight = 50f;
+                                            b11.Colspan = 4;
+                                            table.AddCell(b11);
+
+                                            if (preferansevalgsedler[j].kandidatnrElleve != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrElleve;
+                                                var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a11.FixedHeight = 50f;
+                                                a11.Colspan = 8;
+                                                table.AddCell(a11);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a11.FixedHeight = 50f;
+                                                a11.Colspan = 8;
+                                                table.AddCell(a11);
+                                            }
+                                            valgtKandidat = "Kandidatvalg 12";
+                                            var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b12.FixedHeight = 50f;
+                                            b12.Colspan = 4;
+                                            table.AddCell(b12);
+
+                                            if (preferansevalgsedler[j].kandidatnrTolv != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTolv;
+                                                var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a12.FixedHeight = 50f;
+                                                a12.Colspan = 8;
+                                                table.AddCell(a12);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a12.FixedHeight = 50f;
+                                                a12.Colspan = 8;
+                                                table.AddCell(a12);
+                                            }
+
+
+                                            }
+                                        }
+                                    }
+                                }
+                                doc.Open();
+                                doc.Add(table);
+                                doc.Close();
+                                byte[] filedata = ms.ToArray();
+                                using (StreamWriter writer3 = new StreamWriter(Server.MapPath("/resultat/resultatIDer.txt")))
+                                {
+                                    writer3.WriteLine("");
+                                }
+                                using (StreamWriter writer2 = new StreamWriter(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
+                                {
+                                    writer2.WriteLine("");
+                                }
+
+                                return File(filedata, "application/pdf", "Rapport.pdf");
+                            }
+
+
+                        }
+
+                    }
+                return RedirectToAction("Index");
+            }
+
+
+                return RedirectToAction("Index");
+            }
+
+        public ActionResult LastNedResultatStemmesedlerEng()
+        {
+            // Lokal løsning med memoryStream
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<String> votering = new List<String>();
+                    List<String> personvalg = new List<String>();
+                    List<String> preferansevalg = new List<String>();
+                    List<String> voteringseddel = new List<String>();
+                    List<String> personvalgseddel = new List<String>();
+                    List<String> preferansevalgseddel = new List<String>();
+
+                    using (StreamReader reader = new StreamReader(Server.MapPath("/resultat/resultatIDer.txt")))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (line != "")
+                            {
+                                int ID = Convert.ToInt32(line);
+                                if (db.valgtype(ID) == "Votering")
+                                {
+                                    votering.Add(line);
+                                }
+                                else if (db.valgtype(ID) == "Personvalg")
+                                {
+                                    personvalg.Add(line);
+                                }
+                                // Preferansevalg
+                                else if (db.valgtype(ID) == "Preferansevalg")
+                                {
+                                    preferansevalg.Add(line);
+                                }
+                            }
+
+                        }
+
+
+
+
+                    }
+                    using (StreamReader reader = new StreamReader(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
+                    {
+                        string line2;
+                        while ((line2 = reader.ReadLine()) != null)
+                        {
+                            if (line2 != "")
+                            {
+                                int ID = Convert.ToInt32(line2);
+
+                                if (db.valgtype(ID) == "Votering")
+                                {
+                                    voteringseddel.Add(line2);
+                                }
+                                else if (db.valgtype(ID) == "Personvalg")
+                                {
+                                    personvalgseddel.Add(line2);
+                                }
+                                // Preferansevalg
+                                else if (db.valgtype(ID) == "Preferansevalg")
+                                {
+                                    preferansevalgseddel.Add(line2);
+                                }
+                            }
+
+                        }
+
+
+
+
+                    }
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                        {
+                            PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                            PdfPTable table = new PdfPTable(12);
+                            BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                            Font tablefont = new Font(bfTimes, 24, Font.BOLD);
+                            Font tablefont2 = new Font(bfTimes, 14);
+                            Font tablefont4 = new Font(bfTimes, 14, Font.BOLD);
+                            Font tablefont3 = new Font(bfTimes, 18, Font.BOLD);
+
+                            // antallvalgte valgtyper resultater
+                            int tellerVotering = votering.Count();
+                            int tellerPersonvalg = personvalg.Count();
+                            int tellerPreferansevalg = preferansevalg.Count();
+                            // antallvalgte valgtyper seddler
+                            int tellerVoteringseddler = voteringseddel.Count();
+                            int tellerPersonvalgseddler = personvalgseddel.Count();
+                            int tellerPreferansevalgseddler = preferansevalgseddel.Count();
+
+                            if (tellerVotering > 0 || tellerPersonvalg > 0 || tellerPreferansevalg > 0)
+                            {
+                                PdfPCell cell = new PdfPCell(new Phrase(" \n Result \n ", tablefont));
+                                cell.Colspan = 12;
+                                cell.HorizontalAlignment = 1;
+                                table.AddCell(cell);
+
+                            }
+                            else
+                            {
+                                PdfPCell cell = new PdfPCell(new Phrase(" \n No chosen election or vote \n ", tablefont));
+                                cell.Colspan = 12;
+                                cell.HorizontalAlignment = 1;
+                                table.AddCell(cell);
+
+                            }
+
+
+                            // legg til Voteringer
+                            if (tellerVotering > 0)
+                            {
+                                for (int i = 0; i < tellerVotering; i++)
+                                {
+                                    var valg = votering[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell2 = new PdfPCell(new Phrase(" \n Vote with VoteNr \n " + valgID + "\n \n", tablefont3));
+                                    cell2.Colspan = 12;
+                                    cell2.HorizontalAlignment = 1;
+                                    table.AddCell(cell2);
+
+                                    // For Stemmer
+                                    var a = new PdfPCell(new Paragraph("For votes", tablefont4));
+                                    a.FixedHeight = 50f;
+                                    a.Colspan = 2;
+                                    table.AddCell(a);
+                                    // Antall for stemmer
+
+                                    var antallFor = db.antallFor(valgID);
+                                    var b = new PdfPCell(new Paragraph(antallFor.ToString(), tablefont2));
+                                    b.FixedHeight = 50f;
+                                    table.AddCell(b);
+                                    // Mot stemmer
+                                    var c = new PdfPCell(new Paragraph("Against votes", tablefont4));
+                                    c.FixedHeight = 50f;
+                                    c.Colspan = 2;
+                                    table.AddCell(c);
+                                    // Antall mot stemmer
+                                    var antallMot = db.antallMot(valgID);
+                                    var d = new PdfPCell(new Paragraph(antallMot.ToString(), tablefont2));
+                                    d.FixedHeight = 50f;
+                                    table.AddCell(d);
+                                    // Antall blank
+                                    var e = new PdfPCell(new Paragraph("Blank votes", tablefont4));
+                                    e.FixedHeight = 50f;
+                                    e.Colspan = 2;
+                                    table.AddCell(e);
+                                    // Antall blanke stemmer
+                                    var antallBlank = db.antallBlank(valgID);
+                                    var f = new PdfPCell(new Paragraph(antallBlank.ToString(), tablefont2));
+                                    f.FixedHeight = 50f;
+                                    table.AddCell(f);
+                                    // Antall avlagte stemmer
+                                    var h = new PdfPCell(new Paragraph("Number of votes", tablefont4));
+                                    h.FixedHeight = 50f;
+                                    h.Colspan = 2;
+                                    table.AddCell(h);
+                                    var antallAvlagte = db.antallstemteVotering(valgID);
+                                    var j = new PdfPCell(new Paragraph(antallAvlagte.ToString(), tablefont2));
+                                    j.FixedHeight = 50f;
+                                    table.AddCell(j);
+
+
+
+                                }
+                            }
+
+
+
+                            // legg til Personvalgene
+                            if (tellerPersonvalg > 0)
+                            {
+                                for (int i = 0; i < tellerPersonvalg; i++)
+                                {
+
+                                    var valg = personvalg[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell2 = new PdfPCell(new Phrase(" \n Person Election with ElectionNr \n " + valgID + "\n \n", tablefont3));
+                                    cell2.Colspan = 12;
+                                    cell2.HorizontalAlignment = 1;
+                                    table.AddCell(cell2);
+
+                                    PersonvalgResultat valginfo = db.hentinfoPersonvalg(valgID);
+
+                                    string vinner = "Winner";
+                                    var a1 = new PdfPCell(new Paragraph(vinner, tablefont4));
+                                    a1.FixedHeight = 50f;
+                                    a1.Colspan = 6;
+                                    table.AddCell(a1);
+
+
+                                    string vinnerNavn = valginfo.vinner;
+                                    var b1 = new PdfPCell(new Paragraph(vinnerNavn, tablefont2));
+                                    b1.FixedHeight = 50f;
+                                    b1.Colspan = 6;
+                                    table.AddCell(b1);
+
+                                    string antallstemmer = "Number of votes to winner";
+                                    var c1 = new PdfPCell(new Paragraph(antallstemmer, tablefont4));
+                                    c1.FixedHeight = 50f;
+                                    c1.Colspan = 6;
+                                    table.AddCell(c1);
+
+                                    int nr = valginfo.stemmer;
+                                    string antallstemmerNr = Convert.ToString(nr);
+                                    var d1 = new PdfPCell(new Paragraph(antallstemmerNr, tablefont2));
+                                    d1.FixedHeight = 50f;
+                                    d1.Colspan = 6;
+                                    table.AddCell(d1);
+
+
+                                    string totalantall = "Total number of votes";
+                                    var f1 = new PdfPCell(new Paragraph(totalantall, tablefont4));
+                                    f1.FixedHeight = 50f;
+                                    f1.Colspan = 6;
+                                    table.AddCell(f1);
+
+                                    int nr2 = valginfo.totalantallStemmer;
+                                    string totalantallStemmer = Convert.ToString(nr2);
+                                    var e1 = new PdfPCell(new Paragraph(totalantallStemmer, tablefont2));
+                                    e1.FixedHeight = 50f;
+                                    e1.Colspan = 6;
+                                    table.AddCell(e1);
+
+
+                                    string kandidater = "Number of Candidates";
+                                    var h1 = new PdfPCell(new Paragraph(kandidater, tablefont4));
+                                    h1.FixedHeight = 50f;
+                                    h1.Colspan = 6;
+                                    table.AddCell(h1);
+
+                                    int nr3 = valginfo.antallkandidater;
+                                    string antallkandidater = Convert.ToString(nr3);
+                                    var g1 = new PdfPCell(new Paragraph(antallkandidater, tablefont2));
+                                    g1.FixedHeight = 50f;
+                                    g1.Colspan = 6;
+                                    table.AddCell(g1);
+
+                                }
+                            }
+
+
+                            // legg til Preferansevalg
+                            if (tellerPreferansevalg > 0)
+                            {
+                                for (int i = 0; i < tellerPreferansevalg; i++)
+                                {
+                                    var valg = preferansevalg[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell7 = new PdfPCell(new Phrase(" \n S.TV with electionNr \n " + valgID + "\n \n", tablefont3));
+                                    cell7.Colspan = 12;
+                                    cell7.HorizontalAlignment = 1;
+                                    table.AddCell(cell7);
+
+                                    List<PreferansevalgValgte> valgteKandidater = db.hentValgteKandidater(valgID);
+                                    int antallTeller = valgteKandidater.Count();
+
+                                    int antall = db.AntallstemtPreferansevalg(valgID);
+                                    string avlagtestemmer = "Total number of Votes";
+                                    var a2 = new PdfPCell(new Paragraph(avlagtestemmer, tablefont4));
+                                    a2.FixedHeight = 50f;
+                                    a2.Colspan = 8;
+                                    table.AddCell(a2);
+                                    if (antall > 0)
+                                    {
+                                        string antall_string = Convert.ToString(antall);
+                                        var b2 = new PdfPCell(new Paragraph(antall_string, tablefont2));
+                                        b2.FixedHeight = 50f;
+                                        b2.Colspan = 4;
+                                        table.AddCell(b2);
+                                    }
+                                    else
+                                    {
+                                        string antall_string = Convert.ToString(0);
+                                        var b2 = new PdfPCell(new Paragraph(antall_string, tablefont2));
+                                        b2.FixedHeight = 50f;
+                                        b2.Colspan = 4;
+                                        table.AddCell(b2);
+                                    }
+                                    string beskrivelse = "Number of Candidates";
+                                    var a3 = new PdfPCell(new Paragraph(beskrivelse, tablefont4));
+                                    a3.FixedHeight = 50f;
+                                    a3.Colspan = 8;
+                                    table.AddCell(a3);
+
+                                    int antallkandidater = db.PreferansevalgAntallDeltatt(valgID);
+                                    string antalldb = Convert.ToString(antallkandidater);
+                                    var a4 = new PdfPCell(new Paragraph(antalldb, tablefont2));
+                                    a4.FixedHeight = 50f;
+                                    a4.Colspan = 4;
+                                    table.AddCell(a4);
+
+
+                                    if (antallTeller > 0)
+                                    {
+                                        string kandidater = "Chosen Candidates";
+                                        var x = new PdfPCell(new Paragraph(kandidater, tablefont4));
+                                        x.FixedHeight = 50f;
+                                        x.Colspan = 12;
+                                        table.AddCell(x);
+                                        string kandidat = "";
+                                        for (int k = 0; k < antallTeller; k++)
+                                        {
+                                            kandidat = valgteKandidater[k].navn;
+                                            var z = new PdfPCell(new Paragraph(kandidat, tablefont2));
+                                            z.FixedHeight = 50f;
+                                            z.Colspan = 12;
+                                            table.AddCell(z);
+                                        }
+
+                                    }
+
+
+
+                                }
+                            }
+
+                            if (tellerVoteringseddler > 0 || tellerPersonvalgseddler > 0 || tellerPreferansevalgseddler > 0)
+                            {
+                                PdfPCell cell4 = new PdfPCell(new Phrase(" \n Voteslips \n ", tablefont));
+                                cell4.Colspan = 12;
+                                cell4.HorizontalAlignment = 1;
+                                table.AddCell(cell4);
+
+                            }
+                            else
+                            {
+                                PdfPCell cell = new PdfPCell(new Phrase(" \n No chosen Voteslip \n ", tablefont));
+                                cell.Colspan = 12;
+                                cell.HorizontalAlignment = 1;
+                                table.AddCell(cell);
+
+                            }
+
+                            // legg til Voteringseddler
+                            if (tellerVoteringseddler > 0)
+                            {
+
+
+                                for (int i = 0; i < tellerVoteringseddler; i++)
+                                {
+
+
+                                    var valg = voteringseddel[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell3 = new PdfPCell(new Phrase(" \n Vote voteslip with VoteNr \n " + valgID + "\n \n", tablefont3));
+                                    cell3.Colspan = 12;
+                                    cell3.HorizontalAlignment = 1;
+                                    table.AddCell(cell3);
+
+                                    List<Votering> allestemmesedler = db.hentVoteringer(valgID);
+                                    int teller6 = allestemmesedler.Count();
+                                    int teller7 = 1;
+                                    for (int j = 0; j < teller6; j++)
+                                    {
+                                        string stemme = "";
+                                        string vinner = "Voteslip " + Convert.ToString(teller7);
+                                        var b1 = new PdfPCell(new Paragraph(vinner, tablefont4));
+                                        b1.FixedHeight = 50f;
+                                        b1.Colspan = 4;
+                                        table.AddCell(b1);
+                                        teller7++;
+
+                                        if (allestemmesedler[j].svarfor == "for")
+                                        {
+                                            stemme = "for";
+                                            var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+                                        else if (allestemmesedler[j].svarmot == "mot")
+                                        {
+                                            stemme = "against";
+                                            var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+                                        else if (allestemmesedler[j].svarblank == "blank")
+                                        {
+                                            stemme = "blank";
+                                            var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+
+
+                                    }
+
+
+
+                                }
+                            }
+                            // legg til personvalgsedler
+
+                            if (tellerPersonvalgseddler > 0)
+                            {
+
+                                for (int i = 0; i < tellerPersonvalgseddler; i++)
+                                {
+                                    var valg = personvalgseddel[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell5 = new PdfPCell(new Phrase(" \n Person Election voteslip with electionNr \n " + valgID + "\n \n", tablefont3));
+                                    cell5.Colspan = 12;
+                                    cell5.HorizontalAlignment = 1;
+                                    table.AddCell(cell5);
+                                    List<PersonvalgStemmer> personvalgsedler = db.hentPersonvalg(valgID);
+                                    int teller8 = personvalgsedler.Count();
+                                    int teller7 = 1;
+                                    for (int k = 0; k < teller8; k++)
+                                    {
+                                        string stemme = "";
+
+                                        string vinner = "Voteslip " + Convert.ToString(teller7);
+                                        var b1 = new PdfPCell(new Paragraph(vinner, tablefont4));
+                                        b1.FixedHeight = 50f;
+                                        b1.Colspan = 4;
+                                        table.AddCell(b1);
+                                        teller7++;
+
+                                        stemme = personvalgsedler[k].fornavn + " " + personvalgsedler[k].etternavn;
+                                        var a1 = new PdfPCell(new Paragraph(stemme, tablefont2));
+                                        a1.FixedHeight = 50f;
+                                        a1.Colspan = 8;
+                                        table.AddCell(a1);
+                                    }
+
+
+
+                                }
+                            }
+                            // legg til preferansevalgsedler                                                                                 
+                            if (tellerPreferansevalgseddler > 0)
+                            {
+                                for (int i = 0; i < tellerPreferansevalgseddler; i++)
+                                {
+                                    var valg = preferansevalgseddel[i];
+                                    int valgID = Convert.ToInt32(valg);
+                                    // Overskrift med valgNr
+                                    PdfPCell cell6 = new PdfPCell(new Phrase(" \n S.T.V voteslip with ElectionNr \n " + valgID + "\n \n", tablefont3));
+                                    cell6.Colspan = 12;
+                                    cell6.HorizontalAlignment = 1;
+                                    table.AddCell(cell6);
+                                    List<Stemmeseddel> preferansevalgsedler = db.preferansevalgsedler(valgID);
+                                    int sedlerTeller = preferansevalgsedler.Count();
+                                    if (sedlerTeller > 0)
+                                    {
+                                        string valgtKandidat = "";
+                                        string valgtKandidatNavn = "";
+
+                                        for (int j = 0; j < sedlerTeller; j++)
+                                        {
+                                            int stemmeID = preferansevalgsedler[j].stemmeseddelID;
+                                            PdfPCell cell7 = new PdfPCell(new Phrase(" \n Voteslip with ID \n " + stemmeID + "\n \n", tablefont3));
+                                            cell7.Colspan = 12;
+                                            cell7.HorizontalAlignment = 1;
+                                            table.AddCell(cell7);
+
+                                            valgtKandidat = "Candidate 1";
+                                            var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b1.FixedHeight = 50f;
+                                            b1.Colspan = 4;
+                                            table.AddCell(b1);
+
+                                            if (preferansevalgsedler[j].kandidatnrEn != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrEn;
+                                                var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a1.FixedHeight = 50f;
+                                                a1.Colspan = 8;
+                                                table.AddCell(a1);
+                                            }
+
+
+                                            valgtKandidat = "Candidate 2";
+                                            var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b2.FixedHeight = 50f;
+                                            b2.Colspan = 4;
+                                            table.AddCell(b2);
+
+                                            if (preferansevalgsedler[j].kandidatnrTo != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTo;
+                                                var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a2.FixedHeight = 50f;
+                                                a2.Colspan = 8;
+                                                table.AddCell(a2);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a2.FixedHeight = 50f;
+                                                a2.Colspan = 8;
+                                                table.AddCell(a2);
+                                            }
+                                            valgtKandidat = "Candidate 3";
+                                            var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b3.FixedHeight = 50f;
+                                            b3.Colspan = 4;
+                                            table.AddCell(b3);
+
+                                            if (preferansevalgsedler[j].kandidatnrTre != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTre;
+                                                var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a3.FixedHeight = 50f;
+                                                a3.Colspan = 8;
+                                                table.AddCell(a3);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a3.FixedHeight = 50f;
+                                                a3.Colspan = 8;
+                                                table.AddCell(a3);
+                                            }
+
+                                            valgtKandidat = "Candidate 4";
+                                            var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b4.FixedHeight = 50f;
+                                            b4.Colspan = 4;
+                                            table.AddCell(b4);
+
+                                            if (preferansevalgsedler[j].kandidatnrFire != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrFire;
+                                                var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a4.FixedHeight = 50f;
+                                                a4.Colspan = 8;
+                                                table.AddCell(a4);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a4.FixedHeight = 50f;
+                                                a4.Colspan = 8;
+                                                table.AddCell(a4);
+                                            }
+                                            valgtKandidat = "Candidate 5";
+                                            var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b5.FixedHeight = 50f;
+                                            b5.Colspan = 4;
+                                            table.AddCell(b5);
+
+                                            if (preferansevalgsedler[j].kandidatnrFem != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrFem;
+                                                var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a5.FixedHeight = 50f;
+                                                a5.Colspan = 8;
+                                                table.AddCell(a5);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a5.FixedHeight = 50f;
+                                                a5.Colspan = 8;
+                                                table.AddCell(a5);
+                                            }
+
+                                            valgtKandidat = "Candidate 6";
+                                            var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b6.FixedHeight = 50f;
+                                            b6.Colspan = 4;
+                                            table.AddCell(b6);
+
+                                            if (preferansevalgsedler[j].kandidatnrSeks != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrSeks;
+                                                var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a6.FixedHeight = 50f;
+                                                a6.Colspan = 8;
+                                                table.AddCell(a6);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a6.FixedHeight = 50f;
+                                                a6.Colspan = 8;
+                                                table.AddCell(a6);
+                                            }
+
+                                            valgtKandidat = "Candidate 7";
+                                            var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b7.FixedHeight = 50f;
+                                            b7.Colspan = 4;
+                                            table.AddCell(b7);
+
+
+                                            if (preferansevalgsedler[j].kandidatnrSju != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrSju;
+                                                var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a7.FixedHeight = 50f;
+                                                a7.Colspan = 8;
+                                                table.AddCell(a7);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a7.FixedHeight = 50f;
+                                                a7.Colspan = 8;
+                                                table.AddCell(a7);
+                                            }
+                                            valgtKandidat = "Candidate 8";
+                                            var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b8.FixedHeight = 50f;
+                                            b8.Colspan = 4;
+                                            table.AddCell(b8);
+
+                                            if (preferansevalgsedler[j].kandidatnrÅtte != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrÅtte;
+                                                var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a8.FixedHeight = 50f;
+                                                a8.Colspan = 8;
+                                                table.AddCell(a8);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a8.FixedHeight = 50f;
+                                                a8.Colspan = 8;
+                                                table.AddCell(a8);
+                                            }
+
+                                            valgtKandidat = "Candidate 9";
+                                            var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b9.FixedHeight = 50f;
+                                            b9.Colspan = 4;
+                                            table.AddCell(b9);
+
+                                            if (preferansevalgsedler[j].kandidatnrNi != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrNi;
+                                                var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a9.FixedHeight = 50f;
+                                                a9.Colspan = 8;
+                                                table.AddCell(a9);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a9.FixedHeight = 50f;
+                                                a9.Colspan = 8;
+                                                table.AddCell(a9);
+                                            }
+                                            valgtKandidat = "Candidate 10";
+                                            var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b10.FixedHeight = 50f;
+                                            b10.Colspan = 4;
+                                            table.AddCell(b10);
+
+                                            if (preferansevalgsedler[j].kandidatnrTi != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTi;
+                                                var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a10.FixedHeight = 50f;
+                                                a10.Colspan = 8;
+                                                table.AddCell(a10);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a10.FixedHeight = 50f;
+                                                a10.Colspan = 8;
+                                                table.AddCell(a10);
+                                            }
+                                            valgtKandidat = "Candidate 11";
+                                            var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b11.FixedHeight = 50f;
+                                            b11.Colspan = 4;
+                                            table.AddCell(b11);
+
+                                            if (preferansevalgsedler[j].kandidatnrElleve != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrElleve;
+                                                var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a11.FixedHeight = 50f;
+                                                a11.Colspan = 8;
+                                                table.AddCell(a11);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a11.FixedHeight = 50f;
+                                                a11.Colspan = 8;
+                                                table.AddCell(a11);
+                                            }
+                                            valgtKandidat = "Candidate 12";
+                                            var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                            b12.FixedHeight = 50f;
+                                            b12.Colspan = 4;
+                                            table.AddCell(b12);
+
+                                            if (preferansevalgsedler[j].kandidatnrTolv != null)
+                                            {
+                                                valgtKandidatNavn = preferansevalgsedler[j].kandidatnrTolv;
+                                                var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a12.FixedHeight = 50f;
+                                                a12.Colspan = 8;
+                                                table.AddCell(a12);
+                                            }
+                                            else
+                                            {
+                                                valgtKandidatNavn = "";
+                                                var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                                a12.FixedHeight = 50f;
+                                                a12.Colspan = 8;
+                                                table.AddCell(a12);
+                                            }
+
+
+                                        }
+                                    }
+                                }
+                            }
+                            doc.Open();
+                            doc.Add(table);
+                            doc.Close();
+                            byte[] filedata = ms.ToArray();
+                            using (StreamWriter writer3 = new StreamWriter(Server.MapPath("/resultat/resultatIDer.txt")))
+                            {
+                                writer3.WriteLine("");
+                            }
+                            using (StreamWriter writer2 = new StreamWriter(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
+                            {
+                                writer2.WriteLine("");
+                            }
+
+                            return File(filedata, "application/pdf", "Raport.pdf");
+                        }
+
+
+                    }
+
+                }
+                return RedirectToAction("IndexEng");
+            }
+
+
+            return RedirectToAction("IndexEng");
+        }
+        public void LastNedResultat(int[] valgider, int[] valgiderstemmeseddel)
+        {
+            if (valgider != null)
+            {
+                using (StreamWriter writer = new StreamWriter(Server.MapPath("/resultat/resultatIDer.txt")))
+                {
+                    int teller = valgider.Count();
+                    if (teller > 0)
+                    {
+                        for (int i = 1; i < teller; i++)
+                        {
+                            if (valgider[i] != 0)
+                            {
+                                writer.WriteLine(valgider[i]);
+                            }
+
+                        }
+                    }
+
+
+
+                }
+                if(valgiderstemmeseddel != null)
+                {
+                    using (StreamWriter writer = new StreamWriter(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
+                    {
+                        int teller = valgiderstemmeseddel.Count();
+                        if (teller > 0)
+                        {
+                            for (int i = 1; i < teller; i++)
+                            {
+                                if (valgiderstemmeseddel[i] != 0)
+                                {
+                                    writer.WriteLine(valgiderstemmeseddel[i]);
+                                }
+
+                            }
+                        }
+
+
+
+                    }
+                }
+
+
+
+            }
+            else if (valgiderstemmeseddel != null)
+            {
+                using (StreamWriter writer = new StreamWriter(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
+                {
+                    int teller = valgiderstemmeseddel.Count();
+                    if (teller > 0)
+                    {
+                        for (int i = 1; i < teller; i++)
+                        {
+                            if (valgiderstemmeseddel[i] != 0)
+                            {
+                                writer.WriteLine(valgiderstemmeseddel[i]);
+                            }
+
+                        }
+                    }
+
+
+
+                }
+            }
+
+
+
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult stemmeseddelPersonvalgEng(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<PersonvalgStemmer> tabell = db.hentPersonvalg(id);
+                    List<PersonvalgStemmer> tabell2 = tabell.OrderByDescending(k => k.etternavn).ToList();
+                    return View("../user/stemmeseddelPersonvalgEng", tabell2);
+
+                }
+
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult stemmeseddelPersonvalg(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<PersonvalgStemmer> tabell = db.hentPersonvalg(id);
+                    List<PersonvalgStemmer> tabell2 = tabell.OrderByDescending(k => k.etternavn).ToList();
+                    return View(tabell2);
+
+                }
+
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult stemmeseddelVoteringEng(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Votering> tabell = db.hentVoteringer(id);
+                    return View("../user/stemmeseddelVoteringEng", tabell);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult stemmeseddelVotering(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Votering> tabell = db.hentVoteringer(id);
+                    return View(tabell);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult StemmesedlerEng(String valgtype, int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    if (valgtype == "Votering")
+                    {
+                        return RedirectToAction("stemmeseddelVoteringEng", new { id = valgtypeid });
+                    }
+                    else if (valgtype == "Personvalg")
+                    {
+                        return RedirectToAction("stemmeseddelPersonvalgEng", new { id = valgtypeid });
+                    }
+
+                }
+
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult Stemmesedler(String valgtype, int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    if (valgtype == "Votering")
+                    {
+                        return RedirectToAction("stemmeseddelVotering", new { id = valgtypeid });
+                    }
+                    else if (valgtype == "Personvalg")
+                    {
+                        return RedirectToAction("stemmeseddelPersonvalg", new { id = valgtypeid });
+                    }
+
+                }
+
+            }
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult PersonvalgResultat_2Eng(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<PersonvalgKandidatResultat> tabell = db.hentPersonvalgResultatFane(id);
+                    var tabell2 = tabell.OrderByDescending(i => i.stemmer).ToList();
+
+                    return View("../user/PersonvalgResultat_2Eng", tabell2);
+                }
+            }
+
+            return RedirectToAction("IndexEng");
+
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult PersonvalgResultat_2(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<PersonvalgKandidatResultat> tabell = db.hentPersonvalgResultatFane(id);
+                    var tabell2 = tabell.OrderByDescending(i => i.stemmer).ToList();
+
+                    return View(tabell2);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+
+        }
+        [Authorize(Roles = "true")]
+        // Hent Resultat
+        public ActionResult ResultatVoteringID_2Eng(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    Valgtyper Valg = db.hentValg(id);
+                    return View("../user/ResultatVoteringID_2Eng", Valg);
+                }
+            }
+
+            return RedirectToAction("IndexEng");
+
+        }
+        [Authorize(Roles = "true")]
+        // Hent Resultat
+        public ActionResult ResultatVoteringID_2(int id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    Valgtyper Valg = db.hentValg(id);
+                    return View(Valg);
+                }
+            }
+
+            return RedirectToAction("Index");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult HentResultatKnapp(String valgtype, int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    if (valgtype == "Votering")
+                    {
+                        return RedirectToAction("ResultatVoteringID_2", new { id = valgtypeid });
+
+                    }
+                    else if (valgtype == "Personvalg")
+                    {
+                        return RedirectToAction("PersonvalgResultat_2", new { id = valgtypeid });
+                    }
+
+                }
+
+
+                return RedirectToAction("HentResultat");
+            }
+
+
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult HentResultatKnappEng(String valgtype, int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    if (valgtype == "Votering")
+                    {
+                        return RedirectToAction("ResultatVoteringID_2Eng", new { id = valgtypeid });
+
+                    }
+                    else if (valgtype == "Personvalg")
+                    {
+                        return RedirectToAction("PersonvalgResultat_2Eng", new { id = valgtypeid });
+                    }
+
+                }
+
+
+                return RedirectToAction("HentResultatEng");
+            }
+
+
+            return RedirectToAction("IndexEng");
+        }
+
         // BrukertestForbedring
         [Authorize(Roles = "true")]
         public void LeggTilMeldingVotering(string id)
@@ -1926,8 +3790,23 @@ namespace Studentparlamentet_28.Controllers
           return RedirectToAction("Index");
 
       }
-    
-      [Authorize(Roles = "true")]
+        [Authorize(Roles = "true")]
+        public ActionResult HentResultatEng()
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    List<Valgtyper> listeValg = db.hentValgTyper();
+                    return View("../user/HentResultatEng", listeValg);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
       public ActionResult HentResultat()
       {
           if (Session["LoggetInn"] != null)

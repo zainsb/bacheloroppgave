@@ -12,6 +12,32 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+        public List<Stemmeseddel> preferansevalgsedler (int id)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.preferansevalgsedler(id);
+        }
+        public PersonvalgResultat hentinfoPersonvalg(int id)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentinfoPersonvalg(id);
+
+        }
+        public string valgtype(int id)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.valgtype(id);
+        }
+        public List<PersonvalgStemmer> hentPersonvalg(int id)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentPersonvalg(id);
+        }
+        public List<Votering> hentVoteringer(int id)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.hentVoteringer(id);
+        }
 
         public bool slettForhåndslagredePreferanseValg(int id)
         {

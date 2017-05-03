@@ -31,6 +31,52 @@
                 }
             });
         }
+        function skrivfil(id)
+        {
+           
+            if (id > 1)
+            {
+
+            
+                var valgtypeider = new Array();
+                var valgtypeiderstemmeseddel = new Array();
+                for(i = 1; i < id; i++)
+                {
+                    if ($("#valgtypeID" + i).is(':checked')) //sjekker om valget er checked
+                    {
+                        valgtypeid = $('#valgtypeID' + i).val(); // henter ut valgtypeID til checkboxen
+                        valgtypeider[i] = valgtypeid;// legger den i arrayet
+           
+
+                    }
+                    if ($("#valgtypeIDstemmeseddel" + i).is(':checked')) //sjekker om valget er checked
+                    {
+                        valgtypeid = $('#valgtypeIDstemmeseddel' + i).val(); // henter ut valgtypeID til checkboxen
+                        valgtypeiderstemmeseddel[i] = valgtypeid;// legger den i arrayet
+
+
+                    }
+                                  
+                }
+                $.ajax({
+                    type: "POST",
+                    data: { valgider: valgtypeider, valgiderstemmeseddel: valgtypeiderstemmeseddel },
+                    url: '/Bruker/LastNedResultat',
+                  
+                    success: function (data) {
+                        window.location = '@Url.Action("LastNedResultatStemmesedler", "Bruker")';
+                    },
+                    error: function (x, y, z) {
+                    }
+                });
+                // Starter funksjon i brukercontroll LastNedResultat
+                
+  
+    
+                
+            }
+            
+        }
     </script>
 </head>
 <body>
@@ -44,7 +90,7 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <!--<li><a href="@Url.Action("HentResultatEng", "Bruker")">English</a></li>-->
+                    <li><a href="@Url.Action("HentResultatEng", "Bruker")">English</a></li>
                 </ul>
             </div>
         </div>
@@ -58,17 +104,23 @@
                         <th>
                             Type valg
                         </th>
+                        <th width="150">
+                            Antall Stemt /<br />
+                            Antall valgdeltagere
+                        </th>
+    
                         <th>
-                            Antall Stemt
+                            Legg til resultat PDF
                         </th>
                         <th>
-                            Legg til PDF
+                            Legg til stemmeseddel PDF
                         </th>
                         <th></th>
                     </tr>
                 </thead>
 
                 <tbody class="table-bordered">
+                  
                     @{int i = 1;}
                     @foreach (var item in Model)
                     {
@@ -76,26 +128,32 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.valgtype)
                             </td>
-                            <td>
+                            <td style="text-align:center">
                                 @Html.HiddenFor(modelItem => item.valgtypeid, new { id = "HiddenID" + @i })
                                 <div id="@("divStemt"+i)"></div>
                                 
                             </td>
                             <td>
                                 @Html.CheckBox("valgtypeID"+ @i, new { value = item.valgtypeid, @checked = false })
-
                             </td>
                             <td>
-                                @Html.ActionLink("Resultat", "Resultat", new { tom = "" }, new { @class = "btn btn-danger" })
+                                @Html.CheckBox("valgtypeIDstemmeseddel" + @i, new { value = item.valgtypeid, @checked = false })
+                            </td>
+                            <td>
+                                @Html.ActionLink("Resultat", "HentResultatKnapp", new { valgtype = item.valgtype, valgtypeid = item.valgtypeid }, new { @class = "btn btn-info" })
+                            </td>
+                            <td>
+                                @Html.ActionLink("Se Stemmesedler", "Stemmesedler", new { valgtype = item.valgtype, valgtypeid = item.valgtypeid }, new { @class = "btn btn-info" })
                             </td>
                         </tr>
                         i++;
                     }
                 </tbody>
             </table>
+        
         </div>
-
-        @Html.ActionLink("Last ned PDF", "LastNedListe", new { tom = "" }, new { @class = "btn btn-success" })
+        <button type="button" id="@i" class="btn btn-success" onclick="skrivfil(this.id)" >Last ned PDF</button>
+     
 
     </div>
     <br />

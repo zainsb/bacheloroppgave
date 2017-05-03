@@ -1,0 +1,60 @@
+﻿@model List<Studentparlamentet_28.Models.PersonvalgKandidatResultat>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  
+    <div class="col-sm-12" align="center" id="PersonvalgResultat">
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+            </div>
+            <div class="form-inline" style="float:right;">
+                @Html.ActionLink("Back", "HentResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+                <div class="dropdown" style="float:right;">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        English
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("PersonvalgResultat_2", "Bruker")">Norsk</a></li>
+                    </ul>
+                </div>
+            </div>
+            <br />
+            <h1>Result in chronological order</h1>
+            <br /><br />
+            <div id="PersonvalgResultatContainer">
+                @foreach (var item in Model)
+            {
+
+                    <ul class="list-group" id="ListeResultat" align="center">
+
+                        <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Candidate</h3></li>
+                        <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</b></h1></li>
+                        <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Number of votes</h3></li>
+                        <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.stemmer)</b></h1></li>
+                        
+                    </ul>
+
+
+                }
+            </div>
+        </div>
+
+   
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

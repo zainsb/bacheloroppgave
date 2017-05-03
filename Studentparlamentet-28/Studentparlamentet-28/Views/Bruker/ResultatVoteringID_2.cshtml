@@ -1,0 +1,187 @@
+﻿@model Studentparlamentet_28.Models.Valgtyper
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+          
+            $.ajax({
+                url: '@Url.Action("finnesdetvalg_ID", "Bruker", new { id = Model.valgtypeid })',
+                success: function (data) {
+                    //== true - kjør koden
+                    if (data == "true")
+                    {
+                        // hent prosent For
+                        $.ajax({
+                            url: '@Url.Action("prosentFor_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+
+                                if (data > 0)
+                                {
+                                    // legger prosent ut i prossessbar
+                                    var elem = document.getElementById("forBar");
+                                    var width = 1;
+                                    var prosentfor = data;
+                                    var id = setInterval(frame, 1);
+                                    function frame() {
+                                        if (width >= data) {
+                                            clearInterval(id);
+                                        } else {
+                                            width++;
+                                            elem.style.width = width + '%';
+                                            elem.innerHTML = prosentfor + '%';
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        });
+                        // hent prosent mot
+                        $.ajax({
+                            url: '@Url.Action("prosentMot_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+                                if (data > 0)
+                                {
+                                    // legger prosent ut i prossessbar
+                                    var elem = document.getElementById("motBar");
+                                    var width = 1;
+                                    var prosentmot = data;
+                                    var id = setInterval(frame, 1);
+                                    function frame() {
+                                        if (width >= data) {
+                                            clearInterval(id);
+                                        } else {
+                                            width++;
+                                            elem.style.width = width + '%';
+                                            elem.innerHTML = prosentmot + '%';
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        });
+                        // hent prosent blank
+                        $.ajax({
+                            url: '@Url.Action("prosentBlank_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+                                if (data > 0)
+                                {
+                                    // legger prosent ut i prossessbar
+                                    var elem = document.getElementById("blankBar");
+                                    var width = 1;
+                                    var prosentblank = data;
+                                    var id = setInterval(frame, 1);
+                                    function frame() {
+                                        if (width >= data) {
+                                            clearInterval(id);
+                                        } else {
+                                            width++;
+                                            elem.style.width = width + '%';
+                                            elem.innerHTML = prosentblank + '%';
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        });
+                        // hent antall for
+                        $.ajax({
+                            url: '@Url.Action("antallForDiv_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#antallfor').html(data);
+                            }
+                        });
+                        // hent antall mot
+                        $.ajax({
+                            url: '@Url.Action("antallMotDiv_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#antallmot').html(data);
+                            }
+                        });
+                        // hent antall blank
+                        $.ajax({
+                            url: '@Url.Action("antallBlankDiv_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#antallblank').html(data);
+                            }
+                        });
+                        // hent vinner
+                        $.ajax({
+                            url: '@Url.Action("vinnerVotering_ID", "Bruker", new { id = Model.valgtypeid })',
+                            success: function (data) {
+                                // legger antall i div
+                                $('#vinner').html(data);
+                            }
+                        });
+                        // hent antallstemte
+                    }
+                    else
+                    {
+                        //== false - ikke kjør koden
+                    }
+                }
+            });
+
+
+            });
+    </script>
+</head>
+
+<body>
+    <div class="col-sm-12" id="LoginFormResultatVotering">
+        <div class="form-inline" style="float:left;">
+            @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        </div>
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "HentResultat", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+
+        </div>
+        <br /><br />
+        <div class="containerVotering">
+            <div id="forProgress">
+                <h3>For stemmer</h3>
+                <div id="forBar">0%</div>
+            </div>
+            <div id="motProgress">
+                <h3>Mot stemmer</h3><div id="motBar">0%</div>
+            </div>
+
+            <div id="blankProgress">
+                <h3>Blanke stemmer</h3><div id="blankBar">0%</div>
+            </div>
+
+        </div>
+
+
+
+
+        <div>
+
+
+
+
+
+
+
+            <div id="msg">
+                <h1>Vinner </h1><h1 id="vinner"></h1>
+                <div><h3>Antall For stemmer</h3></div><div id="antallfor"></div>
+                <div><h3>Antall Mot stemmer</h3></div><div id="antallmot"></div>
+                <div><h3>Antall Blanke stemmer</h3></div><div id="antallblank"></div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</body>
+</html>

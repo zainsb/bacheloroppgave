@@ -1,0 +1,96 @@
+﻿@model List<Studentparlamentet_28.Models.Votering>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+ 
+
+</head>
+<body>
+    <div class="col-sm-12" id="box2">
+        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "HentResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        </div>
+
+        <br /><br />
+        <h2><b>An overview of all voteslips</b></h2>
+        @if (Model.Count > 0)
+        {
+            <h3>
+                Vote with Votingnumber @Html.DisplayFor(model => Model[0].valgtypeid)
+            </h3>
+            <br /><br />
+        }
+        else
+        {
+            <h3>Vote</h3>
+            <br /><br />
+
+        }
+        <div id="tableHentResultat">
+            <table class="table  table-responsive table-scrollable" id="tableID">
+                <thead class="thead-default">
+                    <tr>
+                        <th>
+                           Voteslip
+                        </th>
+                        <th>
+                            For votes
+                        </th>
+                        <th>
+                            Against votes
+                        </th>
+                        <th>
+                            Blank votes
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="table-bordered">
+                    @{int i = 1;}
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @i
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.svarfor)
+                            </td>
+                            <td>
+                              @if(item.svarmot == "mot")
+                              {
+                                  <p>against</p>
+                              }
+                              else
+                              {
+                                @Html.DisplayFor(modelItem => item.svarmot)
+                              }
+                              
+                            </td>
+                            <td>
+                                @if (item.svarmot == "blank")
+                                {
+                                    <p>blank</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.svarblank)
+                                }
+                               
+                            </td>
+
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+   </div>
+
+
+
+    </div>
+    <br />
+</body>
+</html>
