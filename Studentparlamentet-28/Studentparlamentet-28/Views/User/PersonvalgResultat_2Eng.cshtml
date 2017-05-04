@@ -13,15 +13,6 @@
             </div>
             <div class="form-inline" style="float:right;">
                 @Html.ActionLink("Back", "HentResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-                <div class="dropdown" style="float:right;">
-                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                        English
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="@Url.Action("PersonvalgResultat_2", "Bruker")">Norsk</a></li>
-                    </ul>
-                </div>
             </div>
             <br />
             <h1>Result in chronological order</h1>
@@ -32,10 +23,10 @@
 
                     <ul class="list-group" id="ListeResultat" align="center">
 
-                        <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Candidate</h3></li>
-                        <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</b></h1></li>
-                        <li class="list-group-item" style="background-color:cornflowerblue"><h3 style="color: white">Number of votes</h3></li>
-                        <li class="list-group-item"><h1><b>@Html.DisplayFor(modelItem => item.stemmer)</b></h1></li>
+                        <li style="list-style-type: none;"><h3>Candidate</h3></li>
+                        <li style="list-style-type: none;"><h1><b>@Html.DisplayFor(modelItem => item.fornavn) @Html.DisplayFor(modelItem => item.etternavn)</b></h1></li>
+                        <li style="list-style-type: none;"><h3>Number of votes</h3></li>
+                        <li style="list-style-type: none;"><h1><b>@Html.DisplayFor(modelItem => item.stemmer)</b></h1></li>
                         
                     </ul>
 

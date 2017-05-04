@@ -1,0 +1,127 @@
+﻿@model Studentparlamentet_28.Models.Preferansevalg
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+
+        $(function () {
+
+            //Skal kalle på hentAlleValgteKandidater metoden her
+            $.ajax({
+                url: '/Bruker/hentValgteKandidater',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (alleKandidater) {
+                    if(alleKandidater == null)
+                    {
+                        $("#testforelopig").html("Lista var tom");
+                    }
+                    else {
+                        visListe(alleKandidater);
+                    }
+                }
+            });
+
+            //Henter inn beskrivelse for preferansevalget
+            $.ajax({
+                url: '/Bruker/hentPrefereransevalgDetaljer',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (valg) {
+                    $("#beskrivelsePreferansevalg").append(valg.beskrivelse);
+                }
+            });
+
+            //Henter inn antallet som deltok
+            $.ajax({
+                url: '/Bruker/antallDeltokIPreferansevalg',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (antallDeltakere) {
+                    $("#antallDeltakerePreferansevalg").html(antallDeltakere);
+                }
+            });
+
+            //Henter inn antall kandidater for valget
+            $.ajax({
+                url: '/Bruker/antallKandidaterIPreferansevalg',
+                data: { valgtypeid: @Model.valgtypeid },
+                type: 'GET',
+                dataType: 'json',
+                success: function (antallKandidater) {
+                    $("#antallKandidaterPreferansevalg").html(antallKandidater);
+                }
+            });
+
+
+        }) //Her stopper function()
+
+        function visListe(alleKandidater) {
+            var utskrift = "";
+            for (var i in alleKandidater) {
+                utskrift += "<li class='list-group-item' style='text-align:center'>"+ alleKandidater[i].navn + "</li>";
+            }
+
+            $("#listeValgt").append(utskrift);
+        }
+
+    </script>
+</head>
+<body>
+
+    <div class="col-sm-12" id="containerSTVBruker">
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Tilbake", "HentResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+        </div>
+
+        <br /><br />
+        <center><h2>Single Tranferable Vote result</h2></center>
+
+        <br />
+        <div class="alert alert-success">
+            <center><h4>Elected representatives</h4></center><br />
+            <div id="divListeValg"><ul class="list-group" id="listeValgt"></ul></div>
+            <br />
+            <div class="col-sm-12"><hr id="hrSTV" /></div>
+            <br />
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-lg-10 pull-left">
+                        <p id="beskrivelsePreferansevalg"><b>Description:</b>&nbsp;&nbsp;</p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-lg-4 pull-left">
+                        <p><b>Votes</b></p>
+                        <div id="antallDeltakerePreferansevalg" class="col-lg-offset-2"></div>
+                    </div>
+                    <div class="col-lg-4 pull-left">
+                        <p><b>Participating</b></p>
+                        <div id="antallKandidaterPreferansevalg" class="col-lg-offset-3"></div>
+                    </div>
+
+                </div>
+            </div>
+            <br /><br />
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-lg-4 pull-left">
+                        @Html.ActionLink("Download PDF", "ResultatPreferansevalgTilPDF", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-success" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+    </div>
+</body>
+</html>

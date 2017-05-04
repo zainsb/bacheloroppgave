@@ -14,15 +14,6 @@
         @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
             @Html.ActionLink("Back", "HentResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
-            <div class="dropdown" style="float:right;">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                    Norsk
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("StemmesedlerPreferansevalg", "Bruker")">Norsk</a></li>
-                </ul>
-            </div>
         </div>
         <br /><br />
 

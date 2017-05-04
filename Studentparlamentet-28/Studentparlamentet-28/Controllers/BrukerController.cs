@@ -1890,7 +1890,7 @@ namespace Studentparlamentet_28.Controllers
                     }
                     else if (valgtype == "Preferansevalg")
                     {
-                        return RedirectToAction("ResultatPreferansevalg", new { valgtypeid = valgtypeid });
+                        return RedirectToAction("ResultatPreferansevalg2", new { valgtypeid = valgtypeid });
                     }
 
                 }
@@ -1920,7 +1920,7 @@ namespace Studentparlamentet_28.Controllers
                     }
                     else if(valgtype == "Preferansevalg")
                     {
-                        return RedirectToAction("ResultatPreferansevalgEng", new { valgtypeid = valgtypeid });
+                        return RedirectToAction("ResultatPreferansevalgEng2", new { valgtypeid = valgtypeid });
                     }
 
                 }
@@ -2223,7 +2223,21 @@ namespace Studentparlamentet_28.Controllers
             return "feil";
 
         }
-        
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatPreferansevalg2(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+                return View(valg);
+            }
+            else
+            {
+                return RedirectToAction("index");
+            }
+        }
+
         [Authorize(Roles = "true")]
         public ActionResult ResultatPreferansevalg(int valgtypeid)
         {
@@ -2236,6 +2250,20 @@ namespace Studentparlamentet_28.Controllers
             else
             {
                 return RedirectToAction("index");
+            }
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult ResultatPreferansevalgEng2(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                var db = new BrukerBLL();
+                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
+                return View("../User/ResultatPreferansevalgEng2", valg);
+            }
+            else
+            {
+                return RedirectToAction("indexEng");
             }
         }
         [Authorize(Roles = "true")]
@@ -3639,11 +3667,11 @@ namespace Studentparlamentet_28.Controllers
                     string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
                     var db = new BrukerBLL();
                     var loggut = db.logg_ut_bruker(id);
-                    return View();
+                    return View("../User/IndexEng");
                 }
                 else
                 {
-                    return View();
+                    return View("../User/IndexEng");
                 }
             }
             else
@@ -4157,6 +4185,28 @@ namespace Studentparlamentet_28.Controllers
             }
 
             return RedirectToAction("Index");
+
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult LoggUtBrukerEng(String id)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    var db = new BrukerBLL();
+                    bool ok = db.loggUtBruker(id);
+                    if (ok)
+                    {
+                        return RedirectToAction("VisListeEng");
+                    }
+                    return RedirectToAction("LeggTilBrukerEng");
+                }
+            }
+
+            return RedirectToAction("IndexEng");
 
         }
         [Authorize(Roles = "true")]
