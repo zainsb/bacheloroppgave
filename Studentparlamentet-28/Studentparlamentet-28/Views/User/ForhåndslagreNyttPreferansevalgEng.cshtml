@@ -9,6 +9,17 @@
         //Hjelpevariabler
 
         $(function () {
+            //Kvotering
+            var klasse1 = "";
+            var klasse2 = "";
+            var klasse1Prosent = 0;
+            var klasse2Prosent = 0;
+
+            $("#dropdownDiv").hide();
+            $("#divKlasse1").hide();
+            $("#divKlasse2").hide();
+            $("#btnKlasser").hide();
+
             var valgid = 0;
             var valgidtype = $("#hiddenValgtypeid").val();
             var antallKandidaterIListe = @Model.Count();
@@ -37,18 +48,58 @@
                 });
             });
 
-            //Lagrer kandidat i db og legger til en ny rad
             $("#btnLeggTilKandidat").click(function () {
                 var navn = $('#kandidatNavn').val(); //Henter inn data fra felt
-                leggTilRad(navn);
+                var klasseValgt = $("#dropdown1 option:selected").text();
+                leggTilRad(navn, klasseValgt);
             });
+
+            //-----NY LEGG TIL KLASSER
+            $("#btnKlasser").click(function() {
+                //Henter inn values fra alle inputfeltene
+                klasse1 = $("#klasseEnId").val();
+                klasse2 = $("#klasseToId").val();
+                klasse1Prosent = $("#klasseEnProsentId").val();
+                klasse2Prosent = $("#klasseToProsentId").val();
+
+                localStorage.setItem("klasseEN", klasse1);
+                localStorage.setItem("klasseTO", klasse2);
+                localStorage.setItem("klasseENProsent", klasse1Prosent);
+                localStorage.setItem("klasseTOProsent", klasse2Prosent);
+
+                $("#divKlasse1").hide();
+                $("#divKlasse2").hide();
+                $("#btnKlasser").hide();
+                fyllDropDown(klasse1, klasse2);
+                $("#dropdownDiv").show();
+
+            });
+
+            if(localStorage.getItem("klasseEN") != null && localStorage.getItem("klasseTO") != null
+               && localStorage.getItem("klasseENProsent") != null && localStorage.getItem("klasseTOProsent") != null)
+            {
+                klasse1 = localStorage.getItem("klasseEN");
+                klasse2 = localStorage.getItem("klasseTO");
+                klasse1Prosent = localStorage.getItem("klasseENProsent");
+                klasse2Prosent = localStorage.getItem("klasseTOProsent");
+
+                fyllDropDown(localStorage.getItem("klasseEN"), localStorage.getItem("klasseTO"));
+                $("#dropdownDiv").show();
+            }
+
 
             //Lagre preferansevalg
             $("#btnLagreSTV").click(function () {
                 var beskrivelse = $('#BeskrivelseSTV').val(); //Henter inn data fra felt
                 var antallRepresentanter = $("#antRepresentanter").val();
-                var antallVaraRepresentanter = $("#antVaraRepresentanter").val();
-                var grenseAntallVara = @Model.Count() - antallRepresentanter;
+                
+                if(klasse1 == ""){
+                    klasse1 = "tom";
+                }
+
+                if(klasse2 == ""){
+                    klasse2 = "tom";
+                }
 
                 $("#divLagreFeilmld").hide();
                 $("#divLagreFeilTxt").hide();
@@ -82,28 +133,6 @@
                     $("#divLagreFeilTxt").html("Error, try again.");
                     $("#divFeilRepLagre").html("<p style='color: red;'>Has to be a number</p>");
                 }
-                else if(antallVaraRepresentanter == ""){
-                    if(beskrivelse == ""){
-                        $("#divFeilmld").show();
-                        $("#divFeilTxt").html("Error, try again.");
-                        $("#divFeilBeskrivelse").html("<p style='color: red;'>*Fill in</p>");
-                    }
-                    antallRepresentanter = "-";
-                    $("#divFeilmld").show();
-                    $("#divFeilTxt").html("Error, please try again.");
-                    $("#divFeilVaraRep").html("<p style='color: red;'>*Fill in</p>");
-                }
-                else if(isNaN(antallVaraRepresentanter))
-                {
-                    $("#divFeilmld").show();
-                    $("#divFeilTxt").html("Error, please try again.");
-                    $("#divFeilVaraRep").html("<p style='color: red;'>*Has to be a number</p>");
-                }
-                else if(antallVaraRepresentanter > grenseAntallVara){
-                    $("#divFeilmld").show();
-                    $("#divFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
-                    $("#divFeilVaraRep").html("<p style='color: red;'>*Unvalid number, try again.</p>");
-                }
                 else if(isNaN(antallRepresentanter))
                 {
                     $("#divFeilmld").show();
@@ -116,7 +145,10 @@
                         data: {
                             beskrivelse: beskrivelse,
                             antallRepresentanter: antallRepresentanter,
-                            antallVaraRepresentanter: antallVaraRepresentanter
+                            klasse1: klasse1,
+                            klasse2: klasse2,
+                            prosent1: klasse1Prosent,
+                            prosent2: klasse2Prosent
                         },
                         type: 'GET',
                         dataType: 'json',
@@ -126,6 +158,12 @@
                                 $("#divLagreFeilTxt").hide();
                                 $("#divFeilRepLagre").html(" ");
                                 $("#divFeilBeskrivelseLagre").html(" ");
+
+                                localStorage.setItem("klasseEN", "");
+                                localStorage.setItem("klasseTO", "");
+                                localStorage.setItem("klasseENProsent", 0);
+                                localStorage.setItem("klasseTOProsent", 0);
+                                $("#dropdownDiv").hide();
 
                                 window.location = "@Url.Action("ForhåndslagredePreferansevalgEng", "Bruker")";
                             }
@@ -154,11 +192,14 @@
 
 
         //Funksjon som legger til kandidater fortløpende
-        function leggTilRad(navn) {
+        function leggTilRad(navn, klasse) {
 
             $.ajax({
                 url: '/Bruker/lagreKandidatIListe',
-                data: { id: navn },
+                data: {
+                    id: navn,
+                    klasse: klasse
+                },
                 type: 'GET',
                 dataType: 'json',
                 success: function (melding) {
@@ -168,12 +209,36 @@
                     }
                     else if(melding == "Samme navn")
                     {
-                        $('#modalFeilLagre').modal('show');
+                        $('#modalFeil').modal('show');
                     }
                 },
                 error: function (x, y, z) {
                 }
             });
+        }
+
+        function fyllDropDown(klasse1, klasse2) {
+            var utskrift = "";
+
+            utskrift += "<option value='" + 1 + "'>" + klasse1 + "</option>";
+            utskrift += "<option value='" + 2 + "'>" + klasse2 + "</option>";
+            $("#dropdown1").append(utskrift);
+
+        }
+
+        function visKlasseSkjema(){
+            if($("#checkbox_id").is(':checked')){
+                $("#divKlasse1").show();  // checked
+                $("#divKlasse2").show();
+                $("#btnKlasser").show();
+            }
+            else
+            {
+                $("#divKlasse1").hide();
+                $("#divKlasse2").hide();
+                $("#btnKlasser").hide();
+                $("#dropdownDiv").hide();
+            }
         }
 
     </script>
@@ -199,6 +264,48 @@
         <p class="text-info">Here you can register a S.T.V that you will run in the meeting</p>
         <br />
         <div class="form-horizontal">
+            <div class="form-group form-inline">
+                <div class="row col-sm-12">
+                    <div class="col-sm-4">
+                        <label for="checkbox_id">Quotas&nbsp;&nbsp;</label>
+                        <input type="checkbox" name="checkbox" id="checkbox_id" value="value" onclick="visKlasseSkjema();">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline" id="divKlasse1">
+                <div class="row col-sm-12">
+                    <div class="col-sm-5">
+                        <label for="klasseEnId">Class: &nbsp;&nbsp;</label>
+                        <input type="text" name="klasse1" id="klasseEnId" />
+                        <p>&nbsp;&nbsp;</p>
+                    </div>
+                    <div class="col-sm-1">
+                        <div class="col-sm-3">
+                            <input type="text" style="width: 35px;" name="klasse1Prosent" id="klasseEnProsentId" placeholder="%" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-inline" id="divKlasse2">
+                <div class="row col-sm-12">
+                    <div class="col-sm-5">
+                        <label for="klasseEnId">Class: &nbsp;&nbsp;</label>
+                        <input type="text" name="klasse2" id="klasseToId" />
+                        <p>&nbsp;&nbsp;</p>
+                    </div>
+                    <div class="col-sm-1">
+                        <div class="col-sm-3">
+                            <input type="text" style="width: 35px;" name="klasse2Prosent" id="klasseToProsentId" placeholder="%" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input type="button" name="btnLeggTilKlasser" id="btnKlasser" value="Add classes" />
+
+
+            <div class="col-sm-12"><hr id="hrSTV" /></div>
+
         <div class="form-group form-inline">
                 <div class="row">
                     <div class="col-sm-8">
@@ -283,19 +390,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group form-inline">
-                <div class="row col-sm-11">
-                    <div class="col-sm-4">
-                        <label for="antVaraRepresentanter">Deputy representatives</label>
-                    </div>
-                    <div class="col-sm-2">
-                        <input type="text" class="form-control" id="antVaraRepresentanter" />
-                    </div>
-                    <div class="col-sm-5" id="divFeilVaraRep">
-
-                    </div>
-                </div>
-            </div>
+            
             <div class="form-group">
                 <div class="row">
                     <div class="col-sm-4"></div>

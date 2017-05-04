@@ -10,8 +10,9 @@ namespace Studentparlamentet_28.Models
     {
         public int kandidatListeID { get; set; }
         public string navn { get; set; }
-        public int stemmetall { get; set; }
+        public double stemmetall { get; set; }
         public bool stemmetallsatt { get; set; }
+        public string klasse { get; set; }
         public int valgtypeid { get; set; }
     }
 }

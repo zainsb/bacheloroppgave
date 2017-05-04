@@ -124,10 +124,11 @@
             <div class="form-group form-inline">
                 <div class="row col-sm-12">
                     <div class="col-lg-4 pull-left">
-                        @Html.ActionLink("Vis valgte Varaer", "VisVaraResultatPreferansevalg", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("Last ned PDF", "ResultatPreferansevalgTilPDF", new { valgtypeid = Model.valgtypeid }, new { @class = "btn btn-success" })
                     </div>
                 </div>
             </div>
+            <br /><br />
         </div>
 
         <br />

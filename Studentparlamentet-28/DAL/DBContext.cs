@@ -124,8 +124,13 @@ namespace Studentparlamentet_28.DAL
         public int Id { get; set; }
         public string Beskrivelse { get; set; }
         public int AntallRepresentanter { get; set; }
-        public int AntallVaraRepresentanter { get; set; }
+        
         public bool Utført { get; set; }
+        public string KvoteKlasseEn { get; set; }
+        public string KvoteKlasseTo { get; set; }
+        public int KlasseEnProsent { get; set; }
+        public int KlasseToProsent { get; set; }
+
         public int ValgtypeID { get; set; }
     }
 
@@ -135,8 +140,9 @@ namespace Studentparlamentet_28.DAL
         [Key]
         public int KandidatID { get; set; }
         public string Navn { get; set; }
-        public int Stemmetall { get; set; }
+        public double Stemmetall { get; set; }
         public bool StemmetallSatt { get; set; }
+        public string Klasse { get; set; }
         public int ValgtypeID { get; set; }
     }
 
@@ -165,8 +171,9 @@ namespace Studentparlamentet_28.DAL
         [Key]
         public int VaraKandidatID { get; set; }
         public string Navn { get; set; }
-        public int Stemmetall { get; set; }
+        public double Stemmetall { get; set; }
         public bool StemmetallSatt { get; set; }
+        public string Klasse { get; set; }
         public int ValgtypeID { get; set; }
     }
     public class PreferansevalgValgt_db

@@ -40,6 +40,7 @@
                 success: function (kandidater) {
                     for (var i = 0; i < kandidater.length; i++) {
                         hjelpeTeller++;
+                        hjelpeArray.push(kandidater[i]);
                     }
                     VisDropDown(kandidater);
                 },
@@ -152,24 +153,13 @@
             for (var i in kandidater) {
                 utskrift += "<option value='" + kandidater[i].kandidatListeID + "'>" + kandidater[i].navn + "</option>";
             }
+
             $("#drop1").append(utskrift);
 
-            $("#drop2").append(utskrift);
-            $("#drop3").append(utskrift);
-            $("#drop4").append(utskrift);
-            $("#drop5").append(utskrift);
-            $("#drop6").append(utskrift);
-            $("#drop7").append(utskrift);
-            $("#drop8").append(utskrift);
-            $("#drop9").append(utskrift);
-            $("#drop10").append(utskrift);
-            $("#drop11").append(utskrift);
-            $("#drop12").append(utskrift);
         }
 
         //disable alle dropdownene fra 2 og oppover
-        function disableSelects()
-        {
+        function disableSelects() {
             $('#drop2').attr("disabled", true);
             $('#drop3').attr("disabled", true);
             $('#drop4').attr("disabled", true);
@@ -187,54 +177,453 @@
         function LeggTilEnTil(teller) {
             var i = 6;
             while (i <= teller) {
-                $("#hiddenDrop"+i).show();
+                $("#hiddenDrop" + i).show();
                 i++;
             }
         }
 
+        var bool1 = false;
         function visDrop2() {
             $('#drop2').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
 
+            if (bool1 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool1 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#teston").html("Test navn: 1. " + navn1);
+            $("#drop2").html(utskrift);
         }
+
+        var bool2 = false;
         function visDrop3() {
             $('#drop3').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+
+            if (bool2 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool2 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+
+            $("#drop3").html(utskrift);
 
         }
+        var bool3 = false
         function visDrop4() {
             $('#drop4').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+
+            if (bool3 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool3 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop4").html(utskrift);
 
         }
+        var bool4 = false;
         function visDrop5() {
             $('#drop5').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
 
+            if (bool4 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool4 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop5").html(utskrift);
         }
+        var bool5 = false;
         function visDrop6() {
             $('#drop6').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
 
+            if (bool5 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool5 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5)  {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop6").html(utskrift);
         }
+        var bool6 = false;
         function visDrop7() {
             $('#drop7').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
+            var navn6 = $("#drop6 option:selected").text();
 
+            if (bool6 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool6 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop7").html(utskrift);
         }
+        var bool7 = false;
         function visDrop8() {
             $('#drop8').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
+            var navn6 = $("#drop6 option:selected").text();
+            var navn7 = $("#drop7 option:selected").text();
 
+            if (bool7 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool7 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop8").html(utskrift);
         }
+        var bool8 = false;
         function visDrop9() {
             $('#drop9').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
+            var navn6 = $("#drop6 option:selected").text();
+            var navn7 = $("#drop7 option:selected").text();
+            var navn8 = $("#drop8 option:selected").text();
 
+            if (bool8 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool8 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop9").html(utskrift);
         }
+        var bool9 = false;
         function visDrop10() {
             $('#drop10').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
+            var navn6 = $("#drop6 option:selected").text();
+            var navn7 = $("#drop7 option:selected").text();
+            var navn8 = $("#drop8 option:selected").text();
+            var navn9 = $("#drop9 option:selected").text();
 
+            if (bool9 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8
+                        && hjelpeArray[i].navn != navn9) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool9 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8
+                        && hjelpeArray[i].navn != navn9) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop10").html(utskrift);
         }
+        var bool10 = false;
         function visDrop11() {
             $('#drop11').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
+            var navn6 = $("#drop6 option:selected").text();
+            var navn7 = $("#drop7 option:selected").text();
+            var navn8 = $("#drop8 option:selected").text();
+            var navn9 = $("#drop9 option:selected").text();
+            var navn10 = $("#drop10 option:selected").text();
 
+            if (bool10 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8
+                        && hjelpeArray[i].navn != navn9 && hjelpeArray[i].navn != navn10) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool10 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8
+                        && hjelpeArray[i].navn != navn9 && hjelpeArray[i].navn != navn10) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop11").html(utskrift);
         }
+        var bool11 = false;
         function visDrop12() {
             $('#drop12').attr("disabled", false);
+            var navn1 = $("#drop1 option:selected").text();
+            var navn2 = $("#drop2 option:selected").text();
+            var navn3 = $("#drop3 option:selected").text();
+            var navn4 = $("#drop4 option:selected").text();
+            var navn5 = $("#drop5 option:selected").text();
+            var navn6 = $("#drop6 option:selected").text();
+            var navn7 = $("#drop7 option:selected").text();
+            var navn8 = $("#drop8 option:selected").text();
+            var navn9 = $("#drop9 option:selected").text();
+            var navn10 = $("#drop10 option:selected").text();
+            var navn11 = $("#drop11 option:selected").text();
 
+            if (bool11 == false) {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8
+                        && hjelpeArray[i].navn != navn9 && hjelpeArray[i].navn != navn10 && hjelpeArray[i].navn != navn11) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+                bool11 = true;
+            }
+            else {
+                var arrayKandidater = new Array();
+                for (var i = 0; i < hjelpeArray.length; i++) {
+                    if (hjelpeArray[i].navn != navn1 && hjelpeArray[i].navn != navn2 && hjelpeArray[i].navn != navn3 && hjelpeArray[i].navn != navn4
+                        && hjelpeArray[i].navn != navn5 && hjelpeArray[i].navn != navn6 && hjelpeArray[i].navn != navn7 && hjelpeArray[i].navn != navn8
+                        && hjelpeArray[i].navn != navn9 && hjelpeArray[i].navn != navn10 && hjelpeArray[i].navn != navn11) {
+                        arrayKandidater.push(hjelpeArray[i]);
+                    }
+                }
+                var utskrift = "";
+                for (var i in arrayKandidater) {
+                    utskrift += "<option value='" + arrayKandidater[i].kandidatListeID + "'>" + arrayKandidater[i].navn + "</option>";
+                }
+            }
+
+            $("#drop12").html(utskrift);
         }
     </script>
 </head>
@@ -247,12 +636,15 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                <li><a href="@Url.Action("PreferansevalgBrukerEng", "Bruker")">English</a></li>
+                <li>
+                    <a href="@Url.Action("PreferansevalgBrukerEng", "Bruker")">English</a>
+                </li>
             </ul>
         </div>
 
         <h2 align="center">Preferansevalg</h2>
-        <br /><br />
+        <br />
+        <br />
         <div id="teston"></div>
 
 
@@ -268,7 +660,9 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
         </div>
         <div class="form-group form-inline">
             <div class="row">
@@ -282,7 +676,9 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
         </div>
         <div class="form-group form-inline">
             <div class="row">
@@ -296,7 +692,9 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
         </div>
         <div class="form-group form-inline">
             <div class="row">
@@ -310,7 +708,9 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
         </div>
         <div class="form-group form-inline">
             <div class="row">
@@ -324,7 +724,9 @@
         </div>
 
         <div class="form-group form-inline" id="hiddenDrop6">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop6">6.</label>
                 <div class="col-sm-6">
@@ -335,7 +737,9 @@
             </div>
         </div>
         <div class="form-group form-inline" id="hiddenDrop7">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop7">7.</label>
                 <div class="col-sm-6">
@@ -346,7 +750,9 @@
             </div>
         </div>
         <div class="form-group form-inline" id="hiddenDrop8">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop8">8.</label>
                 <div class="col-sm-6">
@@ -357,7 +763,9 @@
             </div>
         </div>
         <div class="form-group form-inline" id="hiddenDrop9">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop9">9.</label>
                 <div class="col-sm-6">
@@ -368,7 +776,9 @@
             </div>
         </div>
         <div class="form-group form-inline" id="hiddenDrop10">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop10">10.</label>
                 <div class="col-sm-6">
@@ -379,7 +789,9 @@
             </div>
         </div>
         <div class="form-group form-inline" id="hiddenDrop11">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop11">11.</label>
                 <div class="col-sm-6">
@@ -390,7 +802,9 @@
             </div>
         </div>
         <div class="form-group form-inline" id="hiddenDrop12">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
             <div class="row">
                 <label class="col-sm-1 col-sm-offset-2" for="drop12">12.</label>
                 <div class="col-sm-6">
@@ -409,7 +823,9 @@
         </div>
         <br />
         <div class="row">
-            <div class="col-sm-10 col-sm-offset-1"><hr id="hrSTV" /></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <hr id="hrSTV" />
+            </div>
         </div>
         <div id="stemBtnStv">
             <a href="#stemmeModal" class="btn btn-success col-sm-4 col-sm-offset-4" id="stemmeKnappSTV"

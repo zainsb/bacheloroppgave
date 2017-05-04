@@ -64,6 +64,7 @@
     <Compile Include="Kandidat.cs" />
     <Compile Include="KandidatListeSTV.cs" />
     <Compile Include="Leggtilbruker.cs" />
+    <Compile Include="OverførtTilSeddel.cs" />
     <Compile Include="PersonvalgKandidatResultat.cs" />
     <Compile Include="Personvalg.cs" />
     <Compile Include="PersonvalgStemmer.cs" />

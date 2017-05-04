@@ -168,6 +168,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\DatabaseSP94.mdf" />
+    <Content Include="App_Data\DatabaseSP94_log.ldf" />
+    <Content Include="App_Data\DatabaseSP95.mdf" />
+    <Content Include="App_Data\DatabaseSP95_log.ldf" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -278,8 +282,6 @@
     <Content Include="Views\Bruker\UtførLagretPreferansevalg.cshtml" />
     <Content Include="Views\User\PersonvalgStemmeEng.cshtml" />
     <Content Include="Views\User\UtførLagretPreferansevalgEng.cshtml" />
-    <Content Include="Views\Bruker\VisVaraResultatPreferansevalg.cshtml" />
-    <Content Include="Views\User\VisVaraResultatPreferansevalgEng.cshtml" />
     <Content Include="Views\Bruker\SletteModalPreferansevalg.cshtml" />
     <Content Include="Views\User\SletteModalPreferansevalgEng.cshtml" />
     <Content Include="Views\Bruker\LeggtilkandidatModal.cshtml" />
@@ -294,6 +296,8 @@
     <Content Include="Views\User\stemmeseddelPersonvalgEng.cshtml" />
     <Content Include="Views\User\ResultatVoteringID_2Eng.cshtml" />
     <Content Include="Views\User\PersonvalgResultat_2Eng.cshtml" />
+    <Content Include="Views\Bruker\StemmesedlerPreferansevalg.cshtml" />
+    <Content Include="Views\User\StemmesedlerPreferansevalgEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

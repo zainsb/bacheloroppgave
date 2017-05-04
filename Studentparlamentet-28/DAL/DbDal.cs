@@ -11,11 +11,1769 @@ using System.Data;
 using System.Web.Security;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Data.Entity;
+using System.Diagnostics;
+using System.IO;
+using iTextSharp.text.pdf.draw;
 
 namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        //Preferansevalg
+        public List<Stemmeseddel> stemmesedlerMedID(int valgtypeid)
+        {
+            var db = new BrukerContext();
+            var stemmedler_db = db.Stemmesedler.Where(s => s.ValgtypeID == valgtypeid).ToList();
+            List<Stemmeseddel> stemmesedler = new List<Stemmeseddel>();
+            for (int i = 0; i < stemmedler_db.Count(); i++)
+            {
+                Stemmeseddel enStemmeseddel = new Stemmeseddel()
+                {
+                    stemmeseddelID = stemmedler_db[i].StemmeseddelID,
+                    kandidatnrEn = stemmedler_db[i].KandidatnrEn,
+                    kandidatnrTo = stemmedler_db[i].KandidatnrTo,
+                    kandidatnrTre = stemmedler_db[i].KandidatnrTre,
+                    kandidatnrFire = stemmedler_db[i].KandidatnrFire,
+                    kandidatnrFem = stemmedler_db[i].KandidatnrFem,
+                    kandidatnrSeks = stemmedler_db[i].KandidatnrSeks,
+                    kandidatnrSju = stemmedler_db[i].KandidatnrSju,
+                    kandidatnrÅtte = stemmedler_db[i].KandidatnrÅtte,
+                    kandidatnrNi = stemmedler_db[i].KandidatnrNi,
+                    kandidatnrTi = stemmedler_db[i].KandidatnrTi,
+                    kandidatnrElleve = stemmedler_db[i].KandidatnrElleve,
+                    kandidatnrTolv = stemmedler_db[i].KandidatnrTolv,
+                    valgtypeid = valgtypeid
+                };
+                stemmesedler.Add(enStemmeseddel);
+            }
+            return stemmesedler;
+        }
+
+        //Skrive preferansevalg framgangsmåte
+        public MemoryStream ResultatPreferansevalgTilPDF(int valgtypeid, string klasse1, string klasse2, int prosent1, int prosent2) //Kanskje gjøre om senere når jeg regner ut med kvotering
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
+                {
+                    PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+
+                    var db = new BrukerContext();
+                    
+                    double valgtall = BeregnValgtall(valgtypeid);
+                    var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
+                    int antallRepresentanter = preferansevalg.AntallRepresentanter;
+                    //int antallRepresentanter = 3;
+                    int antallLedigeplasser = antallRepresentanter;
+                    int runde = 1;
+                    int høyesteEkskluderes = 0;
+                    double stemmetallEkskludert = 0;
+                    double totaltOverskudd = 0;
+                    double stemmetallOgOverskudd = 0;
+                    bool avsluttValg = false;
+                    bool fortsett = true;
+                    bool ikkeEkskluderFler = false;
+
+                    List<VaraSTV> listeAvKandidater = hentVaralisteMedID(valgtypeid);
+                    List<VaraSTV> valgteKandidater = new List<VaraSTV>();
+                    List<VaraSTV> gjenståendeKandidater = new List<VaraSTV>();
+                    List<VaraSTV> ekskluderteKandidater = new List<VaraSTV>();
+                    List<VaraSTV> kandidaterEkskludert2 = new List<VaraSTV>();
+                    List<OverførtTilSeddel> overførteOverskudd = new List<OverførtTilSeddel>();
+
+                    //Kvotering
+                    bool kvoteringsvalg = false;
+                    double tempMinsteKvoteKlasse1 = (double)prosent1 * antallRepresentanter / 100;
+                    int minsteKvoteKlasse1 = (int)Math.Ceiling(tempMinsteKvoteKlasse1);
+                    int antallTilMinsteFylt1 = minsteKvoteKlasse1;
+
+                    double tempMinsteKvoteKlasse2 = (double)prosent2 * antallRepresentanter / 100;
+                    int minsteKvoteKlasse2 = (int)Math.Ceiling(tempMinsteKvoteKlasse2);
+                    int antallTilMinsteFylt2 = minsteKvoteKlasse2;
+
+                    int maksKvoteKlasse1 = antallRepresentanter - minsteKvoteKlasse2;
+                    int maksKvoteKlasse2 = antallRepresentanter - minsteKvoteKlasse1;
+                    int antallLedigeKvote1 = maksKvoteKlasse1;
+                    int antallLedigeKvote2 = maksKvoteKlasse2;
+
+
+                    if (klasse1 != "tom" && klasse2 != "tom")
+                    {
+                        kvoteringsvalg = true;
+                    }
+
+                    //Document - Info som alltid skal være med
+                    doc.Open();
+                    Paragraph overskrift = new Paragraph("Preferansevalg");
+                    overskrift.Alignment = Element.ALIGN_CENTER;
+                    doc.Add(overskrift);
+
+                    //Lager table for PDF cells
+                    PdfPTable table = new PdfPTable(1);
+                    PdfPCell cell;
+                    cell = new PdfPCell();
+                    cell.AddElement(new Paragraph("Valgtall: " + valgtall));
+                    cell.AddElement(new Paragraph("Antall skal velges: " + antallRepresentanter));
+                    cell.PaddingBottom = 20;
+                    cell.BorderWidthTop = 0;
+                    cell.BorderWidthLeft = 0;
+                    cell.BorderWidthRight = 0;
+                    table.AddCell(cell);
+
+                    //Første runde
+                    cell = new PdfPCell();
+                    Font boldFont = new Font(null, 14, Font.BOLD);
+                    Paragraph rundeoverskrift1 = new Paragraph("Runde 1.", boldFont);
+                    cell.AddElement(rundeoverskrift1);
+
+                    //Om noen erklært valgt legge til i Valgte kandidater liste ellers i gjenstående
+                    for (int i = 0; i < listeAvKandidater.Count(); i++)
+                    {
+                        if (listeAvKandidater[i].stemmetall >= valgtall)
+                        {
+                            //Kvotering
+                            if (kvoteringsvalg == true)
+                            {
+                                if (listeAvKandidater[i].klasse == klasse1 && antallLedigeKvote1 > 0)
+                                {
+                                    valgteKandidater.Add(listeAvKandidater[i]);
+                                    //Paragraph nyttParagraf = new Paragraph("- Kandidat " + valgteKandidater[i].navn + " har stemmetall lik " +
+                                    //                                 valgteKandidater[i].stemmetall + " og er dermed valgt");
+                                    //cell.AddElement(nyttParagraf);
+                                    antallTilMinsteFylt1--;
+                                    antallLedigeKvote1--;
+                                    antallLedigeplasser--;
+                                }
+                                else if (listeAvKandidater[i].klasse == klasse2 && antallLedigeKvote2 > 0)
+                                {
+                                    valgteKandidater.Add(listeAvKandidater[i]);
+                                    //Paragraph nyttParagraf = new Paragraph("- Kandidat " + valgteKandidater[i].navn + " har stemmetall lik " +
+                                    //                                 valgteKandidater[i].stemmetall + " og er dermed valgt");
+                                    //cell.AddElement(nyttParagraf);
+                                    antallTilMinsteFylt2--;
+                                    antallLedigeKvote2--;
+                                    antallLedigeplasser--;
+                                }
+                            }
+                            else
+                            {
+                                //Om ikke kvotering
+                                valgteKandidater.Add(listeAvKandidater[i]);
+                                //cell.AddElement(nyttParagraf);
+                                antallLedigeplasser--;
+                            }
+                        }
+                        else
+                        {
+                            gjenståendeKandidater.Add(listeAvKandidater[i]);
+                        }
+                    }
+
+                    if (valgteKandidater.Count() > 0)
+                    {
+                        for (int i = 0; i < valgteKandidater.Count(); i++)
+                        {
+                            Paragraph nyttParagraf = new Paragraph("- Kandidat " + valgteKandidater[i].navn + " har stemmetall lik " +
+                                                                    valgteKandidater[i].stemmetall + " og er dermed valgt");
+                            cell.AddElement(nyttParagraf);
+                        }
+                    }
+
+                    //Om ingen ble valgt første runde, ekskludere alle med null
+                    if (valgteKandidater.Count() == 0)
+                    {
+                        //Kvotering - Funker 100%
+                        if (kvoteringsvalg == true)
+                        {
+                            //Dette kjøres om det er kvotering
+                            List<VaraSTV> hjelpelistegjenståendeNull = new List<VaraSTV>();
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].stemmetall > 0)
+                                {
+                                    hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                                }
+                                else if (gjenståendeKandidater[i].stemmetall == 0)//Sjekker om jeg stryker en kandidat, vil det være mulig å fylle opp minstekvoten
+                                {
+                                    if (gjenståendeKandidater[i].klasse == klasse1)
+                                    {
+                                        int tempTeller = 0;
+                                        int tempTellerSjekkOppMot = antallLedigeKvote1 - 1;
+                                        //Sjekker hvor mange av den klasse det er igjen
+                                        for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                        {
+                                            if (gjenståendeKandidater[k].klasse == klasse1)
+                                            {
+                                                tempTeller++;
+                                            }
+                                        }
+                                        if (tempTeller <= antallTilMinsteFylt1)
+                                        {
+                                            hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                                        }
+                                        else
+                                        {
+                                            Paragraph nyttParagraf = new Paragraph("- " + gjenståendeKandidater[i].navn + " strykes fra valget, ettersom ingen ble valgt i første runde og kandidaten har stemmetall lik null");
+                                            cell.AddElement(nyttParagraf);
+                                        }
+
+                                    }
+                                    else if (gjenståendeKandidater[i].klasse == klasse2)
+                                    {
+                                        int tempTeller = 0;
+                                        int tempTellerSjekkOppMot = antallLedigeKvote2 - 1;
+                                        //Sjekker hvor mange av den klasse det er igjen
+                                        for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                        {
+                                            if (gjenståendeKandidater[k].klasse == klasse2)
+                                            {
+                                                tempTeller++;
+                                            }
+                                        }
+                                        if (tempTeller <= antallTilMinsteFylt2)
+                                        {
+                                            hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                                        }
+                                        else
+                                        {
+                                            Paragraph nyttParagraf = new Paragraph("- " + gjenståendeKandidater[i].navn + " strykes fra valget, ettersom ingen ble valgt i første runde og kandidaten har stemmetall lik null");
+                                            cell.AddElement(nyttParagraf);
+                                        }
+                                    }
+                                }
+                            }
+                            gjenståendeKandidater.Clear();
+                            gjenståendeKandidater = hjelpelistegjenståendeNull;
+                        }
+                        else
+                        {
+                            //Dette kjøres om det ikke er kvotering
+                            List<VaraSTV> hjelpelistegjenståendeNull = new List<VaraSTV>();
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].stemmetall > 0)
+                                {
+                                    hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                                }
+                                else
+                                {
+                                    Paragraph nyttParagraf = new Paragraph("- " + gjenståendeKandidater[i].navn + " strykes fra valget, ettersom ingen ble valgt i første runde og kandidaten har stemmetall lik null");
+                                    cell.AddElement(nyttParagraf);
+                                }
+                            }
+                            gjenståendeKandidater.Clear();
+                            gjenståendeKandidater = hjelpelistegjenståendeNull;
+                        }
+                    }
+
+
+                    //Antall ledige plasser er fylt ut
+                    if (valgteKandidater.Count() == antallRepresentanter)
+                    {
+                        //leggTilValgteKandidater(valgteKandidater);
+                        //return valgteKandidater;
+                        //table.AddCell(cell);
+                        cell.AddElement(new Paragraph("  "));
+                        Paragraph nyttParagraf = new Paragraph("Antall faste valgrepresentanter som skal velges er fylt, valget avsluttes.");
+                        cell.AddElement(nyttParagraf);
+                        cell.PaddingBottom = 20;
+                        cell.BorderWidthTop = 0;
+                        cell.BorderWidthLeft = 0;
+                        cell.BorderWidthRight = 0;
+                        table.AddCell(cell);
+                        doc.Add(table);
+                        doc.Close();
+                        return ms;
+                    }
+                    else if (valgteKandidater.Count() > 0)
+                    {
+                        cell.AddElement(new Paragraph("  "));
+                        Paragraph nyttParagraf = new Paragraph("Det ble valgt " + valgteKandidater.Count() + " denne runden. Valget fortsetter.");
+                        cell.AddElement(nyttParagraf);
+                        cell.PaddingBottom = 20;
+                        cell.BorderWidthTop = 0;
+                        cell.BorderWidthLeft = 0;
+                        cell.BorderWidthRight = 0;
+                        table.AddCell(cell);
+                    }
+                    else if (valgteKandidater.Count() == 0)
+                    {
+                        cell.AddElement(new Paragraph("  "));
+                        Paragraph nyttParagraf = new Paragraph("Det ble valgt " + valgteKandidater.Count() + " denne runden. Valget fortsetter.");
+                        cell.AddElement(nyttParagraf);
+                        cell.PaddingBottom = 20;
+                        cell.BorderWidthTop = 0;
+                        cell.BorderWidthLeft = 0;
+                        cell.BorderWidthRight = 0;
+                        table.AddCell(cell);
+                    }
+
+                    cell.PaddingBottom = 20;
+                    cell.BorderWidthTop = 0;
+                    cell.BorderWidthLeft = 0;
+                    cell.BorderWidthRight = 0;
+
+                    //table.AddCell(cell);
+
+                    //Starter senere runder --KK
+                    while (valgteKandidater.Count() <= antallRepresentanter && avsluttValg == false)
+                    {
+                        //Øk rundenummer       
+                        bool noenValgt = false;
+                        bool noenOverførtOverskudd = false;
+                        List<VaraSTV> hjelpValgteKandidater = new List<VaraSTV>();
+                        runde++;
+                        ikkeEkskluderFler = false;
+                        fortsett = true;
+
+                        //Document
+                        cell = new PdfPCell();
+                        Paragraph rundeoverskrift = new Paragraph("Runde " + runde + ".", boldFont);
+                        cell.AddElement(rundeoverskrift);
+
+                        //Om gjenstående kandidater er mindre eller lik antall ledige plasser
+                        if (kvoteringsvalg == true)
+                        {
+                            if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                            {
+                                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                                {
+                                    //Alle gjenstående kandidater blir valgt
+                                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                    {
+                                        if (gjenståendeKandidater[i].klasse == klasse1 && valgteKandidater.Count() < antallRepresentanter)
+                                        {
+                                            if (antallLedigeKvote1 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                                noenValgt = true;
+                                                antallLedigeKvote1--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                        else if (gjenståendeKandidater[i].klasse == klasse2)
+                                        {
+                                            if (antallLedigeKvote2 > 0 && valgteKandidater.Count() < antallRepresentanter)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                                noenValgt = true;
+                                                antallLedigeKvote2--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                    }
+                                    avsluttValg = true;
+
+                                    cell.AddElement(new Paragraph("  "));
+                                    Paragraph nyttParagraf = new Paragraph("Antall gjenstående kandidater er minde enn eller lik antall ledige plasser, valget avsluttes.");
+                                    cell.AddElement(nyttParagraf);
+                                    cell.PaddingBottom = 20;
+                                    cell.BorderWidthTop = 0;
+                                    cell.BorderWidthLeft = 0;
+                                    cell.BorderWidthRight = 0;
+                                    table.AddCell(cell);
+                                    PdfPCell alleValgteCell = new PdfPCell();
+                                    Paragraph allevalgteP = new Paragraph("Valgte kandidater: ", boldFont);
+                                    alleValgteCell.AddElement(allevalgteP);
+                                    for (int i = 0; i < valgteKandidater.Count(); i++)
+                                    {
+                                        Paragraph leggTilValgtP = new Paragraph(valgteKandidater[i].navn);
+                                        alleValgteCell.AddElement(leggTilValgtP);
+                                    }
+                                    table.AddCell(alleValgteCell);
+                                    doc.Add(table);
+                                    doc.Close();
+                                    return ms;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                            {
+                                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                                {
+                                    //Alle gjenstående kandidater blir valgt
+                                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                        noenValgt = true;
+                                        antallLedigeplasser--;
+                                    }
+                                    avsluttValg = true;
+
+                                    cell.AddElement(new Paragraph("  "));
+                                    Paragraph nyttParagraf = new Paragraph("Antall gjenstående kandidater er minde enn eller lik antall ledige plasser, valget avsluttes.");
+                                    cell.AddElement(nyttParagraf);
+                                    cell.PaddingBottom = 20;
+                                    cell.BorderWidthTop = 0;
+                                    cell.BorderWidthLeft = 0;
+                                    cell.BorderWidthRight = 0;
+                                    table.AddCell(cell);
+                                    PdfPCell alleValgteCell = new PdfPCell();
+                                    Paragraph allevalgteP = new Paragraph("Valgte kandidater: ", boldFont);
+                                    alleValgteCell.AddElement(allevalgteP);
+                                    for (int i = 0; i < valgteKandidater.Count(); i++)
+                                    {
+                                        Paragraph leggTilValgtP = new Paragraph(valgteKandidater[i].navn);
+                                        alleValgteCell.AddElement(leggTilValgtP);
+                                    }
+                                    table.AddCell(alleValgteCell);
+                                    doc.Add(table);
+                                    doc.Close();
+                                    return ms;
+                                }
+                            }
+                        }
+
+                        //Kvotering -- Om en av klassene har fylt opp maksKvote, så ekskluder resten av den klassen fra gjenstående
+                        if (kvoteringsvalg == true)
+                        {
+                            if (valgteKandidater.Count() > 0)
+                            {
+                                //Sjekker først for klasse 1
+                                int tellerAntallKlasseEn = 0;
+                                for (int i = 0; i < valgteKandidater.Count(); i++)
+                                {
+                                    if (valgteKandidater[i].klasse == klasse1)
+                                    {
+                                        tellerAntallKlasseEn++;
+                                    }
+                                }
+                                if (tellerAntallKlasseEn >= maksKvoteKlasse1)
+                                {
+                                    Paragraph nyttParagraf = new Paragraph("Antallet av " + klasse1 + " har oppnådd sin maksimumskvote. Dermed ekskluderes alle gjenstående kandidater fra denne klassen.");
+                                    cell.AddElement(nyttParagraf);
+                                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                    {
+                                        if (gjenståendeKandidater[k].klasse == klasse1)
+                                        {
+                                            ekskluderteKandidater.Add(gjenståendeKandidater[k]);
+                                            ikkeEkskluderFler = false;
+                                            fortsett = false;
+                                        }
+                                    }
+                                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                                    {
+                                        for (int j = 0; j < gjenståendeKandidater.Count(); j++)
+                                        {
+                                            if (ekskluderteKandidater[i].klasse == gjenståendeKandidater[j].klasse)
+                                            {
+                                                gjenståendeKandidater.Remove(gjenståendeKandidater[j]);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                //Sjekker for klasse2
+                                int tellerAntallKlasseTo = 0;
+                                for (int i = 0; i < valgteKandidater.Count(); i++)
+                                {
+                                    if (valgteKandidater[i].klasse == klasse2)
+                                    {
+                                        tellerAntallKlasseTo++;
+                                    }
+                                }
+                                if (tellerAntallKlasseTo >= maksKvoteKlasse2)
+                                {
+                                    Paragraph nyttParagraf = new Paragraph("Antallet av " + klasse1 + " har oppnådd sin maksimumskvote. Dermed ekskluderes alle gjenstående kandidater fra denne klassen.");
+                                    cell.AddElement(nyttParagraf);
+                                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                    {
+                                        if (gjenståendeKandidater[k].klasse == klasse2)
+                                        {
+                                            ekskluderteKandidater.Add(gjenståendeKandidater[k]);
+                                            ikkeEkskluderFler = true;
+                                            fortsett = false;
+                                        }
+                                    }
+                                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                                    {
+                                        for (int j = 0; j < gjenståendeKandidater.Count(); j++)
+                                        {
+                                            if (ekskluderteKandidater[i].klasse == gjenståendeKandidater[j].klasse)
+                                            {
+                                                gjenståendeKandidater.Remove(gjenståendeKandidater[j]);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
+                        //Om antall erklærte valgte kandidater er fylt opp
+                        if (valgteKandidater.Count() == antallRepresentanter)
+                        {
+                            //leggTilValgteKandidater(valgteKandidater);
+                            //return valgteKandidater;
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Antall faste valgrepresentanter som skal velges er fylt, valget avsluttes.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            table.AddCell(cell);
+                            doc.Add(table);
+                            doc.Close();
+                            return ms;
+                        }
+
+
+                        //--------------------------------UNDER FINNE UT HVEM SOM KAN EKSKLUDERES-----------------------------------
+                        if (ikkeEkskluderFler == false)
+                        {
+                            //Finne ut om noen kan ekskluderes
+                            totaltOverskudd = 0;
+                            stemmetallOgOverskudd = 0;
+
+                            //Finner laveste stemmetall
+                            if (gjenståendeKandidater.Count() > 0)
+                            {
+                                stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    if (stemmetallEkskludert == 0)
+                                    {
+                                        stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
+                                    }
+                                }
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    double tempStemmetall = gjenståendeKandidater[i].stemmetall;
+                                    if (tempStemmetall < stemmetallEkskludert)
+                                    {
+                                        if (tempStemmetall != 0)
+                                        {
+                                            stemmetallEkskludert = tempStemmetall;
+                                        }
+
+                                    }
+                                }
+                            }//Funnet laveste stemmetall
+
+                            //Om noen har overskudd legge til for å finne hvem som kan ekskluderes
+                            if (valgteKandidater.Count() > 0)
+                            {
+                                for (int i = 0; i < valgteKandidater.Count(); i++)
+                                {
+                                    double overskuddKandidat = 0;
+                                    double tempValgtall = valgtall;
+                                    overskuddKandidat = valgteKandidater[i].stemmetall - tempValgtall;
+                                    if (overskuddKandidat > 0)
+                                    {
+                                        totaltOverskudd += overskuddKandidat;
+                                    }
+                                }
+                            }
+
+                            //Viktige variabler og lister for Ekskludering
+                            høyesteEkskluderes = gjenståendeKandidater.Count() - antallLedigeplasser;
+                            List<VaraSTV> potensiellEkskluderte = new List<VaraSTV>();
+                            stemmetallOgOverskudd = totaltOverskudd;
+
+                            //Sjekker hvem som potensielt kan ekskluderes
+                            if (kvoteringsvalg == true)
+                            {
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    bool sjekkPlassEtterEks = false;
+                                    if (gjenståendeKandidater[i].stemmetall == stemmetallEkskludert && høyesteEkskluderes > potensiellEkskluderte.Count())
+                                    {
+                                        if (gjenståendeKandidater[i].klasse == klasse1)
+                                        {
+                                            int tellerAntallKlasse1IGj = 0;
+                                            for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                            {
+                                                if (gjenståendeKandidater[k].klasse == klasse1)
+                                                {
+                                                    tellerAntallKlasse1IGj++;
+                                                }
+                                            }
+                                            if (tellerAntallKlasse1IGj > antallTilMinsteFylt1)
+                                            {
+                                                sjekkPlassEtterEks = true;
+                                            }
+                                        }
+                                        else if (gjenståendeKandidater[i].klasse == klasse2)
+                                        {
+                                            int tellerAntallKlasse2IGj = 0;
+                                            for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                            {
+                                                if (gjenståendeKandidater[k].klasse == klasse2)
+                                                {
+                                                    tellerAntallKlasse2IGj++;
+                                                }
+                                            }
+                                            if (tellerAntallKlasse2IGj > antallTilMinsteFylt2)
+                                            {
+                                                sjekkPlassEtterEks = true;
+                                            }
+                                        }
+
+                                    }
+                                    if (sjekkPlassEtterEks == true)
+                                    {
+                                        potensiellEkskluderte.Add(gjenståendeKandidater[i]);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    if (gjenståendeKandidater[i].stemmetall == stemmetallEkskludert && høyesteEkskluderes > potensiellEkskluderte.Count())
+                                    {
+                                        potensiellEkskluderte.Add(gjenståendeKandidater[i]);
+                                    }
+                                }
+                            }
+
+
+                            if (potensiellEkskluderte.Count() > 0)
+                            {
+                                for (int i = 0; i < potensiellEkskluderte.Count(); i++)
+                                {
+                                    bool hjelpEkskludering = true;
+                                    VaraSTV potensiellEkskluderes = potensiellEkskluderte[i];
+                                    stemmetallOgOverskudd += potensiellEkskluderes.stemmetall;
+                                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                    {
+                                        if (gjenståendeKandidater[k].stemmetall > stemmetallEkskludert && gjenståendeKandidater[k].stemmetall <= stemmetallOgOverskudd)
+                                        {
+                                            hjelpEkskludering = false;
+                                        }
+                                    }
+                                    if (hjelpEkskludering == true)
+                                    {
+                                        ekskluderteKandidater.Add(potensiellEkskluderes);
+                                        fortsett = false;
+                                    }
+                                }
+                                //Fjerne ekskludert kandidat fra gjenstående liste
+                                for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                                {
+                                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                    {
+                                        if (ekskluderteKandidater[i].navn == gjenståendeKandidater[k].navn)
+                                        {
+                                            gjenståendeKandidater.Remove(ekskluderteKandidater[i]);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                        //---------------------------Eksludert sine stemmer overføres---------------------------------------
+                        if (ekskluderteKandidater.Count() > 0)
+                        {
+                            //Inne her skal jeg overføre stemmeseddel for den som eventuelt har blitt ekskludert og sette fortsett til false
+                            for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                            {
+                                VaraSTV kandidatEkskluderes = ekskluderteKandidater[i];
+                                string navnEkskludert = ekskluderteKandidater[i].navn;
+                                double tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
+
+                                Paragraph ekskluderingP = new Paragraph("- Kandidat " + navnEkskludert + " ekskluderes fra valget.");
+                                cell.AddElement(ekskluderingP);
+                                List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+
+                                //Sjekke om ekskludert kandidat har fått overført overskudd tidligere som må videreføres
+                                if (overførteOverskudd.Count() > 0)
+                                {
+                                    for (int ind = 0; ind < overførteOverskudd.Count(); ind++)
+                                    {
+                                        OverførtTilSeddel stemme = overførteOverskudd[ind];
+                                        if (navnEkskludert == stemme.overførtTil)
+                                        {
+                                            string seddelNavnet = "";
+                                            string navnToPåSeddel = stemme.kandidatnrTo;
+                                            string navnTrePåSeddel = stemme.kandidatnrTre;
+                                            string navnFirePåSeddel = stemme.kandidatnrFire;
+                                            string navnFemPåSeddel = stemme.kandidatnrFem;
+                                            string navnSeksPåSeddel = stemme.kandidatnrSeks;
+                                            string navnSjuPåSeddel = stemme.kandidatnrSju;
+                                            string navnÅttePåSeddel = stemme.kandidatnrÅtte;
+                                            string navnNiPåSeddel = stemme.kandidatnrNi;
+                                            string navnTiPåSeddel = stemme.kandidatnrTi;
+                                            string navnEllevePåSeddel = stemme.kandidatnrElleve;
+                                            string navnTolvPåSedde = stemme.kandidatnrTolv;
+                                            bool funnet = false;
+
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && stemme.overførtTil != navnToPåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnToPåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && stemme.overførtTil != navnTrePåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnTrePåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && stemme.overførtTil != navnFirePåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnFirePåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && stemme.overførtTil != navnFemPåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnFemPåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && stemme.overførtTil != navnSeksPåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnSeksPåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && stemme.overførtTil != navnSjuPåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnSjuPåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && stemme.overførtTil != navnÅttePåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnÅttePåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && stemme.overførtTil != navnNiPåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnNiPåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && stemme.overførtTil != navnTiPåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnTiPåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && stemme.overførtTil != navnEllevePåSeddel && !funnet)
+                                            {
+                                                seddelNavnet = navnEllevePåSeddel;
+                                                funnet = true;
+                                            }
+                                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && stemme.overførtTil != navnTolvPåSedde && !funnet)
+                                            {
+                                                seddelNavnet = navnTolvPåSedde;
+                                                funnet = true;
+                                            }
+
+                                            if (seddelNavnet != "")
+                                            {
+                                                double tempStemmetallValgtKandidat = kandidatEkskluderes.stemmetall - stemme.overførtSum;
+
+                                                VaraSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                                double tempStemmetallet = oppdaterKandidat.stemmetall + stemme.overførtSum;
+                                                oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                                kandidatEkskluderes.stemmetall = tempStemmetallValgtKandidat;
+
+                                                Paragraph overførtStemmerP = new Paragraph(" " + navnEkskludert + " sin stemme overføres til " + seddelNavnet + ".");
+                                                cell.PaddingLeft = 10;
+                                                cell.AddElement(overførtStemmerP);
+
+                                                OverførtTilSeddel nySeddel = new OverførtTilSeddel()
+                                                {
+                                                    seddelID = stemme.seddelID,
+                                                    kandidatnrEn = stemme.kandidatnrEn,
+                                                    kandidatnrTo = stemme.kandidatnrTo,
+                                                    kandidatnrTre = stemme.kandidatnrTre,
+                                                    kandidatnrFire = stemme.kandidatnrFire,
+                                                    kandidatnrFem = stemme.kandidatnrFem,
+                                                    kandidatnrSeks = stemme.kandidatnrSeks,
+                                                    kandidatnrSju = stemme.kandidatnrSju,
+                                                    kandidatnrÅtte = stemme.kandidatnrÅtte,
+                                                    kandidatnrNi = stemme.kandidatnrNi,
+                                                    kandidatnrTi = stemme.kandidatnrTi,
+                                                    kandidatnrElleve = stemme.kandidatnrElleve,
+                                                    kandidatnrTolv = stemme.kandidatnrTolv,
+                                                    overførtFra = navnEkskludert,
+                                                    overførtTil = seddelNavnet,
+                                                    overførtSum = stemme.overførtSum,
+                                                    rundenr = runde,
+                                                    bleValgt = false
+                                                };
+                                                overførteOverskudd.Add(nySeddel);
+
+                                                if (oppdaterKandidat.stemmetall >= valgtall)
+                                                {
+                                                    for (int j = 0; j < overførteOverskudd.Count(); j++)
+                                                    {
+                                                        if (seddelNavnet == overførteOverskudd[j].overførtTil && overførteOverskudd[j].rundenr == runde)
+                                                        {
+                                                            overførteOverskudd[j].bleValgt = true;
+                                                        }
+                                                    }
+                                                }
+                                            }//if-seddelnavnet!=''
+                                        }
+                                    }
+                                }//If ekskludert kandidat hadde fått overført overskudd tidligere slutt------------------------------------
+
+                                //De stemmesedlene med vekt 1.0, ligger i stemmeseddel databasen, ekskludert stemme overføres
+                                for (int j = 0; j < listeEkskludert.Count(); j++)
+                                {
+                                    string seddelNavnet = "";
+                                    string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
+                                    string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
+                                    string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
+                                    string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
+                                    string navnSeksPåSeddel = listeEkskludert[j].KandidatnrSeks;
+                                    string navnSjuPåSeddel = listeEkskludert[j].KandidatnrSju;
+                                    string navnÅttePåSeddel = listeEkskludert[j].KandidatnrÅtte;
+                                    string navnNiPåSeddel = listeEkskludert[j].KandidatnrNi;
+                                    string navnTiPåSeddel = listeEkskludert[j].KandidatnrTi;
+                                    string navnEllevePåSeddel = listeEkskludert[j].KandidatnrElleve;
+                                    string navnTolvPåSedde = listeEkskludert[j].KandidatnrTolv;
+                                    bool funnet = false;
+
+
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnToPåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnTrePåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnFirePåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnFemPåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnSeksPåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnSjuPåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnÅttePåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnNiPåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnTiPåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnEllevePåSeddel;
+                                        funnet = true;
+                                    }
+                                    else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && !funnet)
+                                    {
+                                        seddelNavnet = navnTolvPåSedde;
+                                        funnet = true;
+                                    }
+
+                                    if (seddelNavnet == "")
+                                    {
+                                    }
+                                    else
+                                    {
+                                        tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
+
+                                        VaraSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                        double tempStemmetallet = oppdaterKandidat.stemmetall + 1;
+                                        oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                        ekskluderteKandidater[i].stemmetall = tempStemmetallEksKandidat;
+
+                                        Paragraph overførtStemmerP = new Paragraph(" " + navnEkskludert + " sin stemme overføres til " + seddelNavnet + ".");
+                                        cell.PaddingLeft = 10;
+                                        cell.AddElement(overførtStemmerP);
+
+                                        for (int k = 0; k < ekskluderteKandidater.Count(); k++)
+                                        {
+                                            if (ekskluderteKandidater[k].navn == seddelNavnet)
+                                            {
+                                                ekskluderteKandidater.Remove(oppdaterKandidat);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
+                        //---------------------------------EKLSUDERING OVERFØRING STEMMER FERDIG----------------------------------------
+
+                        //Sjekke om noen ble valgt etter at stemmer ble eksludert og overført
+                        if (kvoteringsvalg == true)
+                        {
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                                {
+                                    if (valgteKandidater.Count() < antallRepresentanter)
+                                    {
+                                        if (gjenståendeKandidater[i].klasse == klasse1)
+                                        {
+                                            if (antallLedigeKvote1 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                                noenValgt = true;
+                                                antallLedigeKvote1--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                        else if (gjenståendeKandidater[i].klasse == klasse2)
+                                        {
+                                            if (antallLedigeKvote2 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                                noenValgt = true;
+                                                antallLedigeKvote2--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                                {
+                                    if (valgteKandidater.Count() < antallRepresentanter)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                        noenValgt = true;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                            }
+                        }
+
+                        //Slette de eventuelle valgte kandidatene som ble valgt fra gjenstående
+                        for (int i = 0; i < valgteKandidater.Count(); i++)
+                        {
+                            for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                            {
+                                if (valgteKandidater[i].navn == gjenståendeKandidater[k].navn)
+                                {
+                                    gjenståendeKandidater.Remove(gjenståendeKandidater[k]);
+                                }
+                            }
+                        }
+
+                        //-----------------------------------Overføre overskudd eller ekskludere en random--------------------------------
+
+                        //Under her ta en if-fortsett == true.. Så skal det overføres ingen ble ekskludert denne runden
+                        if (fortsett == true)
+                        {
+                            //Inne her overføre eventuelt overskudd eller tving en ekskludering
+
+                            //Sjekke om en eller flere har overskudd
+                            int antallHarOverskudd = 0;
+                            for (int i = 0; i < valgteKandidater.Count(); i++)
+                            {
+                                double overskudd = 0;
+                                VaraSTV valgtKandidat = valgteKandidater[i];
+                                double tempValgtall = valgtall;
+                                overskudd = valgtKandidat.stemmetall - tempValgtall;
+                                if (overskudd > 0)
+                                {
+                                    antallHarOverskudd++;
+                                }
+                            }
+
+                            //Om den fant noen valgte kandidater med overskudd
+                            if (antallHarOverskudd > 0)
+                            {
+                                //Finn det største overskuddet
+                                double tempOverskudd = 0;
+                                VaraSTV kandidatOverføresFra = new VaraSTV();
+                                for (int i = 0; i < valgteKandidater.Count(); i++)
+                                {
+                                    double overskudd = 0;
+                                    VaraSTV valgtKandidat = valgteKandidater[i];
+                                    double tempValgtall = valgtall;
+                                    overskudd = valgtKandidat.stemmetall - tempValgtall;
+                                    if (overskudd > tempOverskudd)
+                                    {
+                                        tempOverskudd = overskudd;
+                                        kandidatOverføresFra = valgtKandidat; //Kandidat med største overskuddet
+                                    }
+                                }
+
+                                int antallAvKandidatIListe = 0;
+                                for (int i = 0; i < overførteOverskudd.Count(); i++)
+                                {
+                                    if (overførteOverskudd[i].overførtTil == kandidatOverføresFra.navn && overførteOverskudd[i].bleValgt == true)
+                                    {
+                                        antallAvKandidatIListe++;
+                                    }
+                                }
+
+                                //Om kandidat det overføres fra sitt stemmetall ble større etter å ha fått overført stemmer i senere runder og ikke i første
+                                if (antallAvKandidatIListe > 0)
+                                {
+                                    List<OverførtTilSeddel> overførteStemmer = new List<OverførtTilSeddel>();
+                                    for (int i = 0; i < overførteOverskudd.Count(); i++)
+                                    {
+                                        if (overførteOverskudd[i].overførtTil == kandidatOverføresFra.navn && overførteOverskudd[i].bleValgt == true)
+                                        {
+                                            overførteStemmer.Add(overførteOverskudd[i]);
+                                        }
+                                    }
+
+                                    double overføresOverskudd = tempOverskudd / kandidatOverføresFra.stemmetall;
+                                    Paragraph overføringp = new Paragraph("- Overfører overskudd fra " + kandidatOverføresFra.navn + ".");
+                                    cell.AddElement(overføringp);
+
+                                    //Starter overføringen
+                                    for (int i = 0; i < overførteStemmer.Count(); i++)
+                                    {
+                                        OverførtTilSeddel stemme = overførteStemmer[i];
+                                        string seddelNavnet = "";
+                                        string navnToPåSeddel = stemme.kandidatnrTo;
+                                        string navnTrePåSeddel = stemme.kandidatnrTre;
+                                        string navnFirePåSeddel = stemme.kandidatnrFire;
+                                        string navnFemPåSeddel = stemme.kandidatnrFem;
+                                        string navnSeksPåSeddel = stemme.kandidatnrSeks;
+                                        string navnSjuPåSeddel = stemme.kandidatnrSju;
+                                        string navnÅttePåSeddel = stemme.kandidatnrÅtte;
+                                        string navnNiPåSeddel = stemme.kandidatnrNi;
+                                        string navnTiPåSeddel = stemme.kandidatnrTi;
+                                        string navnEllevePåSeddel = stemme.kandidatnrElleve;
+                                        string navnTolvPåSeddel = stemme.kandidatnrTolv;
+                                        bool funnet = false;
+
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && stemme.overførtTil != navnToPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnToPåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && stemme.overførtTil != navnTrePåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnTrePåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && stemme.overførtTil != navnFirePåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnFirePåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && stemme.overførtTil != navnFemPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnFemPåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && stemme.overførtTil != navnSeksPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnSeksPåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && stemme.overførtTil != navnSjuPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnSjuPåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && stemme.overførtTil != navnÅttePåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnÅttePåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && stemme.overførtTil != navnNiPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnNiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && stemme.overførtTil != navnTiPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnTiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && stemme.overførtTil != navnEllevePåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnEllevePåSeddel;
+                                            funnet = true;
+                                        }
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSeddel) != null && stemme.overførtTil != navnTolvPåSeddel && !funnet)
+                                        {
+                                            seddelNavnet = navnTolvPåSeddel;
+                                            funnet = true;
+                                        }
+
+                                        if (seddelNavnet != "")
+                                        {
+                                            double tempStemmetallValgtKandidat = kandidatOverføresFra.stemmetall - overføresOverskudd;
+
+                                            VaraSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                            double tempStemmetallet = oppdaterKandidat.stemmetall + overføresOverskudd;
+                                            oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                            kandidatOverføresFra.stemmetall = tempStemmetallValgtKandidat;
+
+                                            noenOverførtOverskudd = true;
+                                            OverførtTilSeddel nySeddel = new OverførtTilSeddel()
+                                            {
+                                                seddelID = stemme.seddelID,
+                                                kandidatnrEn = stemme.kandidatnrEn,
+                                                kandidatnrTo = stemme.kandidatnrTo,
+                                                kandidatnrTre = stemme.kandidatnrTre,
+                                                kandidatnrFire = stemme.kandidatnrFire,
+                                                kandidatnrFem = stemme.kandidatnrFem,
+                                                kandidatnrSeks = stemme.kandidatnrSeks,
+                                                kandidatnrSju = stemme.kandidatnrSju,
+                                                kandidatnrÅtte = stemme.kandidatnrÅtte,
+                                                kandidatnrNi = stemme.kandidatnrNi,
+                                                kandidatnrTi = stemme.kandidatnrTi,
+                                                kandidatnrElleve = stemme.kandidatnrElleve,
+                                                kandidatnrTolv = stemme.kandidatnrTolv,
+                                                overførtFra = kandidatOverføresFra.navn,
+                                                overførtTil = seddelNavnet,
+                                                overførtSum = overføresOverskudd,
+                                                rundenr = runde,
+                                                bleValgt = false
+                                            };
+                                            overførteOverskudd.Add(nySeddel);
+
+                                            if (oppdaterKandidat.stemmetall >= valgtall)
+                                            {
+                                                for (int j = 0; j < overførteOverskudd.Count(); j++)
+                                                {
+                                                    if (seddelNavnet == overførteOverskudd[j].overførtTil && overførteOverskudd[j].rundenr == runde)
+                                                    {
+                                                        overførteOverskudd[j].bleValgt = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    kandidatOverføresFra.stemmetall = valgtall;
+
+                                }
+                                else
+                                {
+                                    List<Stemmeseddel_db> overførStemmer = db.Stemmesedler.Where(s => s.KandidatnrEn == kandidatOverføresFra.navn && s.ValgtypeID == valgtypeid).ToList();
+                                    //Finne overskuddtallet som skal overføres til alle stemmesedlene
+                                    double overføresOverskudd = tempOverskudd / kandidatOverføresFra.stemmetall;
+                                    Paragraph overføringp = new Paragraph("- Overfører overskudd fra " + kandidatOverføresFra.navn + ".");
+                                    cell.AddElement(overføringp);
+
+                                    for (int i = 0; i < overførStemmer.Count(); i++)
+                                    {
+                                        Stemmeseddel_db stemme = overførStemmer[i];
+                                        string seddelNavnet = "";
+                                        string navnToPåSeddel = stemme.KandidatnrTo;
+                                        string navnTrePåSeddel = stemme.KandidatnrTre;
+                                        string navnFirePåSeddel = stemme.KandidatnrFire;
+                                        string navnFemPåSeddel = stemme.KandidatnrFem;
+                                        string navnSeksPåSeddel = stemme.KandidatnrSeks;
+                                        string navnSjuPåSeddel = stemme.KandidatnrSju;
+                                        string navnÅttePåSeddel = stemme.KandidatnrÅtte;
+                                        string navnNiPåSeddel = stemme.KandidatnrNi;
+                                        string navnTiPåSeddel = stemme.KandidatnrTi;
+                                        string navnEllevePåSeddel = stemme.KandidatnrElleve;
+                                        string navnTolvPåSeddel = stemme.KandidatnrTolv;
+                                        bool funnet = false;
+
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnToPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTrePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnFirePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnFemPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnSeksPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnSjuPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnÅttePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnNiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnEllevePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTolvPåSeddel;
+                                            funnet = true;
+                                        }
+
+                                        if (seddelNavnet != "")
+                                        {
+                                            double tempStemmetallValgtKandidat = kandidatOverføresFra.stemmetall - overføresOverskudd;
+
+                                            VaraSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                            double tempStemmetallet = oppdaterKandidat.stemmetall + overføresOverskudd;
+                                            oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                            kandidatOverføresFra.stemmetall = tempStemmetallValgtKandidat;
+                                            noenOverførtOverskudd = true;
+
+                                            OverførtTilSeddel nySeddel = new OverførtTilSeddel()
+                                            {
+                                                seddelID = stemme.StemmeseddelID,
+                                                kandidatnrEn = stemme.KandidatnrEn,
+                                                kandidatnrTo = stemme.KandidatnrTo,
+                                                kandidatnrTre = stemme.KandidatnrTre,
+                                                kandidatnrFire = stemme.KandidatnrFire,
+                                                kandidatnrFem = stemme.KandidatnrFem,
+                                                kandidatnrSeks = stemme.KandidatnrSeks,
+                                                kandidatnrSju = stemme.KandidatnrSju,
+                                                kandidatnrÅtte = stemme.KandidatnrÅtte,
+                                                kandidatnrNi = stemme.KandidatnrNi,
+                                                kandidatnrTi = stemme.KandidatnrTi,
+                                                kandidatnrElleve = stemme.KandidatnrElleve,
+                                                kandidatnrTolv = stemme.KandidatnrTolv,
+                                                overførtFra = kandidatOverføresFra.navn,
+                                                overførtTil = seddelNavnet,
+                                                overførtSum = overføresOverskudd,
+                                                rundenr = runde,
+                                                bleValgt = false
+                                            };
+                                            overførteOverskudd.Add(nySeddel);
+
+                                            if (oppdaterKandidat.stemmetall >= valgtall)
+                                            {
+                                                for (int j = 0; j < overførteOverskudd.Count(); j++)
+                                                {
+                                                    if (seddelNavnet == overførteOverskudd[j].overførtTil && overførteOverskudd[j].rundenr == runde)
+                                                    {
+                                                        overførteOverskudd[j].bleValgt = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    kandidatOverføresFra.stemmetall = valgtall;
+                                }
+                            }//If- Fant overskudd
+                            else //Lage en av de med laveste stemmetallene ekskluderes - (Random)
+                            {
+                                if (kvoteringsvalg == true)
+                                {
+                                    //Finner laveste stemmetall
+                                    if (gjenståendeKandidater.Count() > 0)
+                                    {
+                                        stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
+                                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                        {
+                                            if (stemmetallEkskludert == 0)
+                                            {
+                                                stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
+                                            }
+                                        }
+                                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                        {
+                                            double tempStemmetall = gjenståendeKandidater[i].stemmetall;
+                                            if (tempStemmetall < stemmetallEkskludert)
+                                            {
+                                                if (tempStemmetall != 0)
+                                                {
+                                                    if (gjenståendeKandidater[i].klasse == klasse1)
+                                                    {
+                                                        int hjelpeteller = 0;
+                                                        for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                                        {
+                                                            if (gjenståendeKandidater[k].klasse == klasse1)
+                                                            {
+                                                                hjelpeteller++;
+                                                            }
+                                                        }
+                                                        if (hjelpeteller > antallTilMinsteFylt1)
+                                                        {
+                                                            stemmetallEkskludert = tempStemmetall;
+                                                        }
+                                                    }
+                                                    else if (gjenståendeKandidater[i].klasse == klasse2)
+                                                    {
+                                                        int hjelpeteller2 = 0;
+                                                        for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                                        {
+                                                            if (gjenståendeKandidater[k].klasse == klasse2)
+                                                            {
+                                                                hjelpeteller2++;
+                                                            }
+                                                        }
+                                                        if (hjelpeteller2 > antallTilMinsteFylt2)
+                                                        {
+                                                            stemmetallEkskludert = tempStemmetall;
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }//Funnet laveste stemmetall
+
+                                    VaraSTV kandidatLavestStemmetall = gjenståendeKandidater.FirstOrDefault(k => k.stemmetall == stemmetallEkskludert);
+                                    if (kandidatLavestStemmetall != null)
+                                    {
+                                        gjenståendeKandidater.Remove(kandidatLavestStemmetall);
+                                    }
+                                    string navnEkskludert = kandidatLavestStemmetall.navn;
+                                    Paragraph ekskluderingP = new Paragraph("- Kandidat " + navnEkskludert + " ekskluderes fra valget.");
+                                    cell.AddElement(ekskluderingP);
+
+                                    double tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+                                    List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+
+                                    for (int j = 0; j < listeEkskludert.Count(); j++)
+                                    {
+                                        string seddelNavnet = "";
+                                        string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
+                                        string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
+                                        string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
+                                        string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
+                                        string navnSeksPåSeddel = listeEkskludert[j].KandidatnrSeks;
+                                        string navnSjuPåSeddel = listeEkskludert[j].KandidatnrSju;
+                                        string navnÅttePåSeddel = listeEkskludert[j].KandidatnrÅtte;
+                                        string navnNiPåSeddel = listeEkskludert[j].KandidatnrNi;
+                                        string navnTiPåSeddel = listeEkskludert[j].KandidatnrTi;
+                                        string navnEllevePåSeddel = listeEkskludert[j].KandidatnrElleve;
+                                        string navnTolvPåSedde = listeEkskludert[j].KandidatnrTolv;
+                                        bool funnet = false;
+
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnToPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTrePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnFirePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnFemPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnSeksPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnSjuPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnÅttePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnNiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnEllevePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTolvPåSedde;
+                                            funnet = true;
+                                        }
+
+                                        if (seddelNavnet == "")
+                                        {
+                                        }
+                                        else
+                                        {
+                                            tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+
+                                            VaraSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                            double tempStemmetallet = oppdaterKandidat.stemmetall + 1;
+                                            oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                            kandidatLavestStemmetall.stemmetall = tempStemmetallEksKandidat;
+
+                                            Paragraph overførtStemmerP = new Paragraph(" " + navnEkskludert + " sin stemme overføres til " + seddelNavnet + ".");
+                                            cell.AddElement(overførtStemmerP);
+                                        }
+                                    }
+                                }
+                                else
+                                {//Uten kvotering
+                                 //Finner laveste stemmetall
+                                    if (gjenståendeKandidater.Count() > 0)
+                                    {
+                                        stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
+                                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                        {
+                                            if (stemmetallEkskludert == 0)
+                                            {
+                                                stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
+                                            }
+                                        }
+                                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                        {
+                                            double tempStemmetall = gjenståendeKandidater[i].stemmetall;
+                                            if (tempStemmetall < stemmetallEkskludert)
+                                            {
+                                                if (tempStemmetall != 0)
+                                                {
+                                                    stemmetallEkskludert = tempStemmetall;
+                                                }
+
+                                            }
+                                        }
+                                    }//Funnet laveste stemmetall
+                                     //Finner en av de med laveste stemmetallet - Tilfeldig
+                                    VaraSTV kandidatLavestStemmetall = gjenståendeKandidater.FirstOrDefault(k => k.stemmetall == stemmetallEkskludert);
+                                    if (kandidatLavestStemmetall != null)
+                                    {
+                                        gjenståendeKandidater.Remove(kandidatLavestStemmetall);
+                                    }
+                                    string navnEkskludert = kandidatLavestStemmetall.navn;
+                                    double tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+                                    List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+
+                                    for (int j = 0; j < listeEkskludert.Count(); j++)
+                                    {
+                                        string seddelNavnet = "";
+                                        string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
+                                        string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
+                                        string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
+                                        string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
+                                        string navnSeksPåSeddel = listeEkskludert[j].KandidatnrSeks;
+                                        string navnSjuPåSeddel = listeEkskludert[j].KandidatnrSju;
+                                        string navnÅttePåSeddel = listeEkskludert[j].KandidatnrÅtte;
+                                        string navnNiPåSeddel = listeEkskludert[j].KandidatnrNi;
+                                        string navnTiPåSeddel = listeEkskludert[j].KandidatnrTi;
+                                        string navnEllevePåSeddel = listeEkskludert[j].KandidatnrElleve;
+                                        string navnTolvPåSedde = listeEkskludert[j].KandidatnrTolv;
+                                        bool funnet = false;
+
+                                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnToPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTrePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnFirePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnFemPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnSeksPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnSjuPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnÅttePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnNiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTiPåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnEllevePåSeddel;
+                                            funnet = true;
+                                        }
+                                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && !funnet)
+                                        {
+                                            seddelNavnet = navnTolvPåSedde;
+                                            funnet = true;
+                                        }
+
+                                        if (seddelNavnet == "")
+                                        {
+                                        }
+                                        else
+                                        {
+                                            tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+
+                                            VaraSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                            double tempStemmetallet = oppdaterKandidat.stemmetall + 1;
+                                            oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                            kandidatLavestStemmetall.stemmetall = tempStemmetallEksKandidat;
+
+                                            Paragraph overførtStemmerP = new Paragraph(" " + navnEkskludert + " sin stemme overføres til " + seddelNavnet + ".");
+                                            cell.AddElement(overførtStemmerP);
+
+                                        }
+                                    }
+                                }
+
+                            }//Else-if fant ikke overskudd, eksluderte en av de med laveste stemmetall
+                        }
+
+                        //Sjekke om noen ble valgt etter at stemmer ble eksludert og overført
+                        if (kvoteringsvalg == true)
+                        {
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                                {
+                                    if (valgteKandidater.Count() < antallRepresentanter)
+                                    {
+                                        if (gjenståendeKandidater[i].klasse == klasse1)
+                                        {
+                                            if (antallLedigeKvote1 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                                noenValgt = true;
+                                                antallLedigeKvote1--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                        else if (gjenståendeKandidater[i].klasse == klasse2)
+                                        {
+                                            if (antallLedigeKvote2 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                                noenValgt = true;
+                                                antallLedigeKvote2--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                                {
+                                    if (valgteKandidater.Count() < antallRepresentanter)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        hjelpValgteKandidater.Add(gjenståendeKandidater[i]);
+                                        noenValgt = true;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                            }
+                        }
+
+                        //Slette de eventuelle valgte kandidatene som ble valgt fra gjenstående
+                        for (int i = 0; i < valgteKandidater.Count(); i++)
+                        {
+                            for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                            {
+                                if (valgteKandidater[i].navn == gjenståendeKandidater[k].navn)
+                                {
+                                    gjenståendeKandidater.Remove(gjenståendeKandidater[k]);
+                                }
+                            }
+                        }
+                        //Sletter om det fortsatt er noen som har null stemmer 
+                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                        {
+                            if (gjenståendeKandidater[i].stemmetall == 0)
+                            {
+                                gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
+                            }
+                        }
+
+                        //Clearer ekskluderte lista
+                        for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                        {
+                            kandidaterEkskludert2.Add(ekskluderteKandidater[i]);
+                        }
+
+                        //Om noen ble valgt denne runden legg det inn her
+                        if (noenValgt == true)
+                        {
+                            //Skal sette inn noe i cells her
+                            cell.AddElement(new Paragraph(" "));
+                            for (int i = 0; i < hjelpValgteKandidater.Count(); i++)
+                            {
+                                Paragraph valgtkandidat = new Paragraph("- Kandidat" + hjelpValgteKandidater[i].navn + " sitt stemmetall er " +
+                                    hjelpValgteKandidater[i].stemmetall + " og blir dermed erklært valgt.");
+                                cell.AddElement(valgtkandidat);
+                            }
+                        }
+                        if (valgteKandidater.Count() == antallRepresentanter)
+                        {
+                            //leggTilValgteKandidater(valgteKandidater);
+                            //return valgteKandidater;
+                            //table.AddCell(cell);
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Antall faste valgrepresentanter som skal velges er fylt, valget avsluttes.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            cell.AddElement(new Paragraph("  "));
+                            table.AddCell(cell);
+                            PdfPCell alleValgteCell = new PdfPCell();
+                            Paragraph allevalgteP = new Paragraph("Valgte kandidater: ", boldFont);
+                            alleValgteCell.AddElement(allevalgteP);
+                            for (int i = 0; i < valgteKandidater.Count(); i++)
+                            {
+                                Paragraph leggTilValgtP = new Paragraph(valgteKandidater[i].navn);
+                                alleValgteCell.AddElement(leggTilValgtP);
+                            }
+                            table.AddCell(alleValgteCell);
+                            doc.Add(table);
+                            doc.Close();
+                            return ms;
+                        }
+                        else if (valgteKandidater.Count() > 0 && hjelpValgteKandidater.Count() > 0)
+                        {
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Det ble valgt " + hjelpValgteKandidater.Count() + " denne runden. Valget fortsetter.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            table.AddCell(cell);
+                        }
+                        if (hjelpValgteKandidater.Count() == 0 && ekskluderteKandidater.Count() > 0)
+                        {
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Det ble ekskludert " + ekskluderteKandidater.Count() + " denne runden, og ingen ble valgt så valget fortsetter.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            table.AddCell(cell);
+                        }
+                        else if (hjelpValgteKandidater.Count() > 0 && ekskluderteKandidater.Count() > 0)
+                        {
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Det ble valgt " + hjelpValgteKandidater.Count() + " denne runden, etter å ha ekskludert " + ekskluderteKandidater.Count() + " kandidater. Valget fortsetter.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            table.AddCell(cell);
+                        }
+                        if (noenOverførtOverskudd == true && hjelpValgteKandidater.Count() > 0)
+                        {
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Det ble valgt " + hjelpValgteKandidater.Count() + " denne runden, etter at det ble overført overskudd . Valget fortsetter.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            table.AddCell(cell);
+                        }
+                        else if (noenOverførtOverskudd == true && hjelpValgteKandidater.Count() == 0)
+                        {
+                            cell.AddElement(new Paragraph("  "));
+                            Paragraph nyttParagraf = new Paragraph("Det ble valgt ikke valgt noen representanter denne runden, etter at det ble overført overskudd. Valget fortsetter.");
+                            cell.AddElement(nyttParagraf);
+                            cell.PaddingBottom = 20;
+                            cell.BorderWidthTop = 0;
+                            cell.BorderWidthLeft = 0;
+                            cell.BorderWidthRight = 0;
+                            table.AddCell(cell);
+                        }
+
+                        ekskluderteKandidater.Clear();
+
+                    }//While stopper her
+
+                }
+                return ms;
+            }
+
+        }
         public List<Stemmeseddel> preferansevalgsedler(int id)
         {
             using (var db = new BrukerContext())
@@ -163,375 +1921,7 @@ namespace Studentparlamentet_28.DAL
             return returliste;
         }
 
-        public List<VaraSTV> hentValgteVaraer(int valgtypeid)
-        {
-            var db = new BrukerContext();
-
-            var alleredeValgt = hentValgteKandidater(valgtypeid);
-            List<VaraSTV> AlleIVaraListe = hentVaralisteMedID(valgtypeid);
-            List<VaraSTV> tilgjengeligeKandidater = hentVaralisteMedID(valgtypeid);
-            List<VaraSTV> valgteVaraer = new List<VaraSTV>();
-            List<VaraSTV> ekskluderteKandidater = new List<VaraSTV>();
-            List<KandidatSTV> hjelpGjenståendekandidater = new List<KandidatSTV>();
-            List<VaraSTV> kandidaterEkskludert2 = new List<VaraSTV>();
-
-            var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
-            //int antallVaraRepresentanter = preferansevalg.AntallVaraRepresentanter;
-            int antallVaraRepresentanter = preferansevalg.AntallVaraRepresentanter;
-            int antallRep = preferansevalg.AntallRepresentanter + 1;
-            int antallLedigeplasser = antallVaraRepresentanter;
-            int valgtTeller = 0;
-            int stemmetallEkskludert = 0;
-            double valgtall = BeregnNyttValgTall(antallRep, valgtypeid); //Må endre denne om til sånn at valgtallet beregnes riktig
-            //int stemmetallEkskludert = 0;
-            bool valgAvsluttes = false;
-            bool fortsettRunde = true;
-            VaraSTV vara = new VaraSTV();
-
-
-            //Fjerner de som allerede er valgt
-            for (int i = 0; i < alleredeValgt.Count(); i++)
-            {
-                for (int k = 0; k < tilgjengeligeKandidater.Count(); k++)
-                {
-                    if (alleredeValgt[i].navn == tilgjengeligeKandidater[k].navn)
-                    {
-                        tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[k]);
-                    }
-                }
-            }
-            //Gå igjennom tilgjengelige og sjekke om noen av disse har større stemmetall enn valgtallet
-            bool hjelpBoolNoenValgt = false;
-            for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
-            {
-                VaraSTV sjekkKandidat = tilgjengeligeKandidater[i];
-                if (sjekkKandidat.stemmetall >= valgtall)
-                {
-                    if (hjelpBoolNoenValgt == false)
-                    {
-                        valgteVaraer.Add(sjekkKandidat);
-                        tilgjengeligeKandidater.Remove(sjekkKandidat);
-                        if (valgteVaraer.Count() == antallVaraRepresentanter)
-                        {
-                            return valgteVaraer;
-                        }
-                        valgtTeller++;
-                        antallLedigeplasser--;
-                        antallRep++;
-                        valgtall = BeregnNyttValgTall(antallRep, valgtypeid);
-                        hjelpBoolNoenValgt = true;
-                    }
-                }
-            }
-
-            bool overførtOverskudd = false;
-            while (valgteVaraer.Count() < antallVaraRepresentanter && valgAvsluttes == false)
-            {
-
-                if (fortsettRunde == false && vara != null)
-                {
-                    valgteVaraer.Add(vara);
-                    tilgjengeligeKandidater.Remove(vara);
-                    if (valgteVaraer.Count() == antallVaraRepresentanter) //Foreløpig test bare
-                    {
-                        return valgteVaraer;
-                    }
-                    valgtTeller++;
-                    antallLedigeplasser--;
-                    antallRep++;
-                    overførtOverskudd = false;
-                    fortsettRunde = true;
-                    valgtall = BeregnNyttValgTall(antallRep, valgtypeid);
-
-                    tilgjengeligeKandidater.Clear();
-                    tilgjengeligeKandidater = hentVaralisteMedID(valgtypeid);
-                    
-                    for (int i = 0; i < alleredeValgt.Count(); i++)
-                    {
-                        for (int k = 0; k < tilgjengeligeKandidater.Count(); k++)
-                        {
-                            if (alleredeValgt[i].navn == tilgjengeligeKandidater[k].navn)
-                            {
-                                tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[k]);
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < valgteVaraer.Count(); i++)
-                    {
-                        for (int k = 0; k < tilgjengeligeKandidater.Count(); k++)
-                        {
-                            if (valgteVaraer[i].navn == tilgjengeligeKandidater[k].navn)
-                            {
-                                tilgjengeligeKandidater.Remove(tilgjengeligeKandidater[k]);
-                            }
-                        }
-                    }
-                    vara = null;
-                }
-
-                //Finner laveste stemmetallet i gj.kandidater etter overført etter første runde
-                
-                if(tilgjengeligeKandidater.Count() > 0)
-                {
-                    stemmetallEkskludert = tilgjengeligeKandidater[0].stemmetall;
-                }
-                else
-                {
-                    valgAvsluttes = true;
-                    fortsettRunde = false;
-                }
-                for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
-                {
-                    if (stemmetallEkskludert == 0)
-                    {
-                        stemmetallEkskludert = tilgjengeligeKandidater[i].stemmetall;
-                    }
-                }
-                for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
-                {
-                    int tempStemmetall = tilgjengeligeKandidater[i].stemmetall;
-                    if (tempStemmetall < stemmetallEkskludert)
-                    {
-                        if (tempStemmetall != 0)
-                        {
-                            stemmetallEkskludert = tempStemmetall;
-                        }
-                    }
-                }
-                //Finner høyest stemmetallet
-                int størstStemmetall = 0;
-                for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
-                {
-                    int tempStørstStemmetall = tilgjengeligeKandidater[i].stemmetall;
-
-                    if (størstStemmetall < tempStørstStemmetall)
-                    {
-                        størstStemmetall = tempStørstStemmetall;
-                    }
-                }
-
-                //Sjekker om det er mer enn en kandidat igjen som har større enn 0 i stemmer - etterpå
-                int tellerForTilgjengelige = 0;
-                int indexEnesteTilgjengelig = 0;
-                for (int i = 0; i < tilgjengeligeKandidater.Count(); i++)
-                {
-                    if (tilgjengeligeKandidater[i].stemmetall > 0)
-                    {
-                        tellerForTilgjengelige++;
-                        indexEnesteTilgjengelig = i;
-                    }
-                }
-                if (tellerForTilgjengelige == 1)
-                {
-                    vara = tilgjengeligeKandidater[indexEnesteTilgjengelig];
-                    fortsettRunde = false;
-                }
-
-                if (fortsettRunde == true)
-                {
-                    //Eksludere de med laveste stemmetallet -- Funker -- Må kanskje lage den summe opp og plusse greia
-                    List<VaraSTV> alleEksluderte = tilgjengeligeKandidater.FindAll(l => l.stemmetall == stemmetallEkskludert);
-
-                    int hjelpTeller = tilgjengeligeKandidater.Count() - 1;
-                    int sumEkskluderteStemmetall = 0;
-                    //bool hjelpBool = false;
-                    for (int i = 0; i < alleEksluderte.Count(); i++)
-                    {
-                        VaraSTV kandidatEkskluderes = alleEksluderte[i];
-                        sumEkskluderteStemmetall += kandidatEkskluderes.stemmetall;
-                        for (int k = 0; k < tilgjengeligeKandidater.Count(); k++)
-                        {
-
-                            if (sumEkskluderteStemmetall <= størstStemmetall && kandidatEkskluderes.navn == tilgjengeligeKandidater[k].navn)
-                            {
-                                ekskluderteKandidater.Add(kandidatEkskluderes);
-                            }
-                        }
-                    }
-                }
-
-                //Overføre overskudd
-                if (overførtOverskudd == false)
-                {
-                    for (int i = 0; i < AlleIVaraListe.Count(); i++)
-                    {
-                        int overskudd = 0;
-                        VaraSTV valgtKandidat = AlleIVaraListe[i];
-                        int tempValgtall = (int)Math.Ceiling(valgtall);
-                        overskudd = valgtKandidat.stemmetall - tempValgtall;
-
-                        if (overskudd > 0)
-                        {
-                            List<Stemmeseddel_db> overførStemmer = db.Stemmesedler.Where(s => s.KandidatnrEn == valgtKandidat.navn && s.ValgtypeID == valgtypeid).ToList();
-                            for (int k = 0; k < overskudd; k++)
-                            {
-                                Stemmeseddel_db stemme = overførStemmer[k];
-                                string seddelNavnet = "";
-                                string navnToPåSeddel = stemme.KandidatnrTo;
-                                string navnTrePåSeddel = stemme.KandidatnrTre;
-                                string navnFirePåSeddel = stemme.KandidatnrFire;
-                                string navnFemPåSeddel = stemme.KandidatnrFem;
-                                bool funnet = false;
-
-                                if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnToPåSeddel;
-                                    funnet = true;
-                                }
-                                else if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnTrePåSeddel;
-                                    funnet = true;
-                                }
-                                else if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnFirePåSeddel;
-                                    funnet = true;
-                                }
-                                else
-                                {
-                                    overskudd++;
-                                }
-                                if (seddelNavnet != "")
-                                {
-                                    int tempStemmetallValgtKandidat = valgtKandidat.stemmetall - 1;
-
-                                    VaraSTV oppdaterKandidat = tilgjengeligeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
-                                    int tempStemmetallet = oppdaterKandidat.stemmetall + 1;
-                                    oppdaterKandidat.stemmetall = tempStemmetallet;
-
-
-                                    valgtKandidat.stemmetall = tempStemmetallValgtKandidat;
-
-
-                                    for (int j = 0; j < ekskluderteKandidater.Count(); j++)
-                                    {
-                                        if (ekskluderteKandidater[j].navn == seddelNavnet)
-                                        {
-                                            ekskluderteKandidater.Remove(ekskluderteKandidater[j]);
-                                        }
-                                    }
-
-                                    if (tempStemmetallet >= valgtall)
-                                    {
-                                        vara = oppdaterKandidat;
-                                        fortsettRunde = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    overførtOverskudd = true;
-                }
-
-
-                //Eksludere stemmer
-                for (int i = 0; i < ekskluderteKandidater.Count(); i++)
-                {
-                    VaraSTV ekskludertKandidat = tilgjengeligeKandidater.FirstOrDefault(b => b.navn == ekskluderteKandidater[i].navn);
-                    if (ekskludertKandidat != null)
-                    {
-                        tilgjengeligeKandidater.Remove(ekskludertKandidat); //Fjerner riktig kandidat
-                    }
-                }
-
-                //Ekskluderte stemmer overføres
-                if (fortsettRunde == true)
-                {
-                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
-                    {
-                        string navnEkskludert = ekskluderteKandidater[i].navn;
-                        int tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
-                        List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
-
-                        for (int j = 0; j < listeEkskludert.Count(); j++)
-                        {
-                            string seddelNavnet = "";
-                            string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
-                            string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
-                            string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
-                            string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
-                            bool funnet = false;
-
-                            if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
-                            {
-                                seddelNavnet = navnToPåSeddel;
-                                funnet = true;
-                            }
-                            else if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
-                            {
-                                seddelNavnet = navnTrePåSeddel;
-                                funnet = true;
-                            }
-                            else if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
-                            {
-                                seddelNavnet = navnFirePåSeddel;
-                                funnet = true;
-                            }
-                            else if (tilgjengeligeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
-                            {
-                                seddelNavnet = navnFemPåSeddel;
-                                funnet = true;
-                            }
-
-                            if (seddelNavnet == "")
-                            {
-                                //utskriftTest += "Seddelen var tom as";
-                            }
-                            else
-                            {
-                                tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
-
-                                VaraSTV oppdaterKandidat = tilgjengeligeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
-                                int tempStemmetallet = oppdaterKandidat.stemmetall + 1;
-                                oppdaterKandidat.stemmetall = tempStemmetallet;
-
-
-                                ekskluderteKandidater[i].stemmetall = tempStemmetallEksKandidat;
-
-                                //db.SaveChanges();
-
-                                for (int k = 0; k < ekskluderteKandidater.Count(); k++)
-                                {
-                                    if (ekskluderteKandidater[k].navn == seddelNavnet)
-                                    {
-                                        ekskluderteKandidater.Remove(oppdaterKandidat);
-                                    }
-                                }
-
-                                if (tempStemmetallet >= valgtall)
-                                {
-                                    vara = oppdaterKandidat;
-                                    fortsettRunde = false;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                for (int i = 0; i < ekskluderteKandidater.Count(); i++)
-                {
-                    kandidaterEkskludert2.Add(ekskluderteKandidater[i]);
-                }
-
-                ekskluderteKandidater.Clear();
-            }//While stopper her
-
-            return valgteVaraer; //Foreløpig
-        }
-        public double BeregnNyttValgTall(int antallRep, int valgtypeid)
-        {
-            var db = new BrukerContext();
-            int antallStemmer = db.Stemmesedler.Where(s => s.ValgtypeID == valgtypeid).Count();
-            var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
-            //int antallRepresentanter = preferansevalg.AntallRepresentanter;
-            double divider = (double)antallStemmer / (double)antallRep;
-            //double divider = antallStemmer / antallRepresentanter;
-            double valgtall = divider + 1 + 0.01;
-
-            return valgtall;
-        }
+        
 
         public string HarBrukerStemtSTV(string brukernavn)
         {
@@ -691,8 +2081,8 @@ namespace Studentparlamentet_28.DAL
                 valgtype = stop.Valgtype,
                 start = stop.Start
             };
-            List<KandidatSTV> valgteKandidater = BeregnPreferansevalgResultat(valg.valgtypeid);
-            //BeregnStemmetallFørsteRunde(valg.valgtypeid);
+            List<KandidatSTV> valgteKandidater = ResultatPreferansevalg(valg.valgtypeid, preferansevalg.KvoteKlasseEn, preferansevalg.KvoteKlasseTo,
+                                                 preferansevalg.KlasseEnProsent, preferansevalg.KlasseToProsent);
 
             return valg;
         }
@@ -745,720 +2135,1563 @@ namespace Studentparlamentet_28.DAL
             db.SaveChanges();
         }
 
-        public List<KandidatSTV> BeregnPreferansevalgResultat(int valgtypeid)
+        public List<KandidatSTV> ResultatPreferansevalg(int valgtypeid, string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var db = new BrukerContext();
-            BeregnStemmetallFørsteRunde(valgtypeid);
-            //Under kalle på en metode som beregner valgtallet - foreløpig hardkoder den inn
-            //double valgtallTest = BeregnValgtall(valgtypeid);
+            BeregnStemmetallFørsteRunde(valgtypeid); //Beregner stemmetallene og sorterer de for første runde
+            //double valgtall = 4;
+            double valgtall = BeregnValgtall(valgtypeid);
             var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
             int antallRepresentanter = preferansevalg.AntallRepresentanter;
-            double valgtall = BeregnValgtall(valgtypeid);
-
-            //int antallRepresentanter =;
+            //int antallRepresentanter = 3;
             int antallLedigeplasser = antallRepresentanter;
-            int valgtTeller = 0;
-            int stemmetallEkskludert = 0;
-            int tempAntValgt = 0;
-            string utskriftTest = "";
-
-            bool valgAvsluttes = false;
+            int runde = 1;
+            int høyesteEkskluderes = 0;
+            double stemmetallEkskludert = 0;
+            double totaltOverskudd = 0;
+            double stemmetallOgOverskudd = 0;
+            bool avsluttValg = false;
+            bool fortsett = true;
+            bool ikkeEkskluderFler = false;
 
             List<KandidatSTV> listeAvKandidater = hentKandidatlisteMedID(valgtypeid);
-            List<KandidatSTV> avsluttValg = new List<KandidatSTV>();
             List<KandidatSTV> valgteKandidater = new List<KandidatSTV>();
             List<KandidatSTV> gjenståendeKandidater = new List<KandidatSTV>();
-            List<KandidatSTV> hjelpGjenståendekandidater = new List<KandidatSTV>();
             List<KandidatSTV> ekskluderteKandidater = new List<KandidatSTV>();
             List<KandidatSTV> kandidaterEkskludert2 = new List<KandidatSTV>();
+            List<OverførtTilSeddel> overførteOverskudd = new List<OverførtTilSeddel>();
 
-            //Om antall kandidater er mindre enn antall representanter som velges
-            /*if (listeAvKandidater.Count() < antallRepresentanter)
-            {
-                return null;
-            }*/
+            //Kvotering
+            bool kvoteringsvalg = false;
+            double tempMinsteKvoteKlasse1 = (double)prosent1 * antallRepresentanter / 100;
+            int minsteKvoteKlasse1 = (int)Math.Ceiling(tempMinsteKvoteKlasse1);
+            int antallTilMinsteFylt1 = minsteKvoteKlasse1;
 
-            //Fordele kandidater i riktig lister, etter å ha samlet stemmetallene
-            if (listeAvKandidater.Count() == antallRepresentanter)
+            double tempMinsteKvoteKlasse2 = (double)prosent2 * antallRepresentanter / 100;
+            int minsteKvoteKlasse2 = (int)Math.Ceiling(tempMinsteKvoteKlasse2);
+            int antallTilMinsteFylt2 = minsteKvoteKlasse2;
+
+            int maksKvoteKlasse1 = antallRepresentanter - minsteKvoteKlasse2;
+            int maksKvoteKlasse2 = antallRepresentanter - minsteKvoteKlasse1;
+            int antallLedigeKvote1 = maksKvoteKlasse1;
+            int antallLedigeKvote2 = maksKvoteKlasse2;
+
+            if (klasse1 != "tom" && klasse2 != "tom")
             {
-                for (int i = 0; i < listeAvKandidater.Count(); i++)
-                {
-                    valgteKandidater.Add(listeAvKandidater[i]);
-                }
-                leggTilValgteKandidater(valgteKandidater);
-                return valgteKandidater;
+                kvoteringsvalg = true;
             }
-            //Sjekker om valget har blitt regnet ut før - 
-            int hjelpTellerAvsluttet = 0;
+
+            //Om noen erklært valgt legge til i Valgte kandidater liste ellers i gjenstående
             for (int i = 0; i < listeAvKandidater.Count(); i++)
             {
-                if (listeAvKandidater[i].stemmetall > 0)
+                if (listeAvKandidater[i].stemmetall >= valgtall)
                 {
-                    avsluttValg.Add(listeAvKandidater[i]);
-                    hjelpTellerAvsluttet++;
-                }
-            }
-            if (hjelpTellerAvsluttet == antallRepresentanter)
-            {
-                leggTilValgteKandidater(valgteKandidater);
-                return avsluttValg;
-            }
-
-            for (int i = 0; i < listeAvKandidater.Count(); i++)
-            {
-                KandidatSTV sjekkKandidat = hentEnKandidatNavnogID(valgtypeid, listeAvKandidater[i].navn);
-                if (sjekkKandidat.stemmetall >= valgtall)
-                {
-                    if (valgteKandidater.Count() == antallRepresentanter)
+                    //Kvotering
+                    if (kvoteringsvalg == true)
                     {
-                        break;
+                        if (listeAvKandidater[i].klasse == klasse1 && antallLedigeKvote1 > 0)
+                        {
+                            valgteKandidater.Add(listeAvKandidater[i]);
+                            antallTilMinsteFylt1--;
+                            antallLedigeKvote1--;
+                            antallLedigeplasser--;
+                        }
+                        else if (listeAvKandidater[i].klasse == klasse2 && antallLedigeKvote2 > 0)
+                        {
+                            valgteKandidater.Add(listeAvKandidater[i]);
+                            antallTilMinsteFylt2--;
+                            antallLedigeKvote2--;
+                            antallLedigeplasser--;
+                        }
                     }
-                    valgteKandidater.Add(sjekkKandidat);
-                    valgtTeller++;
-                    antallLedigeplasser--;
-
+                    else
+                    {
+                        //Om ikke kvotering
+                        valgteKandidater.Add(listeAvKandidater[i]);
+                        antallLedigeplasser--;
+                    }
                 }
                 else
                 {
-                    gjenståendeKandidater.Add(sjekkKandidat);
+                    gjenståendeKandidater.Add(listeAvKandidater[i]);
                 }
             }
-            tempAntValgt = valgteKandidater.Count();
 
-            //Sjekker om ledige plasser er fylt opp etter første runde, om de er avsluttes valget
-            if (valgteKandidater.Count() >= antallRepresentanter)
+            //Om ingen ble valgt første runde, ekskludere alle med null
+            if (valgteKandidater.Count() == 0)
             {
-                valgAvsluttes = true;
-                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                //Kvotering - Funker 100%
+                if (kvoteringsvalg == true)
                 {
-                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[i].navn && b.ValgtypeID == valgtypeid);
-                    endreKandidat.KandidatID = gjenståendeKandidater[i].kandidatListeID;
-                    endreKandidat.Navn = gjenståendeKandidater[i].navn;
-                    endreKandidat.Stemmetall = 0;
-                }
-                db.SaveChanges();
-                leggTilValgteKandidater(valgteKandidater);
-                return valgteKandidater;
-            }
-
-            //Om antall gjenstående kandidater er mindre eller lik antall ledige plasser
-            if (gjenståendeKandidater.Count() <= antallLedigeplasser)
-            {
-                //Alle gjenstående kandidater blir valgt
-                for (int i = 0; i <= gjenståendeKandidater.Count(); i++)
-                {
-                    valgteKandidater.Add(gjenståendeKandidater[i]);
-                    //gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                    valgtTeller++;
-                    antallLedigeplasser--;
-                }
-                valgAvsluttes = true;
-                leggTilValgteKandidater(valgteKandidater);
-                return valgteKandidater;
-            }
-            tempAntValgt = valgteKandidater.Count();
-
-            while (valgteKandidater.Count() < antallRepresentanter && valgAvsluttes == false)
-            {
-                //Finner laveste stemmetallet i gj.kandidater etter overført etter første runde
-                stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
-                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
-                {
-                    if (stemmetallEkskludert == 0)
-                    {
-                        stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
-                    }
-                }
-                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
-                {
-                    int tempStemmetall = gjenståendeKandidater[i].stemmetall;
-                    if (tempStemmetall < stemmetallEkskludert)
-                    {
-                        if (tempStemmetall != 0)
-                        {
-                            stemmetallEkskludert = tempStemmetall;
-                        }
-
-                    }
-                }
-                //Finner høyest stemmetallet
-                int størstStemmetall = 0;
-                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
-                {
-                    int tempStørstStemmetall = gjenståendeKandidater[i].stemmetall;
-
-                    if (størstStemmetall < tempStørstStemmetall)
-                    {
-                        størstStemmetall = tempStørstStemmetall;
-                    }
-                }
-
-                //Eksludere de med laveste stemmetallet -- Funker -- Må kanskje lage den summe opp og plusse greia
-                List<KandidatSTV> alleEksluderte = gjenståendeKandidater.FindAll(l => l.stemmetall == stemmetallEkskludert);
-
-                int hjelpTeller = gjenståendeKandidater.Count() - 1;
-                int sumEkskluderteStemmetall = 0;
-                bool hjelpBool = false;
-                for (int i = 0; i < alleEksluderte.Count(); i++)
-                {
-                    KandidatSTV kandidatEkskluderes = alleEksluderte[i];
-                    sumEkskluderteStemmetall += kandidatEkskluderes.stemmetall;
-                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
-                    {
-                        //int hjelpAntGjenstående = hjelpTeller - 1;
-                        if (gjenståendeKandidater.Count() == 2 && hjelpBool == false)
-                        {
-                            ekskluderteKandidater.Add(kandidatEkskluderes);
-                            hjelpTeller--;
-                            hjelpBool = true;
-                        }
-
-                        if (hjelpTeller >= antallLedigeplasser)
-                        {
-                            if (hjelpTeller == antallLedigeplasser)
-                            {
-                                //For å slette riktig
-                                for (int ind = 0; ind < gjenståendeKandidater.Count(); ind++)
-                                {
-                                    hjelpGjenståendekandidater.Add(gjenståendeKandidater[ind]);
-                                }
-
-                                for (int s = 0; s <= gjenståendeKandidater.Count(); s++)
-                                {
-                                    if (valgteKandidater.Count() == antallRepresentanter)
-                                    {
-                                        if (hjelpGjenståendekandidater.Count() > 0)
-                                        {
-                                            for (int index = 0; index < hjelpGjenståendekandidater.Count(); index++)
-                                            {
-                                                KandidatSTV oppdaterKandidat = hentEnKandidatNavnogID(valgtypeid, hjelpGjenståendekandidater[index].navn);
-                                                string kandidatnavn = oppdaterKandidat.navn;
-                                                int tempStemmetall = oppdaterKandidat.stemmetall + 1;
-
-                                                KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == kandidatnavn && b.ValgtypeID == valgtypeid);
-                                                endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
-                                                endreKandidat.Navn = oppdaterKandidat.navn;
-                                                endreKandidat.Stemmetall = 0;
-
-                                            }
-                                            db.SaveChanges();
-                                        }
-                                        leggTilValgteKandidater(valgteKandidater);
-                                        return valgteKandidater;
-                                    }
-                                    valgteKandidater.Add(gjenståendeKandidater[s]);
-                                    hjelpGjenståendekandidater.Remove(gjenståendeKandidater[s]);
-                                    antallLedigeplasser--;
-                                }
-                                //return valgteKandidater;
-                            }
-                            else
-                            {
-                                if (kandidatEkskluderes.navn == gjenståendeKandidater[k].navn)
-                                {
-                                    if (sumEkskluderteStemmetall <= størstStemmetall)
-                                    {
-                                        ekskluderteKandidater.Add(kandidatEkskluderes);
-                                        hjelpTeller--;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-                //--------------------Alle ekskludert ferdig
-
-                //Overføre overskudd
-                if (valgteKandidater.Count() > 0)
-                {
-                    for (int i = 0; i < valgteKandidater.Count(); i++)
-                    {
-                        int overskudd = 0;
-                        KandidatSTV valgtKandidat = valgteKandidater[i];
-                        int tempValgtall = (int)Math.Ceiling(valgtall);
-                        overskudd = valgtKandidat.stemmetall - tempValgtall;
-
-                        if (overskudd > 0)
-                        {
-                            List<Stemmeseddel_db> overførStemmer = db.Stemmesedler.Where(s => s.KandidatnrEn == valgtKandidat.navn && s.ValgtypeID == valgtypeid).ToList();
-                            for (int k = 0; k < overskudd; k++)
-                            {
-
-                                Stemmeseddel_db stemme = overførStemmer[k];
-                                string seddelNavnet = "";
-                                string navnToPåSeddel = stemme.KandidatnrTo;
-                                string navnTrePåSeddel = stemme.KandidatnrTre;
-                                string navnFirePåSeddel = stemme.KandidatnrFire;
-                                string navnFemPåSeddel = stemme.KandidatnrFem;
-                                bool funnet = false;
-
-                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnToPåSeddel;
-                                    funnet = true;
-                                }
-                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnTrePåSeddel;
-                                    funnet = true;
-                                }
-                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnFirePåSeddel;
-                                    funnet = true;
-                                }
-                                else
-                                {
-                                    overskudd++;
-                                }
-
-                                if (seddelNavnet != "")
-                                {
-                                    int tempStemmetallValgtKandidat = valgtKandidat.stemmetall - 1;
-
-                                    KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
-                                    int tempStemmetallet = oppdaterKandidat.stemmetall + 1;
-                                    oppdaterKandidat.stemmetall = tempStemmetallet;
-
-                                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
-                                    endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
-                                    endreKandidat.Navn = oppdaterKandidat.navn;
-                                    endreKandidat.Stemmetall = tempStemmetallet;
-
-                                    KandidatListeSTV endreValgtKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == valgtKandidat.navn && b.ValgtypeID == valgtypeid);
-                                    endreValgtKandidat.KandidatID = valgtKandidat.kandidatListeID;
-                                    endreValgtKandidat.Navn = valgtKandidat.navn;
-                                    endreValgtKandidat.Stemmetall = tempStemmetallValgtKandidat;
-
-                                    valgtKandidat.stemmetall = tempStemmetallValgtKandidat;
-
-
-                                    for (int j = 0; j < ekskluderteKandidater.Count(); j++)
-                                    {
-                                        if (ekskluderteKandidater[j].navn == seddelNavnet)
-                                        {
-                                            ekskluderteKandidater.Remove(ekskluderteKandidater[j]);
-                                        }
-                                    }
-
-                                    if (tempStemmetallet >= valgtall)
-                                    {
-                                        valgteKandidater.Add(oppdaterKandidat);
-                                        valgtTeller++;
-                                        antallLedigeplasser--;
-                                        if (valgteKandidater.Count() >= antallRepresentanter)
-                                        {
-                                            valgAvsluttes = true;
-                                            for (int l = 0; l < gjenståendeKandidater.Count(); l++)
-                                            {
-                                                KandidatListeSTV eKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[l].navn && b.ValgtypeID == valgtypeid);
-                                                eKandidat.KandidatID = gjenståendeKandidater[l].kandidatListeID;
-                                                eKandidat.Navn = gjenståendeKandidater[l].navn;
-                                                eKandidat.Stemmetall = 0;
-                                            }
-                                            db.SaveChanges();
-                                            leggTilValgteKandidater(valgteKandidater);
-                                            return valgteKandidater;
-                                        }
-                                    }
-                                    funnet = true;
-                                }
-                            }
-                        }
-                    }
-                    db.SaveChanges();
-                }
-                tempAntValgt = valgteKandidater.Count();
-
-                //Ekskluder kandidat removes fra gj.liste riktig - Etter overføring
-                for (int i = 0; i < ekskluderteKandidater.Count(); i++)
-                {
-                    KandidatSTV ekskludertKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == ekskluderteKandidater[i].navn);
-                    if (ekskludertKandidat != null)
-                    {
-                        gjenståendeKandidater.Remove(ekskludertKandidat); //Fjerner riktig kandidat
-                    }
-                }
-                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
-                {
-                    if (gjenståendeKandidater[i].stemmetall >= valgtall)
-                    {
-                        gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                    }
-                }
-
-
-                //Sjekker om valget kan avsluttes - Etter å ha overført første gang
-                if (valgteKandidater.Count() >= antallRepresentanter)
-                {
-                    valgAvsluttes = true;
-                    for (int l = 0; l < gjenståendeKandidater.Count(); l++)
-                    {
-                        KandidatListeSTV eKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[l].navn && b.ValgtypeID == valgtypeid);
-                        eKandidat.KandidatID = gjenståendeKandidater[l].kandidatListeID;
-                        eKandidat.Navn = gjenståendeKandidater[l].navn;
-                        eKandidat.Stemmetall = 0;
-                    }
-                    db.SaveChanges();
-                    leggTilValgteKandidater(valgteKandidater);
-                    return valgteKandidater;
-                }
-                //Om antall gjenstående kandidater er mindre eller lik antall ledige plasser - Etter å ha overført første gang
-                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
-                {
+                    //Dette kjøres om det er kvotering
+                    List<KandidatSTV> hjelpelistegjenståendeNull = new List<KandidatSTV>();
                     for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                     {
-                        valgteKandidater.Add(gjenståendeKandidater[i]);
-                        //gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                        antallLedigeplasser--;
+                        if (gjenståendeKandidater[i].stemmetall > 0)
+                        {
+                            hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                        }
+                        else if (gjenståendeKandidater[i].stemmetall == 0)//Sjekker om jeg stryker en kandidat, vil det være mulig å fylle opp minstekvoten
+                        {
+                            if (gjenståendeKandidater[i].klasse == klasse1)
+                            {
+                                int tempTeller = 0;
+                                int tempTellerSjekkOppMot = antallLedigeKvote1 - 1;
+                                //Sjekker hvor mange av den klasse det er igjen
+                                for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                {
+                                    if (gjenståendeKandidater[k].klasse == klasse1)
+                                    {
+                                        tempTeller++;
+                                    }
+                                }
+                                if (tempTeller <= antallTilMinsteFylt1)
+                                {
+                                    hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                                }
+
+                            }
+                            else if (gjenståendeKandidater[i].klasse == klasse2)
+                            {
+                                int tempTeller = 0;
+                                int tempTellerSjekkOppMot = antallLedigeKvote2 - 1;
+                                //Sjekker hvor mange av den klasse det er igjen
+                                for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                {
+                                    if (gjenståendeKandidater[k].klasse == klasse2)
+                                    {
+                                        tempTeller++;
+                                    }
+                                }
+                                if (tempTeller <= antallTilMinsteFylt2)
+                                {
+                                    hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                                }
+                            }
+                        }
                     }
-                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                    gjenståendeKandidater.Clear();
+                    gjenståendeKandidater = hjelpelistegjenståendeNull;
+                }
+                else
+                {
+                    //Dette kjøres om det ikke er kvotering
+                    List<KandidatSTV> hjelpelistegjenståendeNull = new List<KandidatSTV>();
+                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                     {
-                        string navnEkskludert = ekskluderteKandidater[i].navn;
-                        KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
-                        ekskludereKandidat.KandidatID = ekskluderteKandidater[i].kandidatListeID;
-                        ekskludereKandidat.Navn = ekskluderteKandidater[i].navn;
-                        ekskludereKandidat.Stemmetall = 0;
+                        if (gjenståendeKandidater[i].stemmetall > 0)
+                        {
+                            hjelpelistegjenståendeNull.Add(gjenståendeKandidater[i]);
+                        }
                     }
-                    db.SaveChanges();
-                    valgAvsluttes = true;
+                    gjenståendeKandidater.Clear();
+                    gjenståendeKandidater = hjelpelistegjenståendeNull;
+                }
+            }
+
+            //Antall ledige plasser er fylt ut
+            if (valgteKandidater.Count() == antallRepresentanter)
+            {
+                leggTilValgteKandidater(valgteKandidater);
+                return valgteKandidater;
+            }
+
+            //Starter senere runder --KK
+            while (valgteKandidater.Count() <= antallRepresentanter && avsluttValg == false)
+            {
+                //Øk rundenummer
+                runde++;
+                ikkeEkskluderFler = false;
+                fortsett = true;
+
+                //Om gjenstående kandidater er mindre eller lik antall ledige plasser
+                if (kvoteringsvalg == true)
+                {
+                    if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                    {
+                        if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                        {
+                            //Alle gjenstående kandidater blir valgt
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                if (gjenståendeKandidater[i].klasse == klasse1 && valgteKandidater.Count() < antallRepresentanter)
+                                {
+                                    if (antallLedigeKvote1 > 0)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeKvote1--;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                                else if (gjenståendeKandidater[i].klasse == klasse2)
+                                {
+                                    if (antallLedigeKvote2 > 0 && valgteKandidater.Count() < antallRepresentanter)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeKvote2--;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                            }
+                            avsluttValg = true;
+                            leggTilValgteKandidater(valgteKandidater);
+                            return valgteKandidater;
+                        }
+                    }
+                }
+                else
+                {
+                    if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                    {
+                        if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                        {
+                            //Alle gjenstående kandidater blir valgt
+                            for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                            {
+                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                antallLedigeplasser--;
+                            }
+                            avsluttValg = true;
+                            leggTilValgteKandidater(valgteKandidater);
+                            return valgteKandidater;
+                        }
+                    }
+                }
+
+                //Kvotering -- Om en av klassene har fylt opp maksKvote, så ekskluder resten av den klassen fra gjenstående
+                if (valgteKandidater.Count() > 0)
+                {
+                    //Sjekker først for klasse 1
+                    int tellerAntallKlasseEn = 0;
+                    for (int i = 0; i < valgteKandidater.Count(); i++)
+                    {
+                        if (valgteKandidater[i].klasse == klasse1)
+                        {
+                            tellerAntallKlasseEn++;
+                        }
+                    }
+                    if (tellerAntallKlasseEn >= maksKvoteKlasse1)
+                    {
+                        for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                        {
+                            if (gjenståendeKandidater[k].klasse == klasse1)
+                            {
+                                ekskluderteKandidater.Add(gjenståendeKandidater[k]);
+                                ikkeEkskluderFler = false;
+                                fortsett = false;
+                            }
+                        }
+                        for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                        {
+                            for (int j = 0; j < gjenståendeKandidater.Count(); j++)
+                            {
+                                if (ekskluderteKandidater[i].klasse == gjenståendeKandidater[j].klasse)
+                                {
+                                    gjenståendeKandidater.Remove(gjenståendeKandidater[j]);
+                                }
+                            }
+                        }
+                    }
+
+                    //Sjekker for klasse2
+                    int tellerAntallKlasseTo = 0;
+                    for (int i = 0; i < valgteKandidater.Count(); i++)
+                    {
+                        if (valgteKandidater[i].klasse == klasse2)
+                        {
+                            tellerAntallKlasseTo++;
+                        }
+                    }
+                    if (tellerAntallKlasseTo >= maksKvoteKlasse2)
+                    {
+                        for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                        {
+                            if (gjenståendeKandidater[k].klasse == klasse2)
+                            {
+                                ekskluderteKandidater.Add(gjenståendeKandidater[k]);
+                                ikkeEkskluderFler = true;
+                                fortsett = false;
+                            }
+                        }
+                        for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                        {
+                            for (int j = 0; j < gjenståendeKandidater.Count(); j++)
+                            {
+                                if (ekskluderteKandidater[i].klasse == gjenståendeKandidater[j].klasse)
+                                {
+                                    gjenståendeKandidater.Remove(gjenståendeKandidater[j]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //Om antall erklærte valgte kandidater er fylt opp
+                if (valgteKandidater.Count() == antallRepresentanter)
+                {
                     leggTilValgteKandidater(valgteKandidater);
                     return valgteKandidater;
                 }
 
-                //Eksluderte sine stemmer overføres -- Funker 
-                for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+
+                //--------------------------------UNDER FINNE UT HVEM SOM KAN EKSKLUDERES-----------------------------------
+                if (ikkeEkskluderFler == false)
                 {
-                    string navnEkskludert = ekskluderteKandidater[i].navn;
-                    int tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
-                    List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+                    //Finne ut om noen kan ekskluderes
+                    totaltOverskudd = 0;
+                    stemmetallOgOverskudd = 0;
 
-                    for (int j = 0; j < listeEkskludert.Count(); j++)
+                    //Finner laveste stemmetall
+                    if (gjenståendeKandidater.Count() > 0)
                     {
-                        string seddelNavnet = "";
-                        string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
-                        string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
-                        string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
-                        string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
-                        bool funnet = false;
+                        stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
+                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                        {
+                            if (stemmetallEkskludert == 0)
+                            {
+                                stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
+                            }
+                        }
+                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                        {
+                            double tempStemmetall = gjenståendeKandidater[i].stemmetall;
+                            if (tempStemmetall < stemmetallEkskludert)
+                            {
+                                if (tempStemmetall != 0)
+                                {
+                                    stemmetallEkskludert = tempStemmetall;
+                                }
 
-                        if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
-                        {
-                            seddelNavnet = navnToPåSeddel;
-                            funnet = true;
+                            }
                         }
-                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                    }//Funnet laveste stemmetall
+
+                    //Om noen har overskudd legge til for å finne hvem som kan ekskluderes
+                    if (valgteKandidater.Count() > 0)
+                    {
+                        for (int i = 0; i < valgteKandidater.Count(); i++)
                         {
-                            seddelNavnet = navnTrePåSeddel;
-                            funnet = true;
+                            double overskuddKandidat = 0;
+                            double tempValgtall = valgtall;
+                            overskuddKandidat = valgteKandidater[i].stemmetall - tempValgtall;
+                            if (overskuddKandidat > 0)
+                            {
+                                totaltOverskudd += overskuddKandidat;
+                            }
                         }
-                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                    }
+
+                    //Viktige variabler og lister for Ekskludering
+                    høyesteEkskluderes = gjenståendeKandidater.Count() - antallLedigeplasser;
+                    List<KandidatSTV> potensiellEkskluderte = new List<KandidatSTV>();
+                    stemmetallOgOverskudd = totaltOverskudd;
+
+                    //Sjekker hvem som potensielt kan ekskluderes
+                    if (kvoteringsvalg == true)
+                    {
+                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                         {
-                            seddelNavnet = navnFirePåSeddel;
-                            funnet = true;
+                            bool sjekkPlassEtterEks = false;
+                            if (gjenståendeKandidater[i].stemmetall == stemmetallEkskludert && høyesteEkskluderes > potensiellEkskluderte.Count())
+                            {
+                                if (gjenståendeKandidater[i].klasse == klasse1)
+                                {
+                                    int tellerAntallKlasse1IGj = 0;
+                                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                    {
+                                        if (gjenståendeKandidater[k].klasse == klasse1)
+                                        {
+                                            tellerAntallKlasse1IGj++;
+                                        }
+                                    }
+                                    if (tellerAntallKlasse1IGj > antallTilMinsteFylt1)
+                                    {
+                                        sjekkPlassEtterEks = true;
+                                    }
+                                }
+                                else if (gjenståendeKandidater[i].klasse == klasse2)
+                                {
+                                    int tellerAntallKlasse2IGj = 0;
+                                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                    {
+                                        if (gjenståendeKandidater[k].klasse == klasse2)
+                                        {
+                                            tellerAntallKlasse2IGj++;
+                                        }
+                                    }
+                                    if (tellerAntallKlasse2IGj > antallTilMinsteFylt2)
+                                    {
+                                        sjekkPlassEtterEks = true;
+                                    }
+                                }
+
+                            }
+                            if (sjekkPlassEtterEks == true)
+                            {
+                                potensiellEkskluderte.Add(gjenståendeKandidater[i]);
+                            }
                         }
-                        else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                    }
+                    else
+                    {
+                        for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                         {
-                            seddelNavnet = navnFemPåSeddel;
-                            funnet = true;
+                            if (gjenståendeKandidater[i].stemmetall == stemmetallEkskludert && høyesteEkskluderes > potensiellEkskluderte.Count())
+                            {
+                                potensiellEkskluderte.Add(gjenståendeKandidater[i]);
+                            }
+                        }
+                    }
+
+
+                    if (potensiellEkskluderte.Count() > 0)
+                    {
+                        for (int i = 0; i < potensiellEkskluderte.Count(); i++)
+                        {
+                            bool hjelpEkskludering = true;
+                            KandidatSTV potensiellEkskluderes = potensiellEkskluderte[i];
+                            stemmetallOgOverskudd += potensiellEkskluderes.stemmetall;
+                            for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                            {
+                                if (gjenståendeKandidater[k].stemmetall > stemmetallEkskludert && gjenståendeKandidater[k].stemmetall <= stemmetallOgOverskudd)
+                                {
+                                    hjelpEkskludering = false;
+                                }
+                            }
+                            if (hjelpEkskludering == true)
+                            {
+                                ekskluderteKandidater.Add(potensiellEkskluderes);
+                                fortsett = false;
+                            }
+                        }
+                        //Fjerne ekskludert kandidat fra gjenstående liste
+                        for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                        {
+                            for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                            {
+                                if (ekskluderteKandidater[i].navn == gjenståendeKandidater[k].navn)
+                                {
+                                    gjenståendeKandidater.Remove(ekskluderteKandidater[i]);
+                                }
+                            }
                         }
 
-                        if (seddelNavnet == "")
+
+                        //Om antall gjenstående kandidater er mindre enn eller lik antall ledige plasser - avslutt valg
+                        if (kvoteringsvalg == true)
                         {
-                            utskriftTest += "Seddelen var tom as";
+                            if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                            {
+                                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+                                {
+                                    //Alle gjenstående kandidater blir valgt
+                                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                    {
+                                        if (gjenståendeKandidater[i].klasse == klasse1 && valgteKandidater.Count() < antallRepresentanter)
+                                        {
+                                            if (antallLedigeKvote1 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                antallLedigeKvote1--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                        else if (gjenståendeKandidater[i].klasse == klasse2 && valgteKandidater.Count() < antallRepresentanter)
+                                        {
+                                            if (antallLedigeKvote2 > 0)
+                                            {
+                                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                                antallLedigeKvote2--;
+                                                antallLedigeplasser--;
+                                            }
+                                        }
+                                    }
+                                    avsluttValg = true;
+                                    leggTilValgteKandidater(valgteKandidater);
+                                    return valgteKandidater;
+                                }
+                            }
                         }
                         else
                         {
-                            tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
-
-                            KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
-                            int tempStemmetallet = oppdaterKandidat.stemmetall + 1;
-                            oppdaterKandidat.stemmetall = tempStemmetallet;
-
-                            KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
-                            endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
-                            endreKandidat.Navn = oppdaterKandidat.navn;
-                            endreKandidat.Stemmetall = tempStemmetallet;
-
-                            KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
-                            ekskludereKandidat.KandidatID = ekskluderteKandidater[i].kandidatListeID;
-                            ekskludereKandidat.Navn = ekskluderteKandidater[i].navn;
-                            ekskludereKandidat.Stemmetall = tempStemmetallEksKandidat;
-
-                            ekskluderteKandidater[i].stemmetall = tempStemmetallEksKandidat;
-
-                            //db.SaveChanges();
-
-                            for (int k = 0; k < ekskluderteKandidater.Count(); k++)
+                            if (gjenståendeKandidater.Count() <= antallLedigeplasser)
                             {
-                                if (ekskluderteKandidater[k].navn == seddelNavnet)
+                                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
                                 {
-                                    ekskluderteKandidater.Remove(oppdaterKandidat);
+                                    //Alle gjenstående kandidater blir valgt
+                                    for (int i = 0; i < gjenståendeKandidater.Count(); i++) //Må sjekke denne tror den blir feil
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeplasser--;
+                                    }
+                                    avsluttValg = true;
+                                    leggTilValgteKandidater(valgteKandidater);
+                                    return valgteKandidater;
                                 }
                             }
+                        }
+                    }
+                }
 
-                            if (tempStemmetallet >= valgtall)
+                //---------------------------Eksludert sine stemmer overføres---------------------------------------
+                if (ekskluderteKandidater.Count() > 0)
+                {
+                    //Inne her skal jeg overføre stemmeseddel for den som eventuelt har blitt ekskludert og sette fortsett til false
+                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                    {
+                        KandidatSTV kandidatEkskluderes = ekskluderteKandidater[i];
+                        string navnEkskludert = ekskluderteKandidater[i].navn;
+                        double tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
+                        List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+
+                        //Sjekke om ekskludert kandidat har fått overført overskudd tidligere som må videreføres
+                        if (overførteOverskudd.Count() > 0)
+                        {
+                            for (int ind = 0; ind < overførteOverskudd.Count(); ind++)
                             {
-                                if (valgteKandidater.FirstOrDefault(b => b.navn == oppdaterKandidat.navn) == null)
+                                OverførtTilSeddel stemme = overførteOverskudd[ind];
+                                if (navnEkskludert == stemme.overførtTil)
                                 {
-                                    valgteKandidater.Add(oppdaterKandidat);
-                                    valgtTeller++;
-                                    antallLedigeplasser--;
+                                    string seddelNavnet = "";
+                                    string navnToPåSeddel = stemme.kandidatnrTo;
+                                    string navnTrePåSeddel = stemme.kandidatnrTre;
+                                    string navnFirePåSeddel = stemme.kandidatnrFire;
+                                    string navnFemPåSeddel = stemme.kandidatnrFem;
+                                    string navnSeksPåSeddel = stemme.kandidatnrSeks;
+                                    string navnSjuPåSeddel = stemme.kandidatnrSju;
+                                    string navnÅttePåSeddel = stemme.kandidatnrÅtte;
+                                    string navnNiPåSeddel = stemme.kandidatnrNi;
+                                    string navnTiPåSeddel = stemme.kandidatnrTi;
+                                    string navnEllevePåSeddel = stemme.kandidatnrElleve;
+                                    string navnTolvPåSedde = stemme.kandidatnrTolv;
+                                    bool funnet = false;
 
-                                    //Sjekker om valget kan avsluttes - Etter å ha overført første gang
-                                    if (valgteKandidater.Count() >= antallRepresentanter)
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && stemme.overførtTil != navnToPåSeddel && !funnet)
                                     {
-                                        valgAvsluttes = true;
-                                        for (int l = 0; l < gjenståendeKandidater.Count(); l++)
+                                        seddelNavnet = navnToPåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && stemme.overførtTil != navnTrePåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnTrePåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && stemme.overførtTil != navnFirePåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnFirePåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && stemme.overførtTil != navnFemPåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnFemPåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && stemme.overførtTil != navnSeksPåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnSeksPåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && stemme.overførtTil != navnSjuPåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnSjuPåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && stemme.overførtTil != navnÅttePåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnÅttePåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && stemme.overførtTil != navnNiPåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnNiPåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && stemme.overførtTil != navnTiPåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnTiPåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && stemme.overførtTil != navnEllevePåSeddel && !funnet)
+                                    {
+                                        seddelNavnet = navnEllevePåSeddel;
+                                        funnet = true;
+                                    }
+                                    if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && stemme.overførtTil != navnTolvPåSedde && !funnet)
+                                    {
+                                        seddelNavnet = navnTolvPåSedde;
+                                        funnet = true;
+                                    }
+
+                                    if (seddelNavnet != "")
+                                    {
+                                        double tempStemmetallValgtKandidat = kandidatEkskluderes.stemmetall - stemme.overførtSum;
+
+                                        KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                        double tempStemmetallet = oppdaterKandidat.stemmetall + stemme.overførtSum;
+                                        oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                        KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
+                                        endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
+                                        endreKandidat.Navn = oppdaterKandidat.navn;
+                                        endreKandidat.Stemmetall = tempStemmetallet;
+
+                                        KandidatListeSTV endreValgtKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
+                                        endreValgtKandidat.KandidatID = kandidatEkskluderes.kandidatListeID;
+                                        endreValgtKandidat.Navn = navnEkskludert;
+                                        endreValgtKandidat.Stemmetall = tempStemmetallValgtKandidat;
+
+                                        kandidatEkskluderes.stemmetall = tempStemmetallValgtKandidat;
+
+                                        bool sjekk = false;
+
+                                        OverførtTilSeddel nySeddel = new OverførtTilSeddel()
                                         {
-                                            KandidatListeSTV eKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[l].navn && b.ValgtypeID == valgtypeid);
-                                            eKandidat.KandidatID = gjenståendeKandidater[l].kandidatListeID;
-                                            eKandidat.Navn = gjenståendeKandidater[l].navn;
-                                            eKandidat.Stemmetall = 0;
+                                            seddelID = stemme.seddelID,
+                                            kandidatnrEn = stemme.kandidatnrEn,
+                                            kandidatnrTo = stemme.kandidatnrTo,
+                                            kandidatnrTre = stemme.kandidatnrTre,
+                                            kandidatnrFire = stemme.kandidatnrFire,
+                                            kandidatnrFem = stemme.kandidatnrFem,
+                                            kandidatnrSeks = stemme.kandidatnrSeks,
+                                            kandidatnrSju = stemme.kandidatnrSju,
+                                            kandidatnrÅtte = stemme.kandidatnrÅtte,
+                                            kandidatnrNi = stemme.kandidatnrNi,
+                                            kandidatnrTi = stemme.kandidatnrTi,
+                                            kandidatnrElleve = stemme.kandidatnrElleve,
+                                            kandidatnrTolv = stemme.kandidatnrTolv,
+                                            overførtFra = navnEkskludert,
+                                            overførtTil = seddelNavnet,
+                                            overførtSum = stemme.overførtSum,
+                                            rundenr = runde,
+                                            bleValgt = false
+                                        };
+                                        overførteOverskudd.Add(nySeddel);
+
+                                        if (oppdaterKandidat.stemmetall >= valgtall)
+                                        {
+                                            for (int j = 0; j < overførteOverskudd.Count(); j++)
+                                            {
+                                                if (seddelNavnet == overførteOverskudd[j].overførtTil && overførteOverskudd[j].rundenr == runde)
+                                                {
+                                                    overførteOverskudd[j].bleValgt = true;
+                                                }
+                                            }
                                         }
                                         db.SaveChanges();
-                                        leggTilValgteKandidater(valgteKandidater);
-                                        return valgteKandidater;
-                                    }
+                                    }//if-seddelnavnet!=''
                                 }
                             }
-                        }
-                    }
+                        }//If ekskludert kandidat hadde fått overført overskudd tidligere slutt------------------------------------
 
-                    KandidatListeSTV ekskludereKandidatTilslutt = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
-                    ekskludereKandidatTilslutt.KandidatID = ekskluderteKandidater[i].kandidatListeID;
-                    ekskludereKandidatTilslutt.Navn = ekskluderteKandidater[i].navn;
-                    ekskludereKandidatTilslutt.Stemmetall = 0;
-
-                    ekskluderteKandidater[i].stemmetall = 0;
-                }
-                db.SaveChanges();
-
-                //Fjerner valgt kandidat fra gjenstående kandidater lista
-                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
-                {
-                    int tempcount = gjenståendeKandidater.Count() - 1;
-                    if (gjenståendeKandidater[i].stemmetall >= valgtall)
-                    {
-                        gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                    }
-                    else if (gjenståendeKandidater[i].stemmetall == 0 && tempcount >= antallLedigeplasser)
-                    {
-                        gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                    }
-                }
-
-                //Sjekker om valget kan avsluttes - Etter å ha overført første gang
-                if (valgteKandidater.Count() >= antallRepresentanter)
-                {
-                    valgAvsluttes = true;
-                    for (int l = 0; l < gjenståendeKandidater.Count(); l++)
-                    {
-                        KandidatListeSTV eKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[l].navn && b.ValgtypeID == valgtypeid);
-                        eKandidat.KandidatID = gjenståendeKandidater[l].kandidatListeID;
-                        eKandidat.Navn = gjenståendeKandidater[l].navn;
-                        eKandidat.Stemmetall = 0;
-                    }
-                    db.SaveChanges();
-                    leggTilValgteKandidater(valgteKandidater);
-                    return valgteKandidater;
-                }
-                //Om antall gjenstående kandidater er mindre eller lik antall ledige plasser - Etter å ha overført første gang
-                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
-                {
-                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
-                    {
-                        valgteKandidater.Add(gjenståendeKandidater[i]);
-                        //gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                        antallLedigeplasser--;
-                    }
-                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
-                    {
-                        string navnEkskludert = ekskluderteKandidater[i].navn;
-                        KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
-                        ekskludereKandidat.KandidatID = ekskluderteKandidater[i].kandidatListeID;
-                        ekskludereKandidat.Navn = ekskluderteKandidater[i].navn;
-                        ekskludereKandidat.Stemmetall = 0;
-                    }
-                    db.SaveChanges();
-                    valgAvsluttes = true;
-                    leggTilValgteKandidater(valgteKandidater);
-                    return valgteKandidater;
-                }
-
-                //Overskudd igjen
-                //Sjekke om noen har blitt valgt og fikk overskudd etter forrige ekskludering
-                if (tempAntValgt < valgteKandidater.Count()) //Om det har kommet inn fler valgte siden sist - overfør deres stemme
-                {
-                    for (int i = 0; i < valgteKandidater.Count(); i++)
-                    {
-                        KandidatSTV valgtKandidat = valgteKandidater[i];
-                        int tempValgtall = (int)Math.Ceiling(valgtall);
-                        int overskudd = valgtKandidat.stemmetall - tempValgtall;
-                        overskudd = valgtKandidat.stemmetall - tempValgtall;
-
-                        if (overskudd > 0)
+                        //De stemmesedlene med vekt 1.0, ligger i stemmeseddel databasen, ekskludert stemme overføres
+                        for (int j = 0; j < listeEkskludert.Count(); j++)
                         {
-                            List<Stemmeseddel_db> overførStemmer = db.Stemmesedler.Where(s => s.KandidatnrEn == valgtKandidat.navn && s.ValgtypeID == valgtypeid).ToList();
-                            for (int k = 0; k < overskudd; k++)
+                            string seddelNavnet = "";
+                            string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
+                            string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
+                            string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
+                            string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
+                            string navnSeksPåSeddel = listeEkskludert[j].KandidatnrSeks;
+                            string navnSjuPåSeddel = listeEkskludert[j].KandidatnrSju;
+                            string navnÅttePåSeddel = listeEkskludert[j].KandidatnrÅtte;
+                            string navnNiPåSeddel = listeEkskludert[j].KandidatnrNi;
+                            string navnTiPåSeddel = listeEkskludert[j].KandidatnrTi;
+                            string navnEllevePåSeddel = listeEkskludert[j].KandidatnrElleve;
+                            string navnTolvPåSedde = listeEkskludert[j].KandidatnrTolv;
+                            bool funnet = false;
+
+                            if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
                             {
-                                Stemmeseddel_db stemme = overførStemmer[k];
-                                string seddelNavnet = "";
-                                string navnToPåSeddel = stemme.KandidatnrTo;
-                                string navnTrePåSeddel = stemme.KandidatnrTre;
-                                string navnFirePåSeddel = stemme.KandidatnrFire;
-                                string navnFemPåSeddel = stemme.KandidatnrFem;
-                                bool funnet = false;
+                                seddelNavnet = navnToPåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnTrePåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnFirePåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnFemPåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnSeksPåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnSjuPåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnÅttePåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnNiPåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnTiPåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                            {
+                                seddelNavnet = navnEllevePåSeddel;
+                                funnet = true;
+                            }
+                            else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && !funnet)
+                            {
+                                seddelNavnet = navnTolvPåSedde;
+                                funnet = true;
+                            }
 
-                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                            if (seddelNavnet == "")
+                            {
+                            }
+                            else
+                            {
+                                tempStemmetallEksKandidat = ekskluderteKandidater[i].stemmetall - 1;
+
+                                KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                double tempStemmetallet = oppdaterKandidat.stemmetall + 1;
+                                oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
+                                endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
+                                endreKandidat.Navn = oppdaterKandidat.navn;
+                                endreKandidat.Stemmetall = tempStemmetallet;
+
+                                KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
+                                ekskludereKandidat.KandidatID = ekskluderteKandidater[i].kandidatListeID;
+                                ekskludereKandidat.Navn = ekskluderteKandidater[i].navn;
+                                ekskludereKandidat.Stemmetall = tempStemmetallEksKandidat;
+
+                                ekskluderteKandidater[i].stemmetall = tempStemmetallEksKandidat;
+
+
+                                for (int k = 0; k < ekskluderteKandidater.Count(); k++)
                                 {
-                                    seddelNavnet = navnToPåSeddel;
-                                    funnet = true;
-                                }
-                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnTrePåSeddel;
-                                    funnet = true;
-                                }
-                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
-                                {
-                                    seddelNavnet = navnFirePåSeddel;
-                                    funnet = true;
-                                }
-                                else
-                                {
-                                    overskudd++;
-                                }
-
-                                if (seddelNavnet != "")
-                                {
-                                    int tempStemmetallValgtKandidat = valgtKandidat.stemmetall - 1;
-
-                                    KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
-                                    int tempStemmetallet = oppdaterKandidat.stemmetall + 1;
-                                    oppdaterKandidat.stemmetall = tempStemmetallet;
-
-                                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
-                                    endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
-                                    endreKandidat.Navn = oppdaterKandidat.navn;
-                                    endreKandidat.Stemmetall = tempStemmetallet;
-
-                                    KandidatListeSTV endreValgtKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == valgtKandidat.navn && b.ValgtypeID == valgtypeid);
-                                    endreValgtKandidat.KandidatID = valgtKandidat.kandidatListeID;
-                                    endreValgtKandidat.Navn = valgtKandidat.navn;
-                                    endreValgtKandidat.Stemmetall = tempStemmetallValgtKandidat;
-
-                                    valgtKandidat.stemmetall = tempStemmetallValgtKandidat;
-
-                                    db.SaveChanges();
-
-                                    for (int j = 0; j < ekskluderteKandidater.Count(); j++)
+                                    if (ekskluderteKandidater[k].navn == seddelNavnet)
                                     {
-                                        if (ekskluderteKandidater[j].navn == seddelNavnet)
-                                        {
-                                            ekskluderteKandidater.Remove(ekskluderteKandidater[j]);
-                                        }
+                                        ekskluderteKandidater.Remove(oppdaterKandidat);
                                     }
-
-                                    if (tempStemmetallet >= valgtall)
-                                    {
-                                        valgteKandidater.Add(oppdaterKandidat);
-                                        valgtTeller++;
-                                        antallLedigeplasser--;
-
-                                        if (valgteKandidater.Count() >= antallRepresentanter)
-                                        {
-                                            valgAvsluttes = true;
-                                            for (int l = 0; l < gjenståendeKandidater.Count(); l++)
-                                            {
-                                                KandidatListeSTV eKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[l].navn && b.ValgtypeID == valgtypeid);
-                                                eKandidat.KandidatID = gjenståendeKandidater[l].kandidatListeID;
-                                                eKandidat.Navn = gjenståendeKandidater[l].navn;
-                                                eKandidat.Stemmetall = 0;
-                                            }
-                                            db.SaveChanges();
-                                            leggTilValgteKandidater(valgteKandidater);
-                                            return valgteKandidater;
-                                        }
-                                    }
-                                    funnet = true;
                                 }
+                                db.SaveChanges();
                             }
                         }
-                    }
-                    tempAntValgt = valgteKandidater.Count();
 
-                    //Ekskluder kandidat removes fra gj.liste riktig - Etter overføring
-                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
-                    {
-                        KandidatSTV ekskludertKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == ekskluderteKandidater[i].navn);
-                        if (ekskludertKandidat != null)
-                        {
-                            gjenståendeKandidater.Remove(ekskludertKandidat); //Fjerner riktig kandidat
-                        }
-                    }
+                        KandidatListeSTV ekskludereKandidatTilslutt = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
+                        ekskludereKandidatTilslutt.KandidatID = ekskluderteKandidater[i].kandidatListeID;
+                        ekskludereKandidatTilslutt.Navn = ekskluderteKandidater[i].navn;
+                        ekskludereKandidatTilslutt.Stemmetall = 0;
 
-                    //Fjerner valgt kandidat fra gjenstående kandidater lista
+                        ekskluderteKandidater[i].stemmetall = 0;
+                    }
+                    db.SaveChanges();
+                }
+
+
+                //---------------------------------EKLSUDERING OVERFØRING STEMMER FERDIG----------------------------------------
+
+                //Sjekke om noen ble valgt etter at stemmer ble eksludert og overført
+                if (kvoteringsvalg == true)
+                {
                     for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                     {
                         if (gjenståendeKandidater[i].stemmetall >= valgtall)
                         {
-                            gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
+                            if (valgteKandidater.Count() < antallRepresentanter)
+                            {
+                                if (gjenståendeKandidater[i].klasse == klasse1)
+                                {
+                                    if (antallLedigeKvote1 > 0)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeKvote1--;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                                else if (gjenståendeKandidater[i].klasse == klasse2)
+                                {
+                                    if (antallLedigeKvote2 > 0)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeKvote2--;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                    {
+                        if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                        {
+                            if (valgteKandidater.Count() < antallRepresentanter)
+                            {
+                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                antallLedigeplasser--;
+                            }
                         }
                     }
                 }
 
-                //Sjekker om valget kan avsluttes - Etter å ha overført første gang
-                if (valgteKandidater.Count() >= antallRepresentanter)
+                //Slette de eventuelle valgte kandidatene som ble valgt fra gjenstående
+                for (int i = 0; i < valgteKandidater.Count(); i++)
                 {
-                    valgAvsluttes = true;
-                    for (int l = 0; l < gjenståendeKandidater.Count(); l++)
+                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
                     {
-                        KandidatListeSTV eKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == gjenståendeKandidater[l].navn && b.ValgtypeID == valgtypeid);
-                        eKandidat.KandidatID = gjenståendeKandidater[l].kandidatListeID;
-                        eKandidat.Navn = gjenståendeKandidater[l].navn;
-                        eKandidat.Stemmetall = 0;
+                        if (valgteKandidater[i].navn == gjenståendeKandidater[k].navn)
+                        {
+                            gjenståendeKandidater.Remove(gjenståendeKandidater[k]);
+                        }
                     }
-                    db.SaveChanges();
-                    leggTilValgteKandidater(valgteKandidater);
-                    return valgteKandidater;
                 }
-                //Om antall gjenstående kandidater er mindre eller lik antall ledige plasser - Etter å ha overført første gang
-                if (gjenståendeKandidater.Count() <= antallLedigeplasser)
+
+                //-----------------------------------Overføre overskudd eller ekskludere en random--------------------------------
+
+                //Under her ta en if-fortsett == true.. Så skal det overføres ingen ble ekskludert denne runden
+                if (fortsett == true)
+                {
+                    //Inne her overføre eventuellt overskudd eller tving en ekskludering
+
+                    //Sjekke om en eller flere har overskudd
+                    int antallHarOverskudd = 0;
+                    for (int i = 0; i < valgteKandidater.Count(); i++)
+                    {
+                        double overskudd = 0;
+                        KandidatSTV valgtKandidat = valgteKandidater[i];
+                        double tempValgtall = valgtall;
+                        overskudd = valgtKandidat.stemmetall - tempValgtall;
+                        if (overskudd > 0)
+                        {
+                            antallHarOverskudd++;
+                        }
+                    }
+
+                    //Om den fant noen valgte kandidater med overskudd
+                    if (antallHarOverskudd > 0)
+                    {
+                        //Finn det største overskuddet
+                        double tempOverskudd = 0;
+                        KandidatSTV kandidatOverføresFra = new KandidatSTV();
+                        for (int i = 0; i < valgteKandidater.Count(); i++)
+                        {
+                            double overskudd = 0;
+                            KandidatSTV valgtKandidat = valgteKandidater[i];
+                            double tempValgtall = valgtall;
+                            overskudd = valgtKandidat.stemmetall - tempValgtall;
+                            if (overskudd > tempOverskudd)
+                            {
+                                tempOverskudd = overskudd;
+                                kandidatOverføresFra = valgtKandidat; //Kandidat med største overskuddet
+                            }
+                        }
+
+                        int antallAvKandidatIListe = 0;
+                        for (int i = 0; i < overførteOverskudd.Count(); i++)
+                        {
+                            if (overførteOverskudd[i].overførtTil == kandidatOverføresFra.navn && overførteOverskudd[i].bleValgt == true)
+                            {
+                                antallAvKandidatIListe++;
+                            }
+                        }
+
+                        //Om kandidat det overføres fra sitt stemmetall ble større etter å ha fått overført stemmer i senere runder og ikke i første
+                        if (antallAvKandidatIListe > 0)
+                        {
+                            List<OverførtTilSeddel> overførteStemmer = new List<OverførtTilSeddel>();
+                            for (int i = 0; i < overførteOverskudd.Count(); i++)
+                            {
+                                if (overførteOverskudd[i].overførtTil == kandidatOverføresFra.navn && overførteOverskudd[i].bleValgt == true)
+                                {
+                                    overførteStemmer.Add(overførteOverskudd[i]);
+                                }
+                            }
+
+                            double overføresOverskudd = tempOverskudd / kandidatOverføresFra.stemmetall;
+                            //Starter overføringen
+                            for (int i = 0; i < overførteStemmer.Count(); i++)
+                            {
+                                OverførtTilSeddel stemme = overførteStemmer[i];
+                                string seddelNavnet = "";
+                                string navnToPåSeddel = stemme.kandidatnrTo;
+                                string navnTrePåSeddel = stemme.kandidatnrTre;
+                                string navnFirePåSeddel = stemme.kandidatnrFire;
+                                string navnFemPåSeddel = stemme.kandidatnrFem;
+                                string navnSeksPåSeddel = stemme.kandidatnrSeks;
+                                string navnSjuPåSeddel = stemme.kandidatnrSju;
+                                string navnÅttePåSeddel = stemme.kandidatnrÅtte;
+                                string navnNiPåSeddel = stemme.kandidatnrNi;
+                                string navnTiPåSeddel = stemme.kandidatnrTi;
+                                string navnEllevePåSeddel = stemme.kandidatnrElleve;
+                                string navnTolvPåSeddel = stemme.kandidatnrTolv;
+                                bool funnet = false;
+
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && stemme.overførtTil != navnToPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnToPåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && stemme.overførtTil != navnTrePåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnTrePåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && stemme.overførtTil != navnFirePåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnFirePåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && stemme.overførtTil != navnFemPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnFemPåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && stemme.overførtTil != navnSeksPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnSeksPåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && stemme.overførtTil != navnSjuPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnSjuPåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && stemme.overførtTil != navnÅttePåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnÅttePåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && stemme.overførtTil != navnNiPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnNiPåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && stemme.overførtTil != navnTiPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnTiPåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && stemme.overførtTil != navnEllevePåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnEllevePåSeddel;
+                                    funnet = true;
+                                }
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSeddel) != null && stemme.overførtTil != navnTolvPåSeddel && !funnet)
+                                {
+                                    seddelNavnet = navnTolvPåSeddel;
+                                    funnet = true;
+                                }
+
+                                if (seddelNavnet != "")
+                                {
+                                    double tempStemmetallValgtKandidat = kandidatOverføresFra.stemmetall - overføresOverskudd;
+
+                                    KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                    double tempStemmetallet = oppdaterKandidat.stemmetall + overføresOverskudd;
+                                    oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
+                                    endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
+                                    endreKandidat.Navn = oppdaterKandidat.navn;
+                                    endreKandidat.Stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV endreValgtKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == kandidatOverføresFra.navn && b.ValgtypeID == valgtypeid);
+                                    endreValgtKandidat.KandidatID = kandidatOverføresFra.kandidatListeID;
+                                    endreValgtKandidat.Navn = kandidatOverføresFra.navn;
+                                    endreValgtKandidat.Stemmetall = tempStemmetallValgtKandidat;
+
+                                    kandidatOverføresFra.stemmetall = tempStemmetallValgtKandidat;
+
+                                    bool sjekk = false;
+
+
+                                    OverførtTilSeddel nySeddel = new OverførtTilSeddel()
+                                    {
+                                        seddelID = stemme.seddelID,
+                                        kandidatnrEn = stemme.kandidatnrEn,
+                                        kandidatnrTo = stemme.kandidatnrTo,
+                                        kandidatnrTre = stemme.kandidatnrTre,
+                                        kandidatnrFire = stemme.kandidatnrFire,
+                                        kandidatnrFem = stemme.kandidatnrFem,
+                                        kandidatnrSeks = stemme.kandidatnrSeks,
+                                        kandidatnrSju = stemme.kandidatnrSju,
+                                        kandidatnrÅtte = stemme.kandidatnrÅtte,
+                                        kandidatnrNi = stemme.kandidatnrNi,
+                                        kandidatnrTi = stemme.kandidatnrTi,
+                                        kandidatnrElleve = stemme.kandidatnrElleve,
+                                        kandidatnrTolv = stemme.kandidatnrTolv,
+                                        overførtFra = kandidatOverføresFra.navn,
+                                        overførtTil = seddelNavnet,
+                                        overførtSum = overføresOverskudd,
+                                        rundenr = runde,
+                                        bleValgt = false
+                                    };
+                                    overførteOverskudd.Add(nySeddel);
+
+                                    if (oppdaterKandidat.stemmetall >= valgtall)
+                                    {
+                                        for (int j = 0; j < overførteOverskudd.Count(); j++)
+                                        {
+                                            if (seddelNavnet == overførteOverskudd[j].overførtTil && overførteOverskudd[j].rundenr == runde)
+                                            {
+                                                overførteOverskudd[j].bleValgt = true;
+                                            }
+                                        }
+                                    }
+                                    db.SaveChanges();
+                                }
+                            }
+                            kandidatOverføresFra.stemmetall = valgtall;
+
+                        }
+                        else
+                        {
+                            //DENNE DELEN ER HUNDRE PROSENT 
+                            List<Stemmeseddel_db> overførStemmer = db.Stemmesedler.Where(s => s.KandidatnrEn == kandidatOverføresFra.navn && s.ValgtypeID == valgtypeid).ToList();
+                            //Finne overskuddtallet som skal overføres til alle stemmesedlene
+                            double overføresOverskudd = tempOverskudd / kandidatOverføresFra.stemmetall;
+
+                            for (int i = 0; i < overførStemmer.Count(); i++)
+                            {
+                                Stemmeseddel_db stemme = overførStemmer[i];
+                                string seddelNavnet = "";
+                                string navnToPåSeddel = stemme.KandidatnrTo;
+                                string navnTrePåSeddel = stemme.KandidatnrTre;
+                                string navnFirePåSeddel = stemme.KandidatnrFire;
+                                string navnFemPåSeddel = stemme.KandidatnrFem;
+                                string navnSeksPåSeddel = stemme.KandidatnrSeks;
+                                string navnSjuPåSeddel = stemme.KandidatnrSju;
+                                string navnÅttePåSeddel = stemme.KandidatnrÅtte;
+                                string navnNiPåSeddel = stemme.KandidatnrNi;
+                                string navnTiPåSeddel = stemme.KandidatnrTi;
+                                string navnEllevePåSeddel = stemme.KandidatnrElleve;
+                                string navnTolvPåSeddel = stemme.KandidatnrTolv;
+                                bool funnet = false;
+
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnToPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTrePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnFirePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnFemPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnSeksPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnSjuPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnÅttePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnNiPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTiPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnEllevePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTolvPåSeddel;
+                                    funnet = true;
+                                }
+
+                                if (seddelNavnet != "")
+                                {
+                                    double tempStemmetallValgtKandidat = kandidatOverføresFra.stemmetall - overføresOverskudd;
+
+                                    KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                    double tempStemmetallet = oppdaterKandidat.stemmetall + overføresOverskudd;
+                                    oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
+                                    endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
+                                    endreKandidat.Navn = oppdaterKandidat.navn;
+                                    endreKandidat.Stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV endreValgtKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == kandidatOverføresFra.navn && b.ValgtypeID == valgtypeid);
+                                    endreValgtKandidat.KandidatID = kandidatOverføresFra.kandidatListeID;
+                                    endreValgtKandidat.Navn = kandidatOverføresFra.navn;
+                                    endreValgtKandidat.Stemmetall = tempStemmetallValgtKandidat;
+
+                                    kandidatOverføresFra.stemmetall = tempStemmetallValgtKandidat;
+
+                                    bool sjekk = false;
+
+
+                                    OverførtTilSeddel nySeddel = new OverførtTilSeddel()
+                                    {
+                                        seddelID = stemme.StemmeseddelID,
+                                        kandidatnrEn = stemme.KandidatnrEn,
+                                        kandidatnrTo = stemme.KandidatnrTo,
+                                        kandidatnrTre = stemme.KandidatnrTre,
+                                        kandidatnrFire = stemme.KandidatnrFire,
+                                        kandidatnrFem = stemme.KandidatnrFem,
+                                        kandidatnrSeks = stemme.KandidatnrSeks,
+                                        kandidatnrSju = stemme.KandidatnrSju,
+                                        kandidatnrÅtte = stemme.KandidatnrÅtte,
+                                        kandidatnrNi = stemme.KandidatnrNi,
+                                        kandidatnrTi = stemme.KandidatnrTi,
+                                        kandidatnrElleve = stemme.KandidatnrElleve,
+                                        kandidatnrTolv = stemme.KandidatnrTolv,
+                                        overførtFra = kandidatOverføresFra.navn,
+                                        overførtTil = seddelNavnet,
+                                        overførtSum = overføresOverskudd,
+                                        rundenr = runde,
+                                        bleValgt = false
+                                    };
+                                    overførteOverskudd.Add(nySeddel);
+
+                                    if (oppdaterKandidat.stemmetall >= valgtall)
+                                    {
+                                        for (int j = 0; j < overførteOverskudd.Count(); j++)
+                                        {
+                                            if (seddelNavnet == overførteOverskudd[j].overførtTil && overførteOverskudd[j].rundenr == runde)
+                                            {
+                                                overførteOverskudd[j].bleValgt = true;
+                                            }
+                                        }
+                                    }
+                                    db.SaveChanges();
+                                }
+                            }
+                            kandidatOverføresFra.stemmetall = valgtall;
+                        }
+                    }//If- Fant overskudd
+                    else //Lage en av de med laveste stemmetallene ekskluderes - (Random)
+                    {
+                        if (kvoteringsvalg == true)
+                        {
+                            //Finner laveste stemmetall
+                            if (gjenståendeKandidater.Count() > 0)
+                            {
+                                stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    if (stemmetallEkskludert == 0)
+                                    {
+                                        stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
+                                    }
+                                }
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    double tempStemmetall = gjenståendeKandidater[i].stemmetall;
+                                    if (tempStemmetall < stemmetallEkskludert)
+                                    {
+                                        if (tempStemmetall != 0)
+                                        {
+                                            if (gjenståendeKandidater[i].klasse == klasse1)
+                                            {
+                                                int hjelpeteller = 0;
+                                                for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                                {
+                                                    if (gjenståendeKandidater[k].klasse == klasse1)
+                                                    {
+                                                        hjelpeteller++;
+                                                    }
+                                                }
+                                                if (hjelpeteller > antallTilMinsteFylt1)
+                                                {
+                                                    stemmetallEkskludert = tempStemmetall;
+                                                }
+                                            }
+                                            else if (gjenståendeKandidater[i].klasse == klasse2)
+                                            {
+                                                int hjelpeteller2 = 0;
+                                                for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                                                {
+                                                    if (gjenståendeKandidater[k].klasse == klasse2)
+                                                    {
+                                                        hjelpeteller2++;
+                                                    }
+                                                }
+                                                if (hjelpeteller2 > antallTilMinsteFylt2)
+                                                {
+                                                    stemmetallEkskludert = tempStemmetall;
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }//Funnet laveste stemmetall
+
+                            KandidatSTV kandidatLavestStemmetall = gjenståendeKandidater.FirstOrDefault(k => k.stemmetall == stemmetallEkskludert);
+                            if (kandidatLavestStemmetall != null)
+                            {
+                                gjenståendeKandidater.Remove(kandidatLavestStemmetall);
+                            }
+                            string navnEkskludert = kandidatLavestStemmetall.navn;
+                            double tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+                            List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+
+                            for (int j = 0; j < listeEkskludert.Count(); j++)
+                            {
+                                string seddelNavnet = "";
+                                string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
+                                string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
+                                string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
+                                string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
+                                string navnSeksPåSeddel = listeEkskludert[j].KandidatnrSeks;
+                                string navnSjuPåSeddel = listeEkskludert[j].KandidatnrSju;
+                                string navnÅttePåSeddel = listeEkskludert[j].KandidatnrÅtte;
+                                string navnNiPåSeddel = listeEkskludert[j].KandidatnrNi;
+                                string navnTiPåSeddel = listeEkskludert[j].KandidatnrTi;
+                                string navnEllevePåSeddel = listeEkskludert[j].KandidatnrElleve;
+                                string navnTolvPåSedde = listeEkskludert[j].KandidatnrTolv;
+                                bool funnet = false;
+
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnToPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTrePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnFirePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnFemPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnSeksPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnSjuPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnÅttePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnNiPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTiPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnEllevePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTolvPåSedde;
+                                    funnet = true;
+                                }
+
+                                if (seddelNavnet == "")
+                                {
+                                }
+                                else
+                                {
+                                    tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+
+                                    KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                    double tempStemmetallet = oppdaterKandidat.stemmetall + 1;
+                                    oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
+                                    endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
+                                    endreKandidat.Navn = oppdaterKandidat.navn;
+                                    endreKandidat.Stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
+                                    ekskludereKandidat.KandidatID = kandidatLavestStemmetall.kandidatListeID;
+                                    ekskludereKandidat.Navn = kandidatLavestStemmetall.navn;
+                                    ekskludereKandidat.Stemmetall = tempStemmetallEksKandidat;
+
+                                    kandidatLavestStemmetall.stemmetall = tempStemmetallEksKandidat;
+
+
+                                    db.SaveChanges();
+
+                                }
+                            }
+                        }
+                        else
+                        {//Uten kvotering
+                            //Finner laveste stemmetall
+                            if (gjenståendeKandidater.Count() > 0)
+                            {
+                                stemmetallEkskludert = gjenståendeKandidater[0].stemmetall;
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    if (stemmetallEkskludert == 0)
+                                    {
+                                        stemmetallEkskludert = gjenståendeKandidater[i].stemmetall;
+                                    }
+                                }
+                                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                                {
+                                    double tempStemmetall = gjenståendeKandidater[i].stemmetall;
+                                    if (tempStemmetall < stemmetallEkskludert)
+                                    {
+                                        if (tempStemmetall != 0)
+                                        {
+                                            stemmetallEkskludert = tempStemmetall;
+                                        }
+
+                                    }
+                                }
+                            }//Funnet laveste stemmetall
+                             //Finner en av de med laveste stemmetallet - Tilfeldig
+                            KandidatSTV kandidatLavestStemmetall = gjenståendeKandidater.FirstOrDefault(k => k.stemmetall == stemmetallEkskludert);
+                            if (kandidatLavestStemmetall != null)
+                            {
+                                gjenståendeKandidater.Remove(kandidatLavestStemmetall);
+                            }
+                            string navnEkskludert = kandidatLavestStemmetall.navn;
+                            double tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+                            List<Stemmeseddel_db> listeEkskludert = db.Stemmesedler.Where(b => b.KandidatnrEn == navnEkskludert && b.ValgtypeID == valgtypeid).ToList();
+
+                            for (int j = 0; j < listeEkskludert.Count(); j++)
+                            {
+                                string seddelNavnet = "";
+                                string navnToPåSeddel = listeEkskludert[j].KandidatnrTo;
+                                string navnTrePåSeddel = listeEkskludert[j].KandidatnrTre;
+                                string navnFirePåSeddel = listeEkskludert[j].KandidatnrFire;
+                                string navnFemPåSeddel = listeEkskludert[j].KandidatnrFem;
+                                string navnSeksPåSeddel = listeEkskludert[j].KandidatnrSeks;
+                                string navnSjuPåSeddel = listeEkskludert[j].KandidatnrSju;
+                                string navnÅttePåSeddel = listeEkskludert[j].KandidatnrÅtte;
+                                string navnNiPåSeddel = listeEkskludert[j].KandidatnrNi;
+                                string navnTiPåSeddel = listeEkskludert[j].KandidatnrTi;
+                                string navnEllevePåSeddel = listeEkskludert[j].KandidatnrElleve;
+                                string navnTolvPåSedde = listeEkskludert[j].KandidatnrTolv;
+                                bool funnet = false;
+
+                                if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnToPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnToPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTrePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTrePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFirePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnFirePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnFemPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnFemPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSeksPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnSeksPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnSjuPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnSjuPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnÅttePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnÅttePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnNiPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnNiPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTiPåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTiPåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnEllevePåSeddel) != null && !funnet)
+                                {
+                                    seddelNavnet = navnEllevePåSeddel;
+                                    funnet = true;
+                                }
+                                else if (gjenståendeKandidater.FirstOrDefault(b => b.navn == navnTolvPåSedde) != null && !funnet)
+                                {
+                                    seddelNavnet = navnTolvPåSedde;
+                                    funnet = true;
+                                }
+
+                                if (seddelNavnet == "")
+                                {
+                                }
+                                else
+                                {
+                                    tempStemmetallEksKandidat = kandidatLavestStemmetall.stemmetall - 1;
+
+                                    KandidatSTV oppdaterKandidat = gjenståendeKandidater.FirstOrDefault(b => b.navn == seddelNavnet);
+                                    double tempStemmetallet = oppdaterKandidat.stemmetall + 1;
+                                    oppdaterKandidat.stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV endreKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == seddelNavnet && b.ValgtypeID == valgtypeid);
+                                    endreKandidat.KandidatID = oppdaterKandidat.kandidatListeID;
+                                    endreKandidat.Navn = oppdaterKandidat.navn;
+                                    endreKandidat.Stemmetall = tempStemmetallet;
+
+                                    KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
+                                    ekskludereKandidat.KandidatID = kandidatLavestStemmetall.kandidatListeID;
+                                    ekskludereKandidat.Navn = kandidatLavestStemmetall.navn;
+                                    ekskludereKandidat.Stemmetall = tempStemmetallEksKandidat;
+
+                                    kandidatLavestStemmetall.stemmetall = tempStemmetallEksKandidat;
+
+
+                                    db.SaveChanges();
+
+                                }
+                            }
+                        }
+
+                    }//Else-if fant ikke overskudd, eksluderte en av de med laveste stemmetall
+                }
+
+                //Sjekke om noen ble valgt etter at stemmer ble eksludert og overført
+                if (kvoteringsvalg == true)
                 {
                     for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                     {
-                        valgteKandidater.Add(gjenståendeKandidater[i]);
-                        //gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
-                        antallLedigeplasser--;
+                        if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                        {
+                            if (valgteKandidater.Count() < antallRepresentanter)
+                            {
+                                if (gjenståendeKandidater[i].klasse == klasse1)
+                                {
+                                    if (antallLedigeKvote1 > 0)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeKvote1--;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                                else if (gjenståendeKandidater[i].klasse == klasse2)
+                                {
+                                    if (antallLedigeKvote2 > 0)
+                                    {
+                                        valgteKandidater.Add(gjenståendeKandidater[i]);
+                                        antallLedigeKvote2--;
+                                        antallLedigeplasser--;
+                                    }
+                                }
+                            }
+                        }
                     }
-                    for (int i = 0; i < ekskluderteKandidater.Count(); i++)
+                }
+                else
+                {
+                    for (int i = 0; i < gjenståendeKandidater.Count(); i++)
                     {
-                        string navnEkskludert = ekskluderteKandidater[i].navn;
-                        KandidatListeSTV ekskludereKandidat = db.KandidaterSTV.FirstOrDefault(b => b.Navn == navnEkskludert && b.ValgtypeID == valgtypeid);
-                        ekskludereKandidat.KandidatID = ekskluderteKandidater[i].kandidatListeID;
-                        ekskludereKandidat.Navn = ekskluderteKandidater[i].navn;
-                        ekskludereKandidat.Stemmetall = 0;
+                        if (gjenståendeKandidater[i].stemmetall >= valgtall)
+                        {
+                            if (valgteKandidater.Count() < antallRepresentanter)
+                            {
+                                valgteKandidater.Add(gjenståendeKandidater[i]);
+                                antallLedigeplasser--;
+                            }
+                        }
                     }
-                    db.SaveChanges();
-                    valgAvsluttes = true;
-                    leggTilValgteKandidater(valgteKandidater);
-                    return valgteKandidater;
                 }
 
+                //Slette de eventuelle valgte kandidatene som ble valgt fra gjenstående
+                for (int i = 0; i < valgteKandidater.Count(); i++)
+                {
+                    for (int k = 0; k < gjenståendeKandidater.Count(); k++)
+                    {
+                        if (valgteKandidater[i].navn == gjenståendeKandidater[k].navn)
+                        {
+                            gjenståendeKandidater.Remove(gjenståendeKandidater[k]);
+                        }
+                    }
+                }
+                //Sletter om det fortsatt er noen som har null stemmer 
+                for (int i = 0; i < gjenståendeKandidater.Count(); i++)
+                {
+                    if (gjenståendeKandidater[i].stemmetall == 0)
+                    {
+                        gjenståendeKandidater.Remove(gjenståendeKandidater[i]);
+                    }
+                }
+
+                //Clearer ekskluderte lista
                 for (int i = 0; i < ekskluderteKandidater.Count(); i++)
                 {
                     kandidaterEkskludert2.Add(ekskluderteKandidater[i]);
                 }
 
                 ekskluderteKandidater.Clear();
-            }//While stoppes
-            leggTilValgteKandidater(valgteKandidater);
-            return valgteKandidater;
-        }
 
+            }//While stopper her
+
+            leggTilValgteKandidater(valgteKandidater); //Foreløig
+            return valgteKandidater; //Foreløpig
+        }
+        //Til hit
+        //Herifra
         public Preferansevalg hentPreferanseValg(int id)
         {
             var db = new BrukerContext();
@@ -1476,6 +3709,10 @@ namespace Studentparlamentet_28.DAL
                     id = enDbValg.Id,
                     beskrivelse = enDbValg.Beskrivelse,
                     antallrepresentanter = enDbValg.AntallRepresentanter,
+                    kvoteKlasseEn = enDbValg.KvoteKlasseEn,
+                    kvoteKlasseTo = enDbValg.KvoteKlasseTo,
+                    klasseEnProsent = enDbValg.KlasseEnProsent,
+                    klasseToProsent = enDbValg.KlasseToProsent,
                     utført = enDbValg.Utført,
                     valgtypeid = enDbValg.ValgtypeID
                 };
@@ -1572,6 +3809,7 @@ namespace Studentparlamentet_28.DAL
                     navn = varaListe[i].Navn,
                     stemmetall = varaListe[i].Stemmetall,
                     stemmetallsatt = varaListe[i].StemmetallSatt,
+                    klasse = varaListe[i].Klasse,
                     valgtypeid = varaListe[i].ValgtypeID
                 };
                 returListe.Add(nyKandidat);
@@ -1595,7 +3833,7 @@ namespace Studentparlamentet_28.DAL
                     if (kandidatnavn == stemmesedler[j].kandidatnrEn)
                     {
                         KandidatSTV oppdaterKandidat = hentEnKandidatNavnogID(valgtypeid, kandidatnavn);
-                        int tempStemmetall = oppdaterKandidat.stemmetall + 1;
+                        double tempStemmetall = oppdaterKandidat.stemmetall + 1;
 
                         VaraSTV oppdaterVara = hentEnVaraNavnogID(valgtypeid, kandidatnavn);
 
@@ -1615,7 +3853,7 @@ namespace Studentparlamentet_28.DAL
                 }
             }//Hoved for-løkke stopp
         }
-        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var db = new BrukerContext();
 
@@ -1640,7 +3878,10 @@ namespace Studentparlamentet_28.DAL
             {
                 Beskrivelse = beskrivelse,
                 AntallRepresentanter = antallRepresentanter,
-                AntallVaraRepresentanter = antallVaraRepresentanter,
+                KvoteKlasseEn = klasse1,
+                KvoteKlasseTo = klasse2,
+                KlasseEnProsent = prosent1,
+                KlasseToProsent = prosent2,
                 Utført = false,
                 ValgtypeID = lagrevalg.ValgtypeID
             };
@@ -1676,7 +3917,7 @@ namespace Studentparlamentet_28.DAL
                 db.KandidaterSTV.Remove(kandidater[i]);
             }
             db.SaveChanges();
-            for(int i = 0; i < varaer.Count(); i++)
+            for (int i = 0; i < varaer.Count(); i++)
             {
                 db.PreferansevalgVaraer.Remove(varaer[i]);
             }
@@ -1689,6 +3930,7 @@ namespace Studentparlamentet_28.DAL
             var kandidatliste = db.KandidaterSTV.Where(k => k.ValgtypeID == valgtypeid).ToList();
             List<KandidatSTV> returListe = new List<KandidatSTV>();
             int antallKandidat = kandidatliste.Count();
+
             for (int i = 0; i < antallKandidat; i++)
             {
                 KandidatSTV nyKandidat = new KandidatSTV()
@@ -1697,6 +3939,7 @@ namespace Studentparlamentet_28.DAL
                     navn = kandidatliste[i].Navn,
                     stemmetall = kandidatliste[i].Stemmetall,
                     stemmetallsatt = kandidatliste[i].StemmetallSatt,
+                    klasse = kandidatliste[i].Klasse,
                     valgtypeid = kandidatliste[i].ValgtypeID
                 };
                 returListe.Add(nyKandidat);
@@ -1897,7 +4140,7 @@ namespace Studentparlamentet_28.DAL
             db.PreferansevalgVaraer.Remove(sletteFraVara);
             db.SaveChanges();
         }
-        public string lagreKandidatSTV(string id)
+        public string lagreKandidatSTV(string id, string klasse)
         {
             var db = new BrukerContext();
 
@@ -1910,12 +4153,14 @@ namespace Studentparlamentet_28.DAL
                 var kandidat = new KandidatListeSTV()
                 {
                     Navn = id,
-                    StemmetallSatt = false
+                    StemmetallSatt = false,
+                    Klasse = klasse
                 };
                 var kandidatVaraliste = new VaraListeSTV()
                 {
                     Navn = id,
-                    StemmetallSatt = false
+                    StemmetallSatt = false,
+                    Klasse = klasse
                 };
 
                 List<KandidatListeSTV> kandidaterIkkeSatt = db.KandidaterSTV.Where(k => k.StemmetallSatt == false).ToList();
@@ -1945,7 +4190,8 @@ namespace Studentparlamentet_28.DAL
             db.SaveChanges();
             return true;
         }
-        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter,
+                                          string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var db = new BrukerContext();
             if (beskrivelse == "")
@@ -1968,7 +4214,10 @@ namespace Studentparlamentet_28.DAL
             {
                 Beskrivelse = beskrivelse,
                 AntallRepresentanter = antallRepresentanter,
-                AntallVaraRepresentanter = antallVaraRepresentanter,
+                KvoteKlasseEn = klasse1,
+                KvoteKlasseTo = klasse2,
+                KlasseEnProsent = prosent1,
+                KlasseToProsent = prosent2,
                 Utført = false,
                 ValgtypeID = start.ValgtypeID
             };

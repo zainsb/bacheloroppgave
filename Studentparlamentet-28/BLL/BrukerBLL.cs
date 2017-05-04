@@ -6,12 +6,23 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Studentparlamentet_28.BLL
 {
     public class BrukerBLL
 
     {
+        public List<Stemmeseddel> stemmesedlerMedID(int valgtypeid)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.stemmesedlerMedID(valgtypeid);
+        }
+        public MemoryStream ResultatPreferansevalgTilPDF(int valgtypeid, string klasse1, string klasse2, int prosent1, int prosent2)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.ResultatPreferansevalgTilPDF(valgtypeid, klasse1, klasse2, prosent1, prosent2);
+        }
         public List<Stemmeseddel> preferansevalgsedler (int id)
         {
             var brukerdal = new DbDal();
@@ -78,11 +89,7 @@ namespace Studentparlamentet_28.BLL
             var brukerdal = new DbDal();
             return brukerdal.hentValgteKandidater(valgtypeid);
         }
-        public List<VaraSTV> hentValgteVaraer(int valgtypeid)
-        {
-            var brukerdal = new DbDal();
-            return brukerdal.hentValgteVaraer(valgtypeid);
-        }
+        
         public string HarBrukerStemtSTV(string brukernavn)
         {
             var brukerdal = new DbDal();
@@ -139,11 +146,7 @@ namespace Studentparlamentet_28.BLL
             var brukerdal = new DbDal();
             return brukerdal.PreferansevalgAntallDeltatt(valgtypeid);
         }
-        public List<KandidatSTV> BeregnPreferansevalgResultat(int valgtypeid)
-        {
-            var brukderDal = new DbDal();
-            return brukderDal.BeregnPreferansevalgResultat(valgtypeid);
-        }
+        
         public Preferansevalg hentPreferanseValg(int id)
         {
             var brukerDal = new DbDal();
@@ -154,10 +157,10 @@ namespace Studentparlamentet_28.BLL
             var brukderDal = new DbDal();
             brukderDal.BeregnStemmetallFørsteRunde(valgtypeid);
         }
-        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var brukderDal = new DbDal();
-            return brukderDal.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
+            return brukderDal.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter, klasse1, klasse2, prosent1, prosent2);
         }
         public string NullstillKandidatliste(int valgtypeid)
         {
@@ -196,15 +199,17 @@ namespace Studentparlamentet_28.BLL
             var brukerdal = new DbDal();
             brukerdal.slettKandidatFraListe(id);
         }
-        public string lagreKandidatSTV(string id)
+        public string lagreKandidatSTV(string id, string klasse)
         {
             var brukerDal = new DbDal();
-            return brukerDal.lagreKandidatSTV(id);
+            return brukerDal.lagreKandidatSTV(id, klasse);
         }
-        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, 
+                                        string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var brukderDal = new DbDal();
-            return brukderDal.startPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
+            return brukderDal.startPreferansevalg(beskrivelse, antallRepresentanter,
+                                                  klasse1, klasse2, prosent1, prosent2);
         }
         public bool startPreferansevalg(Valgtyper valg)
         {

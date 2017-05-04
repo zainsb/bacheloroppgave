@@ -61,9 +61,7 @@ namespace Studentparlamentet_28.Controllers
                             }
 
                         }
-
-
-
+                        
 
                     }
                     using (StreamReader reader = new StreamReader(Server.MapPath("/resultat/stemmeseddelIDer.txt")))
@@ -1725,6 +1723,10 @@ namespace Studentparlamentet_28.Controllers
                     {
                         return RedirectToAction("stemmeseddelPersonvalgEng", new { id = valgtypeid });
                     }
+                    else if (valgtype == "Preferansevalg")
+                    {
+                        return RedirectToAction("StemmesedlerPreferansevalg", new { valgtypeid = valgtypeid });
+                    }
 
                 }
 
@@ -1747,12 +1749,52 @@ namespace Studentparlamentet_28.Controllers
                     {
                         return RedirectToAction("stemmeseddelPersonvalg", new { id = valgtypeid });
                     }
+                    else if(valgtype == "Preferansevalg")
+                    {
+                        return RedirectToAction("StemmesedlerPreferansevalg", new { valgtypeid = valgtypeid });
+                    }
 
                 }
 
             }
             return RedirectToAction("Index");
         }
+
+        [Authorize(Roles = "true")]
+        public ActionResult StemmesedlerPreferansevalg(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+
+                    List<Stemmeseddel> stemmesedler = db.stemmesedlerMedID(valgtypeid);
+                    return View(stemmesedler);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        [Authorize(Roles = "true")]
+        public ActionResult StemmesedlerPreferansevalgEng(int valgtypeid)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+
+                    List<Stemmeseddel> stemmesedler = db.stemmesedlerMedID(valgtypeid);
+                    return View("../user/StemmesedlerPreferansevalgEng", stemmesedler);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
         [Authorize(Roles = "true")]
         public ActionResult PersonvalgResultat_2Eng(int id)
         {
@@ -1846,10 +1888,13 @@ namespace Studentparlamentet_28.Controllers
                     {
                         return RedirectToAction("PersonvalgResultat_2", new { id = valgtypeid });
                     }
+                    else if (valgtype == "Preferansevalg")
+                    {
+                        return RedirectToAction("ResultatPreferansevalg", new { valgtypeid = valgtypeid });
+                    }
 
                 }
-
-
+                
                 return RedirectToAction("HentResultat");
             }
 
@@ -1872,6 +1917,10 @@ namespace Studentparlamentet_28.Controllers
                     else if (valgtype == "Personvalg")
                     {
                         return RedirectToAction("PersonvalgResultat_2Eng", new { id = valgtypeid });
+                    }
+                    else if(valgtype == "Preferansevalg")
+                    {
+                        return RedirectToAction("ResultatPreferansevalgEng", new { valgtypeid = valgtypeid });
                     }
 
                 }
@@ -1914,6 +1963,18 @@ namespace Studentparlamentet_28.Controllers
         }
 
         //PREFERANSEVALG
+        
+        public ActionResult ResultatPreferansevalgTilPDF(int valgtypeid)
+        {
+            var db = new BrukerBLL();
+            Preferansevalg preferansevalg = db.hentPreferanseValg(valgtypeid);
+            MemoryStream ms = db.ResultatPreferansevalgTilPDF(valgtypeid, preferansevalg.kvoteKlasseEn, preferansevalg.kvoteKlasseTo,
+                                                              preferansevalg.klasseEnProsent, preferansevalg.klasseToProsent);
+
+            byte[] filedata = ms.ToArray();
+            return File(filedata, "application/pdf", "ResultatPreferansevalg.pdf");
+        }
+
         [Authorize(Roles = "true")]
         public string hentValgteKandidater(int valgtypeid)
         {
@@ -1934,54 +1995,7 @@ namespace Studentparlamentet_28.Controllers
             return "feil";
 
         }
-        [Authorize(Roles = "true")]
-        public string hentValgteVaraer(int valgtypeid)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-
-                    var db = new BrukerBLL();
-                    List<VaraSTV> alleKandidater = db.hentValgteVaraer(valgtypeid);
-
-                    var jsonSerializer = new JavaScriptSerializer();
-                    string json = jsonSerializer.Serialize(alleKandidater);
-                    return json;
-                }
-            }
-            return "feil";
-
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult VisVaraResultatPreferansevalg(int valgtypeid)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                var db = new BrukerBLL();
-                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
-                return View(valg);
-            }
-            else
-            {
-                return RedirectToAction("index");
-            }
-        }
-        [Authorize(Roles = "true")]
-        public ActionResult VisVaraResultatPreferansevalgEng(int valgtypeid)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                var db = new BrukerBLL();
-                Preferansevalg valg = db.hentPreferanseValg(valgtypeid);
-                return View("../User/VisVaraResultatPreferansevalgEng", valg);
-            }
-            else
-            {
-                return RedirectToAction("index");
-            }
-        }
+        
         [Authorize(Roles = "true")]
         public string startLagretPreferansevalg(int valgtypeid, string beskrivelse)
         {
@@ -1999,7 +2013,7 @@ namespace Studentparlamentet_28.Controllers
             return "feil";
 
         }
-        [Authorize(Roles = "true")]
+        
         public ActionResult Preferansevalgsvar(string kandidatEn, string kandidatTo, string kandidatTre, string kandidatFire,
                                        string kandidatFem, string kandidatSeks, string kandidatSju, string kandidatÅtte,
                                        string kandidatNi, string kandidatTi, string kandidatElleve, string kandidatTolv)
@@ -2112,10 +2126,7 @@ namespace Studentparlamentet_28.Controllers
                     Valgtyper valg = db.stopPreferansevalg();
                     var jsonSerializer = new JavaScriptSerializer();
                     return jsonSerializer.Serialize(valg);
-
-                    /*string melding = db.stopPreferansevalg();
-                    var jsonSerializer = new JavaScriptSerializer();
-                    return jsonSerializer.Serialize(melding);*/
+                    
                 }
             }
             return "feil";
@@ -2212,25 +2223,7 @@ namespace Studentparlamentet_28.Controllers
             return "feil";
 
         }
-        [Authorize(Roles = "true")]
-        public string hentAlleValgteKandidater(int valgtypeid)
-        {
-            if (Session["LoggetInn"] != null)
-            {
-                bool loggetinn = (bool)Session["LoggetInn"];
-                if (loggetinn)
-                {
-                    var db = new BrukerBLL();
-                    List<KandidatSTV> alleKandidater = db.BeregnPreferansevalgResultat(valgtypeid);
-
-                    var jsonSerializer = new JavaScriptSerializer();
-                    string json = jsonSerializer.Serialize(alleKandidater);
-                    return json;
-                }
-            }
-            return "feil";
- 
-        }
+        
         [Authorize(Roles = "true")]
         public ActionResult ResultatPreferansevalg(int valgtypeid)
         {
@@ -2260,7 +2253,7 @@ namespace Studentparlamentet_28.Controllers
             }
         }
         [Authorize(Roles = "true")]
-        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
+        public string lagreNyttPreferansevalg(string beskrivelse, int antallRepresentanter, string klasse1, string klasse2, int prosent1, int prosent2)
         {
             if (Session["LoggetInn"] != null)
             {
@@ -2269,13 +2262,12 @@ namespace Studentparlamentet_28.Controllers
                 {
                     var db = new BrukerBLL();
 
-                    string melding = db.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
+                    string melding = db.lagreNyttPreferansevalg(beskrivelse, antallRepresentanter, klasse1, klasse2, prosent1, prosent2);
                     var jsonSerializer = new JavaScriptSerializer();
                     return jsonSerializer.Serialize(melding);
                 }
             }
             return "feil";
-
         }
         [Authorize(Roles = "true")]
         public string NullstillKandidatliste(int valgtypeid)
@@ -2292,7 +2284,6 @@ namespace Studentparlamentet_28.Controllers
                 }
             }
             return "feil";
-
         }
         [Authorize(Roles = "true")]
         public ActionResult ForhåndslagreNyttPreferansevalgEng()
@@ -2549,20 +2540,22 @@ namespace Studentparlamentet_28.Controllers
             }
         }
         [Authorize(Roles = "true")]
-        public string lagreKandidatIListe(string id)
+        public string lagreKandidatIListe(string id, string klasse)
         {
             var db = new BrukerBLL();
 
-            string melding = db.lagreKandidatSTV(id);
+            string melding = db.lagreKandidatSTV(id, klasse);
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(melding);
         }
         [Authorize(Roles = "true")]
-        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, int antallVaraRepresentanter)
+        public string startPreferansevalg(string beskrivelse, int antallRepresentanter, 
+                                    string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var db = new BrukerBLL();
 
-            string melding = db.startPreferansevalg(beskrivelse, antallRepresentanter, antallVaraRepresentanter);
+            string melding = db.startPreferansevalg(beskrivelse, antallRepresentanter,
+                                                klasse1, klasse2, prosent1, prosent2);
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Serialize(melding);
         }
