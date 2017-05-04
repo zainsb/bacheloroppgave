@@ -97,7 +97,7 @@ namespace Studentparlamentet_28.DAL
                     int antallLedigeKvote2 = maksKvoteKlasse2;
 
 
-                    if (klasse1 != "tom" && klasse2 != "tom")
+                    if (klasse1 != "tom" && klasse2 != "tom" && klasse1 != "Klasse" && klasse2 != "Klasse" && klasse1 != "Choose candidate" &&  klasse2 != "Choose candidate")
                     {
                         kvoteringsvalg = true;
                     }
@@ -2176,7 +2176,7 @@ namespace Studentparlamentet_28.DAL
             int antallLedigeKvote1 = maksKvoteKlasse1;
             int antallLedigeKvote2 = maksKvoteKlasse2;
 
-            if (klasse1 != "tom" && klasse2 != "tom")
+            if (klasse1 != "tom" && klasse2 != "tom" && klasse1 != "Klasse" && klasse2 != "Klasse" && klasse1 != "Choose candidate" && klasse2 != "Choose candidate")
             {
                 kvoteringsvalg = true;
             }

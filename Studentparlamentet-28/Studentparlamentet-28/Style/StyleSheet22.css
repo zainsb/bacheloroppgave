@@ -19,7 +19,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
     min-width: 60px !important
 }
 
-ul li {
+#dropdown ul li {
     max-width: 80px;
     white-space:nowrap; 
 }

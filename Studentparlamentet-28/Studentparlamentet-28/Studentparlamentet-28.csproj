@@ -296,8 +296,8 @@
     <Content Include="Views\User\stemmeseddelPersonvalgEng.cshtml" />
     <Content Include="Views\User\ResultatVoteringID_2Eng.cshtml" />
     <Content Include="Views\User\PersonvalgResultat_2Eng.cshtml" />
-    <Content Include="Views\Bruker\StemmesedlerPreferansevalg.cshtml" />
     <Content Include="Views\User\StemmesedlerPreferansevalgEng.cshtml" />
+    <Content Include="Views\Bruker\StemmesedlerPreferansevalg.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

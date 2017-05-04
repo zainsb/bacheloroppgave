@@ -1,0 +1,214 @@
+﻿@model IEnumerable<Studentparlamentet_28.Models.Stemmeseddel>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Stemmesedler</title>
+
+</head>
+<body>
+    <div class="col-sm-12" id="containerSTV">
+        @Html.ActionLink(" ", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "HentResultatEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    Norsk
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("StemmesedlerPreferansevalg", "Bruker")">Norsk</a></li>
+                </ul>
+            </div>
+        </div>
+        <br /><br />
+
+        <div id="tableContainer">
+
+            <table class="table  table-responsive table-scrollable" id="tableID">
+                <thead class="thead-default">
+                    <tr>
+                        <th>
+                            1.
+                        </th>
+                        <th>
+                            2.
+                        </th>
+                        <th>
+                            3.
+                        </th>
+                        <th>
+                            4.
+                        </th>
+                        <th>
+                            5.
+                        </th>
+                        <th>
+                            6.
+                        </th>
+                        <th>
+                            7.
+                        </th>
+                        <th>
+                            8.
+                        </th>
+                        <th>
+                            9.
+                        </th>
+                        <th>
+                            10.
+                        </th>
+                        <th>
+                            11.
+                        </th>
+                        <th>
+                            12.
+                        </th>
+
+                    </tr>
+                </thead>
+
+
+                <tbody class="table-bordered">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+
+                                @if (item.kandidatnrEn == null || item.kandidatnrEn == "Velg kandidat" || item.kandidatnrEn == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrEn)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrTo == null || item.kandidatnrTo == "Velg kandidat" || item.kandidatnrTo == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrTo)
+                                }
+
+                            </td>
+                            <td>
+                                @if (item.kandidatnrTre == null || item.kandidatnrTre == "Velg kandidat" || item.kandidatnrTre == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrTre)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrFire == null || item.kandidatnrFire == "Velg kandidat" || item.kandidatnrFire == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrFire)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrFem == null || item.kandidatnrFem == "Velg kandidat" || item.kandidatnrFem == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrFem)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrSeks == null || item.kandidatnrSeks == "Velg kandidat" || item.kandidatnrSeks == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrSeks)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrSju == null || item.kandidatnrSju == "Velg kandidat" || item.kandidatnrSju == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrSju)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrÅtte == null || item.kandidatnrÅtte == "Velg kandidat" || item.kandidatnrÅtte == "Choose candidates")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrÅtte)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrNi == null || item.kandidatnrNi == "Velg kandidat" || item.kandidatnrNi == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrNi)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrTi == null || item.kandidatnrTi == "Velg kandidat" || item.kandidatnrTi == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrTi)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrElleve == null || item.kandidatnrElleve == "Velg kandidat" || item.kandidatnrElleve == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrElleve)
+                                }
+                            </td>
+                            <td>
+                                @if (item.kandidatnrTolv == null || item.kandidatnrTolv == "Velg kandidat" || item.kandidatnrTolv == "Choose candidate")
+                                {
+                                    <p>-</p>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.kandidatnrTolv)
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+        <br />
+
+    </div>
+</body>
+</html>
+
