@@ -5669,6 +5669,7 @@ namespace Studentparlamentet_28.DAL
             {
                 var listeAvBrukere = db.Brukere.Select(k => new Bruker()
                 {
+                    id = k.Id,
                     brukernavn = k.Brukernavn,
                     passord = k.Passord,
                     innlogget = k.Innlogget 
@@ -5763,6 +5764,21 @@ namespace Studentparlamentet_28.DAL
 
             }
 
+        }
+        public bool slettBrukerint(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Bruker_db slettBruker = db.Brukere.FirstOrDefault(b => b.Id == id);
+                db.Brukere.Remove(slettBruker);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
         }
         public bool slettBruker(String id)
         {

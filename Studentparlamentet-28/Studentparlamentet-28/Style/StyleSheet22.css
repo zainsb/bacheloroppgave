@@ -150,7 +150,7 @@ ul li {
 }
 #ListeResultat
 { 
-
+    width: 275px;
 }
 #feilmelding{
     max-width: 530px;
@@ -241,7 +241,7 @@ ul li {
 {
      max-width: 650px;    
      max-height: 800px;
-     overflow: scroll;
+     overflow: auto;
      overflow-x:hidden;
 }
 #PersonvalgResultat

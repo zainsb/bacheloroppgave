@@ -3590,7 +3590,7 @@ namespace Studentparlamentet_28.Controllers
 
           }
 
-          else if (FormsAuthentication.CookiesSupported == true)
+          else if (FormsAuthentication.CookiesSupported == true && Session["LoggetInn"] == null)
           {
 
               if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
@@ -3631,7 +3631,22 @@ namespace Studentparlamentet_28.Controllers
               }
 
           }
-          else
+            else if (FormsAuthentication.CookiesSupported == true && Session["LoggetInn"] == null)
+            {
+
+                if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
+                {
+                    string id = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    var db = new BrukerBLL();
+                    var loggut = db.logg_ut_bruker(id);
+                    return View();
+                }
+                else
+                {
+                    return View();
+                }
+            }
+            else
           {
               return View("../User/IndexEng");
           }
@@ -3740,7 +3755,7 @@ namespace Studentparlamentet_28.Controllers
       }
       [Authorize(Roles = "true")]
       [HttpPost]
-      public ActionResult VisListe(Bruker innAdmin, String id)
+      public ActionResult VisListe(Bruker innAdmin, int id)
       {
           if (Session["LoggetInn"] != null)
           {
@@ -3752,13 +3767,12 @@ namespace Studentparlamentet_28.Controllers
 
                   if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
                   {
-                      db.slettBruker(id);
-                      List<Bruker> tabell = db.hentData();
-                      return View(tabell);
-                  }
+                      db.slettBrukerint(id);
+                        return RedirectToAction("VisListe", new { id = "" });
+                    }
 
               }
-              return RedirectToAction("VisListe");
+              return RedirectToAction("VisListe", new { id = id });
           }
 
           return RedirectToAction("Index");
@@ -3871,7 +3885,7 @@ namespace Studentparlamentet_28.Controllers
       }
       [Authorize(Roles = "true")]
       [HttpPost]
-      public ActionResult VisListeEng(Bruker innAdmin, String id)
+      public ActionResult VisListeEng(Kandidat innKandidat, int id)
       {
           if (Session["LoggetInn"] != null)
           {
@@ -3880,18 +3894,19 @@ namespace Studentparlamentet_28.Controllers
               {
                   var db = new BrukerBLL();
                   string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-
+                    Bruker innAdmin = new Bruker();
+                    innAdmin.passord = innKandidat.passordEng;
                   if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
                   {
-                      db.slettBruker(id);
-                      return RedirectToAction("VisListeEng");
+                      db.slettBrukerint(id);
+                      return RedirectToAction("VisListeEng", new { id = ""});
                   }
 
               }
-              return RedirectToAction("VisListeEng");
+              return RedirectToAction("VisListeEng", new { id = id });
           }
 
-          return RedirectToAction("Index");
+          return RedirectToAction("IndexEng");
 
       }
 
@@ -4031,29 +4046,25 @@ namespace Studentparlamentet_28.Controllers
                         using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
                         {
                             PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                            PdfPTable table = new PdfPTable(3);
+                            PdfPTable table = new PdfPTable(4);
                             BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
                             Font tablefont = new Font(bfTimes, 30);
                             Font tablefont2 = new Font(bfTimes, 24);
                             PdfPCell cell = new PdfPCell(new Phrase(" \n Brukernavn og Passord \n ", tablefont));
-                            cell.Colspan = 3;
+                            cell.Colspan = 4;
                             cell.HorizontalAlignment = 1;
                             table.AddCell(cell);
-                            int teller = 0;
                             for (int i = 0; i < tabell.Count; i++)
                             {
-                                teller++;
-                                var t = new PdfPCell(new Paragraph(teller.ToString(), tablefont2));
-                                t.FixedHeight = 60f;
-                                // nummer
-                                table.AddCell(t);
                                 // brukernavn
                                 var b = new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2));
                                 b.FixedHeight = 60f;
+                                b.Colspan = 2;
                                 table.AddCell(b);
                                 // passord
                                 var p = new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2));
                                 p.FixedHeight = 60f;
+                                p.Colspan = 2;
                                 table.AddCell(p);
                             }
                             doc.Open();
@@ -4086,29 +4097,25 @@ namespace Studentparlamentet_28.Controllers
                         using (var doc = new iTextSharp.text.Document(PageSize.A4, 50, 50, 50, 50))
                         {
                             PdfWriter writer = PdfWriter.GetInstance(doc, ms);
-                            PdfPTable table = new PdfPTable(3);
+                            PdfPTable table = new PdfPTable(4);
                             BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
                             Font tablefont = new Font(bfTimes, 30);
                             Font tablefont2 = new Font(bfTimes, 24);
                             PdfPCell cell = new PdfPCell(new Phrase(" \n Username and Password \n ", tablefont));
-                            cell.Colspan = 3;
+                            cell.Colspan = 4;
                             cell.HorizontalAlignment = 1;
                             table.AddCell(cell);
-                            int teller = 0;
                             for (int i = 0; i < tabell.Count; i++)
                             {
-                                teller++;
-                                var t = new PdfPCell(new Paragraph(teller.ToString(), tablefont2));
-                                t.FixedHeight = 60f;
-                                // nummer
-                                table.AddCell(t);
                                 // brukernavn
                                 var b = new PdfPCell(new Paragraph(tabell[i].brukernavn.ToString(), tablefont2));
                                 b.FixedHeight = 60f;
+                                b.Colspan = 2;
                                 table.AddCell(b);
                                 // passord
                                 var p = new PdfPCell(new Paragraph(tabell[i].passord.ToString(), tablefont2));
                                 p.FixedHeight = 60f;
+                                p.Colspan = 2;
                                 table.AddCell(p);
                             }
                             doc.Open();
@@ -4289,28 +4296,22 @@ namespace Studentparlamentet_28.Controllers
                 {
                     var db = new BrukerBLL();
                     string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
-                    bool ok = db.SjekkPassord(innAdmin, brukernavn);
-                    if (ok == true) // passord riktig
-                    {
+               
                         Bruker bruker = new Bruker();
                         bruker.passord = innAdmin.passord;
                         if (db.admin_i_db_innlogget(bruker, brukernavn) == (bool)true)
                         {
                             db.slettValg(id);
-                            return RedirectToAction("Resultat");
+                            return RedirectToAction("Resultat", new { id = "" });
                         }
                         else
                         {
-                            return RedirectToAction("Resultat");
+                            return RedirectToAction("Resultat", new { id = id });
                         }
-                    }
-                    else // feil passord
-                    {
-                        return RedirectToAction("Resultat", new { id = "e", id2 = id });
                     }
 
                 }
-            }
+            
 
             return RedirectToAction("Index");
 
@@ -4360,28 +4361,23 @@ namespace Studentparlamentet_28.Controllers
                 {
                     var db = new BrukerBLL();
                     string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                   
                     bool ok = db.SjekkPassordEng(innAdmin, brukernavn);
                     if (ok == true) // passord riktig
                     {
-                        Bruker bruker = new Bruker();
-                        bruker.passord = innAdmin.passordEng;
-                        if (db.admin_i_db_innlogget(bruker, brukernavn) == (bool)true)
-                        {
+      
                             db.slettValg(id);
-                            return RedirectToAction("ResultatEng");
+                            return RedirectToAction("ResultatEng", new { id = "" });
                         }
                         else
                         {
-                            return RedirectToAction("ResultatEng");
+                            return RedirectToAction("ResultatEng", new { id = id });
                         }
                     }
-                    else // feil passord
-                    {
-                        return RedirectToAction("ResultatEng", new { id = "e", id2 = id });
-                    }
+
 
                 }
-            }
+            
 
             return RedirectToAction("IndexEng");
 

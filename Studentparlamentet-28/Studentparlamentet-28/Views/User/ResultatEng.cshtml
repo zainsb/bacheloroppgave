@@ -9,21 +9,21 @@
     <script type="text/javascript">
         $(document).ready(function () {
             var full_url = document.URL; // Get current url
-            var url_array = full_url.split('=') // Split the string into an array with = as separator
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
             var feilmelding = url_array[url_array.length - 1];// Get the last part of the array (-1)
             if (isNaN(feilmelding) == false)
             {
                 $('#slettNavn').val(feilmelding);
-                $('#slettNavnDiv').html("<h3>ElectionID " + feilmelding + " Election type Vote</h3>");
-                $("#feilmeldingslettemodal").append("Wrong password");
-                $("#feilmeldingslettemodal").show();
                 $("#sletteModal").modal();
+                $("#feilpassord").show();
+                $("#slettNavnDiv").hide();
 
             }
 
             // lag en hendelse som utføres når en a-href med "data-SletteModal = true" trykkes.
             $('a[data-sletteModal=true]').click(function () {
-
+                $("#feilpassord").hide();
+                $("#slettNavnDiv").show();
                 // hent inn data-taggene fra denne a-hef lenken
                 var data_navn = $(this).data('id');
                 var data_id_valgtype = $(this).data('navn')
@@ -32,6 +32,7 @@
                 $('#slettNavn').val(data_navn);
                 $('#slettNavnDiv').html(data_id_valgtype);
 
+            })
         });
     </script>
 </head>

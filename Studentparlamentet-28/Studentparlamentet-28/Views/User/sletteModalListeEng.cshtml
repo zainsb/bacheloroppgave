@@ -1,4 +1,4 @@
-﻿@model Studentparlamentet_28.Models.Bruker
+﻿@model Studentparlamentet_28.Models.Kandidat
 
 <div id="sletteModal" class="modal fade">
     <div class="modal-dialog">
@@ -27,10 +27,10 @@
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                            @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Password" } })
+                            @Html.EditorFor(model => model.passordEng, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Password" } })
                         </div>
                         <div>
-                            @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+                            @Html.ValidationMessageFor(model => model.passordEng, "", new { @class = "text-danger" })
                         </div>
                     </div>
 

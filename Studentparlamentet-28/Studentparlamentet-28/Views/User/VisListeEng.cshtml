@@ -6,9 +6,22 @@
     <title>Liste</title>
     <script type="text/javascript">
         $(document).ready(function () {
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
+            var data_id = url_array[url_array.length - 1];// Get the last part of the array (-1)
+
+            if (isNaN(data_id) == false)
+            {
+                $('#slettNavn').val(data_id);
+                $('#sletteModal').modal();
+                $('#feilpassord').show();
+                $('#slettNavnDiv').hide();
+                
+            }
             // lag en hendelse som utføres når en a-href med "data-SletteModal = true" trykkes.
             $('a[data-sletteModal=true]').click(function () {
-
+                $('#feilpassord').hide();
+                $('#slettNavnDiv').show();
                 // hent inn data-taggene fra denne a-hef lenken
                 var data_navn = $(this).data('id');
                 var data_id_valgtype = $(this).data('navn')
@@ -92,7 +105,7 @@
                             <td>
                                 <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp"
                                    data-navn="Username: @item.brukernavn"
-                                   data-id="@item.brukernavn" data-toggle="modal" data-sletteModal="true">Delete</a> 
+                                   data-id="@item.id" data-toggle="modal" data-sletteModal="true">Delete</a> 
                             </td>
                             <td>
                                 @Html.ActionLink("Sign out", "LoggUtBruker", new { id = item.brukernavn }, new { @class = "btn btn-danger" })
@@ -113,7 +126,7 @@
         <br />
 
 
-        @Html.Partial("../User/sletteModalListeEng", new Studentparlamentet_28.Models.Bruker())
+        @Html.Partial("../User/sletteModalListeEng", new Studentparlamentet_28.Models.Kandidat())
     </div>
 </body>
 </html>
