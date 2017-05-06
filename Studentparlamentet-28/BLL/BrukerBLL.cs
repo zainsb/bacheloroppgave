@@ -13,6 +13,16 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+        public string endreBrukernavnAdmin(string gammeltBrukernavn, string nyttBrukernavn)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.endreBrukernavnAdmin(gammeltBrukernavn, nyttBrukernavn);
+        }
+        public string endrePassordAdmin(string brukernavn, string gammeltPassord, string nyttpassord)
+        {
+            var brukerdal = new DbDal();
+            return brukerdal.endrePassordAdmin(brukernavn, gammeltPassord, nyttpassord);
+        }
         public List<Stemmeseddel> stemmesedlerMedID(int valgtypeid)
         {
             var brukerdal = new DbDal();

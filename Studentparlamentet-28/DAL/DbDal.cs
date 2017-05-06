@@ -19,6 +19,63 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+
+        public string endreBrukernavnAdmin(string gammeltBrukernavn, string nyttBrukernavn)
+        {
+            var db = new BrukerContext();
+
+            Admin_db gammel = db.AdminBrukere.FirstOrDefault(a => a.Brukernavn == gammeltBrukernavn);
+            if (gammel == null)
+            {
+                return "Feil";
+            }
+
+            Admin_db oppdatertAdmin = new Admin_db()
+            {
+                Brukernavn = nyttBrukernavn,
+                Passord = gammel.Passord,
+                Innlogget = gammel.Innlogget,
+                Administrator = gammel.Administrator
+            };
+            db.AdminBrukere.Remove(gammel);
+            db.AdminBrukere.Add(oppdatertAdmin);
+            db.SaveChanges();
+            return "OK";
+        }
+        public string endrePassordAdmin(string brukernavn, string gammeltPassord, string nyttpassord)
+        {
+            var db = new BrukerContext();
+
+            byte[] passwordhash = lagHash(nyttpassord);
+            byte[] gammeltPasswordhash = lagHash(gammeltPassord);
+
+            Admin_db gammel = db.AdminBrukere.FirstOrDefault(a => a.Brukernavn == brukernavn);
+            Admin_db testAdmin = db.AdminBrukere.FirstOrDefault(a => a.Passord == gammeltPasswordhash);
+            if (gammel == null)
+            {
+                return "Feil";
+            }
+            if (testAdmin == null)
+            {
+                return "Gammelt passord feil";
+            }
+            else
+            {
+                Admin_db oppdatertAdmin = new Admin_db()
+                {
+                    Brukernavn = gammel.Brukernavn,
+                    Passord = passwordhash,
+                    Innlogget = gammel.Innlogget,
+                    Administrator = gammel.Administrator
+                };
+                db.AdminBrukere.Remove(gammel);
+                db.AdminBrukere.Add(oppdatertAdmin);
+                db.SaveChanges();
+                return "OK";
+            }
+
+        }
+
         //Preferansevalg
         public List<Stemmeseddel> stemmesedlerMedID(int valgtypeid)
         {

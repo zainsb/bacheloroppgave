@@ -26,8 +26,8 @@
                     </div>
         -->
         <div class="form-group form-inline">
-            <div class="row col-sm-12">
-                <div class="col-lg-4 col-lg-offset-2">
+            <div class="row col-sm-14">
+                <div class="col-lg-4 col-lg-1">
                     <div id="borderListGroup">
                         <a href="@Url.Action("LeggTilBruker", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                             <div class="d-flex w-100 justify-content-between">
@@ -37,7 +37,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-4 col-lg-offset-1">
+                <div class="col-lg-4 col-lg-2">
                     <div id="borderListGroup">
                         <a href="@Url.Action("HentResultat", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
                             <div class="d-flex w-100 justify-content-between">
@@ -47,8 +47,18 @@
                         </a>
                     </div>
                 </div>
+                <div class="col-lg-4 col-lg-3">
+                    <div id="borderListGroup">
+                        <a href="@Url.Action("endreAdminkonto", "Bruker")" class="list-group-item list-group-item-action flex-column align-items-start active">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Endre administratorkonto</h5>
+                            </div>
+                            <small>Klikk her for å endre brukernavn eller passord for administrator</small>
+                        </a>
+                    </div>
+                </div>
             </div>
-      <br /><br />
+            <br /><br />
             <div class="row col-sm-14">
                 <div class="col-lg-4">
                     <div id="borderListGroup">
@@ -85,14 +95,14 @@
 
 
         <br />
-       
+
         <div class="row">
             <div class="col-lg-4">
 
             </div>
             <div class="col-lg-4">
                 <a href="@Url.Action("LoggUt", "Bruker", new { id = Model.brukernavn })" class="btn btn-danger col-lg-10"><span class="glyphicon glyphicon-log-out"></span>  Logg ut</a>
-               
+
             </div>
             <div class="col-lg-4">
 

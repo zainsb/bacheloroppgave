@@ -300,6 +300,8 @@
     <Content Include="Views\Bruker\StemmesedlerPreferansevalg.cshtml" />
     <Content Include="Views\Bruker\ResultatPreferansevalg2.cshtml" />
     <Content Include="Views\User\ResultatPreferansevalgEng2.cshtml" />
+    <Content Include="Views\Bruker\endreAdminkonto.cshtml" />
+    <Content Include="Views\User\endreAdminkontoEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

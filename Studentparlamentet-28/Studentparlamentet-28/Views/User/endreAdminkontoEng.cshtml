@@ -1,0 +1,141 @@
+﻿@model Studentparlamentet_28.Models.Admin
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        //Hjelpevariabler
+
+        $(function () {
+            //Endre brukernavn metode
+            $("#btnEndreBrukernavn").click(function () {
+                var gammeltBrukernavn = $("#gammelbrukernavn").val();
+                var nyttbrukernavn = $("#nyttbrukernavn").val();
+
+
+                $.ajax({
+                    url: '/Bruker/endreAdminBrukernavn',
+                    data: {
+                        gammeltbrukernavn: gammeltBrukernavn,
+                        nyttbrukernavn: nyttbrukernavn
+                    },
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        if (melding == "OK") {
+
+                            $("#mldBrukernavn").html("Username has been changed.");
+                        }
+                        else {
+                            $("#mldBrukernavn").html("Username not changed, try again.");
+                        }
+                    },
+                    error: function (x, y, z) {
+                    }
+                });
+
+            });
+
+            //Endre passord metode
+            $("#btnEndrePassord").click(function () {
+                var gammeltPassord = $("#gammelpassord").val();
+                var nyttPassord = $("#nyttpassord").val();
+                var nyttPassord2 = $("#nyttpassord2").val();
+
+                if (nyttPassord != nyttPassord2) {
+                    $("#mldPassord").html("De nye passordene er ikke like.");
+                }
+                else {
+                    $.ajax({
+                        url: '/Bruker/endrePassordAdmin',
+                        data: {
+                            gammeltPassord: gammeltPassord,
+                            nyttpassord: nyttPassord
+                        },
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (melding) {
+                            if (melding == "OK") {
+                                $("#mldPassord").html("Password has been changed.");
+                            }
+                            else if (melding == "Gammelt passord feil") {
+                                $("#mldPassord").html("Old password is incorrect.");
+                            }
+                            else {
+                                $("#mldPassord").html("Password not changed, try again.");
+                            }
+                        },
+                        error: function (x, y, z) {
+                        }
+                    });
+                }
+
+            });
+
+        }) //Her stopper function()
+
+    </script>
+</head>
+<body>
+
+    <br /><br />
+
+
+    <div class="col-sm-12" id="AdminEndre">
+        @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
+        <div class="form-inline" style="float:right;">
+            @Html.ActionLink("Back", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            <div class="dropdown" style="float:right;">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    English
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="@Url.Action("endreAdminkonto", "Bruker")">Norsk</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <br />
+        <h2>Change administrator account</h2>
+
+        <br /><br />
+        <div id="brukernavn">
+            <p>Change administrator username</p>
+            <input type="text" id="gammelbrukernavn" name="Gammel brukernavn" placeholder="Old username">
+            <input type="text" id="nyttbrukernavn" name="Nytt brukernavn" placeholder="New username">
+            <br /><br />
+            <div class="form-group" id="EndreBrukernavnBtn">
+                <input type="button" value="Change usename" id="btnEndreBrukernavn" class="btn btn-primary" />
+                <div id="mldBrukernavn"></div>
+            </div>
+            <br />
+        </div>
+        <div id="passord">
+            <p>Change administrator password</p>
+            <input type="password" id="gammelpassord" style="position:center" name="Gammel passord" placeholder="Old password">
+            <input type="password" id="nyttpassord" style="position:center" name="Nytt passord" placeholder="New password">
+            <input type="password" id="nyttpassord2" style="position:center" name="Nytt passord" placeholder="Repeat new password">
+            <br /><br />
+            <div class="form-group" id="EndreBtn">
+                <input type="button" value="Change password" id="btnEndrePassord" class="btn btn-primary" />
+                <div id="mldPassord"></div>
+            </div>
+            <br />
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

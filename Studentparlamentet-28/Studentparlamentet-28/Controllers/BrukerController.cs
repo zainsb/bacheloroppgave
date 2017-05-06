@@ -20,6 +20,30 @@ namespace Studentparlamentet_28.Controllers
 {
     public class BrukerController : Controller
     {
+        public string endreAdminBrukernavn(string gammeltbrukernavn, string nyttbrukernavn)
+        {
+            var db = new BrukerBLL();
+            string melding = db.endreBrukernavnAdmin(gammeltbrukernavn, nyttbrukernavn);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+        public string endrePassordAdmin(string gammeltPassord, string nyttpassord)
+        {
+            var db = new BrukerBLL();
+            string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+            string melding = db.endrePassordAdmin(brukernavn, gammeltPassord, nyttpassord);
+            var jsonSerializer = new JavaScriptSerializer();
+            return jsonSerializer.Serialize(melding);
+        }
+
+        public ActionResult endreAdminkonto()
+        {
+            return View("endreAdminkonto");
+        }
+        public ActionResult endreAdminkontoEng()
+        {
+            return View("endreAdminkontoEng");
+        }
         //Hent Resultat
         public ActionResult LastNedResultatStemmesedler()
         {
