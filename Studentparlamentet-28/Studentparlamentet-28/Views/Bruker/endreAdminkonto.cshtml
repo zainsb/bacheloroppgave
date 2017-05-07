@@ -92,13 +92,16 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="@Url.Action("endreAdminkontoEng", "User")">English</a></li>
+                    <li><a href="@Url.Action("endreAdminkontoEng", "Bruker")">English</a></li>
                 </ul>
             </div>
         </div>
 
         <br />
-        <h2>Endre administratorkonto</h2>
+        <h2>Administrer kontoinnstillinger</h2>
+        <br /><br />
+        <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp" data-toggle="modal" data-sletteModal="true">Nullstill system</a>
+        <div class="col-sm-12"><hr id="hrSTV" /></div>
 
         <br /><br />
         <div id="brukernavn">
@@ -126,12 +129,11 @@
         </div>
     </div>
 
-
+    @Html.Partial("SletteModalEndreAdminKonto", new Studentparlamentet_28.Models.Bruker())
 
 
 </body>
 </html>
-
 
 
 

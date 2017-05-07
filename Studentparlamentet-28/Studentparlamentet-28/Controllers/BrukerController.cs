@@ -38,11 +38,74 @@ namespace Studentparlamentet_28.Controllers
 
         public ActionResult endreAdminkonto()
         {
-            return View("endreAdminkonto");
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+
+                    return View("endreAdminkonto");
+                }
+            }
+
+            return RedirectToAction("Index");
         }
+        [HttpPost]
+        public ActionResult endreAdminkonto(Bruker innAdmin)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+                        
+                        db.tømAlleDatabaser();
+                        return RedirectToAction("endreAdminkonto");
+                    }
+                    else
+                    {
+                        return RedirectToAction("endreAdminkonto"); // feil Passord
+                    }
+                    
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
         public ActionResult endreAdminkontoEng()
         {
-            return View("endreAdminkontoEng");
+            return View("../User/endreAdminkontoEng"); 
+        }
+        [HttpPost]
+        public ActionResult endreAdminkontoEng(Bruker innAdmin)
+        {
+            if (Session["LoggetInn"] != null)
+            {
+                bool loggetinn = (bool)Session["LoggetInn"];
+                if (loggetinn)
+                {
+                    var db = new BrukerBLL();
+                    string brukernavn = FormsAuthentication.Decrypt(Request.Cookies[FormsAuthentication.FormsCookieName].Value).Name;
+                    if (db.admin_i_db_innlogget(innAdmin, brukernavn) == (bool)true)
+                    {
+
+                        db.tømAlleDatabaser();
+                        return View("../User/endreAdminkontoEng");
+                    }
+                    else
+                    {
+                        return View("../User/endreAdminkontoEng");
+                    }
+
+                }
+            }
+
+            return RedirectToAction("Index");
         }
         //Hent Resultat
         public ActionResult LastNedResultatStemmesedler()

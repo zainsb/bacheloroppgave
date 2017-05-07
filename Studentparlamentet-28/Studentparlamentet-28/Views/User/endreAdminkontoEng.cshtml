@@ -61,7 +61,7 @@
                                 $("#mldPassord").html("Password has been changed.");
                             }
                             else if (melding == "Gammelt passord feil") {
-                                $("#mldPassord").html("Old password is incorrect.");
+                                $("#mldPassord").html("Current password is incorrect.");
                             }
                             else {
                                 $("#mldPassord").html("Password not changed, try again.");
@@ -100,11 +100,13 @@
 
         <br />
         <h2>Change administrator account</h2>
-
+        <br /><br />
+        <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp" data-toggle="modal" data-sletteModal="true">Reset system</a>
+        <div class="col-sm-12"><hr id="hrSTV" /></div>
         <br /><br />
         <div id="brukernavn">
             <p>Change administrator username</p>
-            <input type="text" id="gammelbrukernavn" name="Gammel brukernavn" placeholder="Old username">
+            <input type="text" id="gammelbrukernavn" name="Gammel brukernavn" placeholder="Current username">
             <input type="text" id="nyttbrukernavn" name="Nytt brukernavn" placeholder="New username">
             <br /><br />
             <div class="form-group" id="EndreBrukernavnBtn">
@@ -126,6 +128,8 @@
             <br />
         </div>
     </div>
+
+    @Html.Partial("../User/SletteModalEndreAdminKontoEng", new Studentparlamentet_28.Models.Bruker())
 </body>
 </html>
 

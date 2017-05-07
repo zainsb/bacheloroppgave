@@ -13,6 +13,11 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+        public void tømAlleDatabaser()
+        {
+            var brukerdal = new DbDal();
+            brukerdal.tømAlleDatabaser();
+        }
         public string endreBrukernavnAdmin(string gammeltBrukernavn, string nyttBrukernavn)
         {
             var brukerdal = new DbDal();

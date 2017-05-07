@@ -302,6 +302,8 @@
     <Content Include="Views\User\ResultatPreferansevalgEng2.cshtml" />
     <Content Include="Views\Bruker\endreAdminkonto.cshtml" />
     <Content Include="Views\User\endreAdminkontoEng.cshtml" />
+    <Content Include="Views\Bruker\SletteModalEndreAdminKonto.cshtml" />
+    <Content Include="Views\User\SletteModalEndreAdminKontoEng.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

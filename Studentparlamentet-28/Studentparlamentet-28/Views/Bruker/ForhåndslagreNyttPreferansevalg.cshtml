@@ -20,6 +20,7 @@
             $("#divKlasse1").hide();
             $("#divKlasse2").hide();
             $("#btnKlasser").hide();
+            $("#btnNullstillKlasser").hide();
 
             var valgid = 0;
             var valgidtype = $("#hiddenValgtypeid").val();
@@ -64,17 +65,64 @@
                 klasse1Prosent = $("#klasseEnProsentId").val();
                 klasse2Prosent = $("#klasseToProsentId").val();
 
-                localStorage.setItem("klasseEN", klasse1);
-                localStorage.setItem("klasseTO", klasse2);
-                localStorage.setItem("klasseENProsent", klasse1Prosent);
-                localStorage.setItem("klasseTOProsent", klasse2Prosent);
+                var boolSjekkInput= true;
 
-                $("#divKlasse1").hide();
-                $("#divKlasse2").hide();
-                $("#btnKlasser").hide();
-                fyllDropDown(klasse1, klasse2);
-                $("#dropdownDiv").show();
+                if(klasse1 == "" && klasse2 == ""){
+                    $("#feilKlasse1mld").html("<p style='color: red;'>*Vennligst fyll inn disse feltene igjen.</p>");
+                    $("#feilKlasse2mld").html("<p style='color: red;'>*Vennligst fyll inn disse feltene igjen.</p>");
+                    boolSjekkInput = false;
+                }
+                else if(klasse1 == "" || klasse1Prosent == ""){
+                    $("#feilKlasse1mld").html("<p style='color: red;'>*Vennligst fyll inn disse feltene igjen.</p>");
+                    boolSjekkInput = false;
+                }
+                else if(klasse2 == "" || klasse2Prosent == ""){
+                    $("#feilKlasse2mld").html("<p style='color: red;'>*Vennligst fyll inn disse feltene igjen.</p>");
+                    boolSjekkInput = false;
+                }
+                var prosentSum = klasse1Prosent + klasse2Prosent;
 
+                if(boolSjekkInput == true){
+                    localStorage.setItem("klasseEN", klasse1);
+                    localStorage.setItem("klasseTO", klasse2);
+                    localStorage.setItem("klasseENProsent", klasse1Prosent);
+                    localStorage.setItem("klasseTOProsent", klasse2Prosent);
+
+                    $("#checkbox_id").attr("disabled", true);
+                    $("#btnNullstillKlasser").show();
+                    $("#divKlasse1").hide();
+                    $("#divKlasse2").hide();
+                    $("#btnKlasser").hide();
+                    fyllDropDown(klasse1, klasse2);
+                    $("#dropdownDiv").show();
+                }
+            });
+
+            $("#btnNullstillKlasser").click(function() {
+                localStorage.setItem("klasseEN", null);
+                localStorage.setItem("klasseTO", null);
+                localStorage.setItem("klasseENProsent", null);
+                localStorage.setItem("klasseTOProsent", null);
+
+                localStorage.clear();
+
+                $("#dropdownDiv").hide();
+                $("#checkbox_id").attr("disabled", false);
+                $('#checkbox_id').attr('checked', false);
+                $("#btnNullstillKlasser").hide();
+                $.ajax({
+                    url: '/Bruker/NullstillKandidatliste',
+                    data: { valgtypeid: valgidtype },
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (melding) {
+                        if (melding == "OK") {
+                            location.reload();
+                        }
+                    },
+                    error: function (x, y, z) {
+                    }
+                });
             });
 
             if(localStorage.getItem("klasseEN") != null && localStorage.getItem("klasseTO") != null
@@ -85,7 +133,10 @@
                 klasse1Prosent = localStorage.getItem("klasseENProsent");
                 klasse2Prosent = localStorage.getItem("klasseTOProsent");
 
+                $("#checkbox_id").attr("disabled", true);
+                $("#btnNullstillKlasser").show();
                 fyllDropDown(localStorage.getItem("klasseEN"), localStorage.getItem("klasseTO"));
+
                 $("#dropdownDiv").show();
             }
 
@@ -93,7 +144,7 @@
             $("#btnLagreSTV").click(function () {
                 var beskrivelse = $('#BeskrivelseSTV').val(); //Henter inn data fra felt
                 var antallRepresentanter = $("#antRepresentanter").val();
-                
+
                 if(klasse1 == ""){
                     klasse1 = "tom";
                 }
@@ -106,7 +157,7 @@
                 $("#divLagreFeilTxt").hide();
                 $("#divFeilRepLagre").html(" ");
                 $("#divFeilBeskrivelseLagre").html(" ");
-                
+
 
                 //Om antall kandidater er mindre enn så starter ikke et valg
                 if(antallKandidaterIListe < antallRepresentanter){
@@ -119,23 +170,23 @@
                     if(beskrivelse == ""){
                         $("#divLagreFeilmld").show();
                         $("#divLagreFeilTxt").show();
-                        $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                        $("#divLagreFeilTxt").html("Fikk ikke lagret preferansevalg, se over skjema og prøv igjen.");
                         $("#divFeilBeskrivelseLagre").html("<p style='color: red;'>*Ikke fylt ut</p>");
                     }
                     antallRepresentanter = "-";
                     $("#divLagreFeilmld").show();
                     $("#divLagreFeilTxt").show();
-                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divLagreFeilTxt").html("Fikk ikke lagret preferansevalg, se over skjema og prøv igjen.");
                     $("#divFeilRepLagre").html("<p style='color: red;'>*Må være et tall</p>");
                 }
                 else if(isNaN(antallRepresentanter))
                 {
                     $("#divLagreFeilmld").show();
                     $("#divLagreFeilTxt").show();
-                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                    $("#divLagreFeilTxt").html("Fikk ikke lagret preferansevalg, se over skjema og prøv igjen.");
                     $("#divFeilRepLagre").html("<p style='color: red;'>*Må være et tall</p>");
                 }
-                
+
                 else{
                     $.ajax({
                         url: '/Bruker/lagreNyttPreferansevalg',
@@ -156,11 +207,12 @@
                                 $("#divFeilRepLagre").html(" ");
                                 $("#divFeilBeskrivelseLagre").html(" ");
 
-                                localStorage.setItem("klasseEN", "");
-                                localStorage.setItem("klasseTO", "");
-                                localStorage.setItem("klasseENProsent", 0);
-                                localStorage.setItem("klasseTOProsent", 0);
-                                $("#dropdownDiv").hide();
+                                localStorage.setItem("klasseEN", null);
+                                localStorage.setItem("klasseTO", null);
+                                localStorage.setItem("klasseENProsent", null);
+                                localStorage.setItem("klasseTOProsent", null);
+
+                                localStorage.clear();
 
                                 window.location = "@Url.Action("ForhåndslagredePreferansevalg", "Bruker")";
                             }
@@ -168,13 +220,13 @@
                                 if(antallRepresentanter < 2){
                                     $("#divLagreFeilmld").show();
                                     $("#divLagreFeilTxt").show();
-                                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                                    $("#divLagreFeilTxt").html("Fikk ikke lagret preferansevalg, se over skjema og prøv igjen.");
                                     $("#divFeilRepLagre").html("<p style='color: red;'>*Kan ikke være mindre enn 2</p>");
                                 }
                                 if(beskrivelse == ""){
                                     $("#divLagreFeilmld").show();
                                     $("#divLagreFeilTxt").show();
-                                    $("#divLagreFeilTxt").html("Fikk ikke startet preferansevalg, se over skjema og prøv igjen.");
+                                    $("#divLagreFeilTxt").html("Fikk ikke lagret preferansevalg, se over skjema og prøv igjen.");
                                     $("#divFeilBeskrivelseLagre").html("<p style='color: red;'>*Ikke fylt ut</p>");
                                 }
                             }
@@ -216,17 +268,29 @@
         }
 
         function fyllDropDown(klasse1, klasse2) {
-            var utskrift = "";
+            var utskrift = "<option value='default' selected='selected' disabled>Klasse</option>";
 
             utskrift += "<option value='" + 1 + "'>" + klasse1 + "</option>";
             utskrift += "<option value='" + 2 + "'>" + klasse2 + "</option>";
-            $("#dropdown1").append(utskrift);
+            $("#dropdown1").html(utskrift);
 
         }
 
         function visKlasseSkjema(){
             if($("#checkbox_id").is(':checked')){
-                $("#divKlasse1").show();  // checked
+                var klasse1 = "";
+                var klasse2 = "";
+                var klasse1Prosent = 0;
+                var klasse2Prosent = 0;
+
+                localStorage.setItem("klasseEN", null);
+                localStorage.setItem("klasseTO", null);
+                localStorage.setItem("klasseENProsent", null);
+                localStorage.setItem("klasseTOProsent", null);
+
+                localStorage.clear();
+
+                $("#divKlasse1").show();
                 $("#divKlasse2").show();
                 $("#btnKlasser").show();
             }
@@ -269,6 +333,9 @@
                         <label for="checkbox_id">Kvotering&nbsp;&nbsp;</label>
                         <input type="checkbox" name="checkbox" id="checkbox_id" value="value" onclick="visKlasseSkjema();">
                     </div>
+                    <div class="col-sm-3">
+                        <input type="button" id="btnNullstillKlasser" name="nullstillKlasser" value="Nullstill klasser" class="btn btn-danger" />
+                    </div>
                 </div>
             </div>
             <div class="form-group form-inline" id="divKlasse1">
@@ -282,6 +349,9 @@
                         <div class="col-sm-3">
                             <input type="text" style="width: 35px;" name="klasse1Prosent" id="klasseEnProsentId" placeholder="%" />
                         </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div id="feilKlasse1mld"></div>
                     </div>
                 </div>
             </div>
@@ -297,6 +367,9 @@
                             <input type="text" style="width: 35px;" name="klasse2Prosent" id="klasseToProsentId" placeholder="%" />
                         </div>
                     </div>
+                    <div class="col-sm-5">
+                        <div id="feilKlasse2mld"></div>
+                    </div>
                 </div>
             </div>
 
@@ -304,7 +377,7 @@
 
 
             <div class="col-sm-11"><hr id="hrSTV" /></div>
-        <div class="form-group form-inline">
+            <div class="form-group form-inline">
                 <div class="row">
                     <div class="col-sm-6">
                         <input type="text" class="form-control" id="kandidatNavn" placeholder="Skriv inn navn for kandidat" />
@@ -319,7 +392,7 @@
                     </div>
                 </div>
             </div>
-        <table class="table table-hover table-nonfluid" id="tablePreferansevalg">
+            <table class="table table-hover table-nonfluid" id="tablePreferansevalg">
                 <caption><h4 class="pull-left">Registrerte kandidater</h4></caption>
                 <thead>
                     <tr>
@@ -361,14 +434,6 @@
             <br />
 
             <div class="form-group form-inline">
-                <div class="row">
-                    <div class="col-sm-2" id="skjultFeilLagreDiv"></div>
-                    <div id="divLagreFeilmld" class="col-sm-8 pull-left alert alert-danger">
-                        <div class="col-sm-12 pull-left"><div id="divLagreFeilTxt"></div></div>
-                    </div>
-                </div>
-            </div>
-                <div class="form-group form-inline">
                 <div class="row col-sm-11">
                     <div class="col-sm-2">
                         <label for="BeskrivelseSTV">Beskrivelse</label>
@@ -394,6 +459,14 @@
                 </div>
             </div>
             <br />
+            <div class="form-group form-inline">
+                <div class="row">
+                    <div class="col-sm-2" id="skjultFeilLagreDiv"></div>
+                    <div id="divLagreFeilmld" class="col-sm-8 pull-left alert alert-danger">
+                        <div class="col-sm-12 pull-left"><div id="divLagreFeilTxt"></div></div>
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
                 <div class="row">
                     <div class="col-sm-4"></div>

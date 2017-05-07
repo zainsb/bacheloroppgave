@@ -19,6 +19,25 @@ namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        public void tømAlleDatabaser()
+        {
+            var db = new BrukerContext();
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Bruker_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Votering_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Valgtyper_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [BrukereStemt_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Personvalg_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [PersonvalgResultat_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [PersonvalgKandidatResultat_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [PersonvalgResultatStemmer_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Preferansevalg_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [KandidatListeSTV]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Stemmeseddel_db]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [VaraListeSTV]");
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [PreferansevalgValgt_db]");
+
+            db.SaveChanges();
+        }
 
         public string endreBrukernavnAdmin(string gammeltBrukernavn, string nyttBrukernavn)
         {
@@ -77,6 +96,13 @@ namespace Studentparlamentet_28.DAL
         }
 
         //Preferansevalg
+        public int alleStemmesedlerPreferansevalg(int valgtypeid)
+        {
+            var db = new BrukerContext();
+            int antallStemmer = db.Stemmesedler.Where(s => s.ValgtypeID == valgtypeid).Count();
+            return antallStemmer;
+        }
+
         public List<Stemmeseddel> stemmesedlerMedID(int valgtypeid)
         {
             var db = new BrukerContext();
@@ -116,7 +142,7 @@ namespace Studentparlamentet_28.DAL
                     PdfWriter writer = PdfWriter.GetInstance(doc, ms);
 
                     var db = new BrukerContext();
-                    
+
                     double valgtall = BeregnValgtall(valgtypeid);
                     var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
                     int antallRepresentanter = preferansevalg.AntallRepresentanter;
@@ -130,6 +156,8 @@ namespace Studentparlamentet_28.DAL
                     bool avsluttValg = false;
                     bool fortsett = true;
                     bool ikkeEkskluderFler = false;
+                    DateTime dato = DateTime.Today;
+
 
                     List<VaraSTV> listeAvKandidater = hentVaralisteMedID(valgtypeid);
                     List<VaraSTV> valgteKandidater = new List<VaraSTV>();
@@ -154,14 +182,15 @@ namespace Studentparlamentet_28.DAL
                     int antallLedigeKvote2 = maksKvoteKlasse2;
 
 
-                    if (klasse1 != "tom" && klasse2 != "tom" && klasse1 != "Klasse" && klasse2 != "Klasse" && klasse1 != "Choose candidate" &&  klasse2 != "Choose candidate")
+                    if (klasse1 != "tom" && klasse2 != "tom" && klasse1 != "Klasse" && klasse2 != "Klasse" && klasse1 != "Choose candidate" && klasse2 != "Choose candidate")
                     {
                         kvoteringsvalg = true;
                     }
 
                     //Document - Info som alltid skal være med
                     doc.Open();
-                    Paragraph overskrift = new Paragraph("Preferansevalg");
+                    Font boldFontOverskrift = new Font(null, 16, Font.BOLD);
+                    Paragraph overskrift = new Paragraph("Preferansevalg resultat", boldFontOverskrift);
                     overskrift.Alignment = Element.ALIGN_CENTER;
                     doc.Add(overskrift);
 
@@ -169,8 +198,12 @@ namespace Studentparlamentet_28.DAL
                     PdfPTable table = new PdfPTable(1);
                     PdfPCell cell;
                     cell = new PdfPCell();
+                    cell.AddElement(new Paragraph(" "));
+                    cell.AddElement(new Paragraph("Antall deltagere: " + alleStemmesedlerPreferansevalg(valgtypeid)));
+                    cell.AddElement(new Paragraph("Antall plasser: " + antallRepresentanter));
                     cell.AddElement(new Paragraph("Valgtall: " + valgtall));
-                    cell.AddElement(new Paragraph("Antall skal velges: " + antallRepresentanter));
+                    cell.AddElement(new Paragraph(" "));
+                    cell.AddElement(new Paragraph("Dato: " + dato.ToString("dd/MM/yyyy")));
                     cell.PaddingBottom = 20;
                     cell.BorderWidthTop = 0;
                     cell.BorderWidthLeft = 0;
@@ -194,9 +227,6 @@ namespace Studentparlamentet_28.DAL
                                 if (listeAvKandidater[i].klasse == klasse1 && antallLedigeKvote1 > 0)
                                 {
                                     valgteKandidater.Add(listeAvKandidater[i]);
-                                    //Paragraph nyttParagraf = new Paragraph("- Kandidat " + valgteKandidater[i].navn + " har stemmetall lik " +
-                                    //                                 valgteKandidater[i].stemmetall + " og er dermed valgt");
-                                    //cell.AddElement(nyttParagraf);
                                     antallTilMinsteFylt1--;
                                     antallLedigeKvote1--;
                                     antallLedigeplasser--;
@@ -204,9 +234,6 @@ namespace Studentparlamentet_28.DAL
                                 else if (listeAvKandidater[i].klasse == klasse2 && antallLedigeKvote2 > 0)
                                 {
                                     valgteKandidater.Add(listeAvKandidater[i]);
-                                    //Paragraph nyttParagraf = new Paragraph("- Kandidat " + valgteKandidater[i].navn + " har stemmetall lik " +
-                                    //                                 valgteKandidater[i].stemmetall + " og er dermed valgt");
-                                    //cell.AddElement(nyttParagraf);
                                     antallTilMinsteFylt2--;
                                     antallLedigeKvote2--;
                                     antallLedigeplasser--;
