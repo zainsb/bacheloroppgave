@@ -143,10 +143,11 @@ namespace Studentparlamentet_28.DAL
 
                     var db = new BrukerContext();
 
-                    double valgtall = BeregnValgtall(valgtypeid);
+                    //double valgtall = BeregnValgtall(valgtypeid);
+                    double valgtall = 0.5;
                     var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
-                    int antallRepresentanter = preferansevalg.AntallRepresentanter;
-                    //int antallRepresentanter = 3;
+                    //int antallRepresentanter = preferansevalg.AntallRepresentanter;
+                    int antallRepresentanter = 2;
                     int antallLedigeplasser = antallRepresentanter;
                     int runde = 1;
                     int høyesteEkskluderes = 0;
@@ -165,6 +166,7 @@ namespace Studentparlamentet_28.DAL
                     List<VaraSTV> ekskluderteKandidater = new List<VaraSTV>();
                     List<VaraSTV> kandidaterEkskludert2 = new List<VaraSTV>();
                     List<OverførtTilSeddel> overførteOverskudd = new List<OverførtTilSeddel>();
+                    List<Stemmeseddel> sedlerPreferansevalg = preferansevalgsedler(valgtypeid); //Henter inn alle sedler for dette valget
 
                     //Kvotering
                     bool kvoteringsvalg = false;
@@ -190,6 +192,11 @@ namespace Studentparlamentet_28.DAL
                     //Document - Info som alltid skal være med
                     doc.Open();
                     Font boldFontOverskrift = new Font(null, 16, Font.BOLD);
+                    BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, false);
+                    Font tablefont = new Font(bfTimes, 24, Font.BOLD);
+                    Font tablefont2 = new Font(bfTimes, 14);
+                    Font tablefont4 = new Font(bfTimes, 14, Font.BOLD);
+                    Font tablefont3 = new Font(bfTimes, 18, Font.BOLD);
                     Paragraph overskrift = new Paragraph("Preferansevalg resultat", boldFontOverskrift);
                     overskrift.Alignment = Element.ALIGN_CENTER;
                     doc.Add(overskrift);
@@ -213,6 +220,7 @@ namespace Studentparlamentet_28.DAL
                     //Første runde
                     cell = new PdfPCell();
                     Font boldFont = new Font(null, 14, Font.BOLD);
+
                     Paragraph rundeoverskrift1 = new Paragraph("Runde 1.", boldFont);
                     cell.AddElement(rundeoverskrift1);
 
@@ -243,7 +251,6 @@ namespace Studentparlamentet_28.DAL
                             {
                                 //Om ikke kvotering
                                 valgteKandidater.Add(listeAvKandidater[i]);
-                                //cell.AddElement(nyttParagraf);
                                 antallLedigeplasser--;
                             }
                         }
@@ -365,6 +372,294 @@ namespace Studentparlamentet_28.DAL
                         cell.BorderWidthLeft = 0;
                         cell.BorderWidthRight = 0;
                         table.AddCell(cell);
+
+                        //Legger til stemmesedler for valget
+                        string valgtKandidat = "";
+                        string valgtKandidatNavn = "";
+                        int sedlerTeller = sedlerPreferansevalg.Count();
+
+                        for (int j = 0; j < sedlerTeller; j++)
+                        {
+                            int stemmeID = sedlerPreferansevalg[j].stemmeseddelID;
+                            PdfPCell cell7 = new PdfPCell(new Phrase(" \n Stemmesedler med stemmeID \n " + stemmeID + "\n \n", tablefont3));
+                            cell7.Colspan = 12;
+                            cell7.HorizontalAlignment = 1;
+                            table.AddCell(cell7);
+
+                            valgtKandidat = "Kandidatvalg 1";
+                            var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b1.FixedHeight = 50f;
+                            b1.Colspan = 4;
+                            table.AddCell(b1);
+
+                            if (sedlerPreferansevalg[j].kandidatnrEn != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrEn;
+                                var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a1.FixedHeight = 50f;
+                                a1.Colspan = 8;
+                                table.AddCell(a1);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a1.FixedHeight = 50f;
+                                a1.Colspan = 8;
+                                table.AddCell(a1);
+                            }
+
+
+                            valgtKandidat = "Kandidatvalg 2";
+                            var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b2.FixedHeight = 50f;
+                            b2.Colspan = 4;
+                            table.AddCell(b2);
+
+                            if (sedlerPreferansevalg[j].kandidatnrTo != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTo;
+                                var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a2.FixedHeight = 50f;
+                                a2.Colspan = 8;
+                                table.AddCell(a2);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a2.FixedHeight = 50f;
+                                a2.Colspan = 8;
+                                table.AddCell(a2);
+                            }
+                            valgtKandidat = "Kandidatvalg 3";
+                            var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b3.FixedHeight = 50f;
+                            b3.Colspan = 4;
+                            table.AddCell(b3);
+
+                            if (sedlerPreferansevalg[j].kandidatnrTre != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTre;
+                                var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a3.FixedHeight = 50f;
+                                a3.Colspan = 8;
+                                table.AddCell(a3);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a3.FixedHeight = 50f;
+                                a3.Colspan = 8;
+                                table.AddCell(a3);
+                            }
+
+                            valgtKandidat = "Kandidatvalg 4";
+                            var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b4.FixedHeight = 50f;
+                            b4.Colspan = 4;
+                            table.AddCell(b4);
+
+                            if (sedlerPreferansevalg[j].kandidatnrFire != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFire;
+                                var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a4.FixedHeight = 50f;
+                                a4.Colspan = 8;
+                                table.AddCell(a4);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a4.FixedHeight = 50f;
+                                a4.Colspan = 8;
+                                table.AddCell(a4);
+                            }
+                            valgtKandidat = "Kandidatvalg 5";
+                            var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b5.FixedHeight = 50f;
+                            b5.Colspan = 4;
+                            table.AddCell(b5);
+
+                            if (sedlerPreferansevalg[j].kandidatnrFem != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFem;
+                                var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a5.FixedHeight = 50f;
+                                a5.Colspan = 8;
+                                table.AddCell(a5);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a5.FixedHeight = 50f;
+                                a5.Colspan = 8;
+                                table.AddCell(a5);
+                            }
+
+                            valgtKandidat = "Kandidatvalg 6";
+                            var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b6.FixedHeight = 50f;
+                            b6.Colspan = 4;
+                            table.AddCell(b6);
+
+                            if (sedlerPreferansevalg[j].kandidatnrSeks != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSeks;
+                                var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a6.FixedHeight = 50f;
+                                a6.Colspan = 8;
+                                table.AddCell(a6);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a6.FixedHeight = 50f;
+                                a6.Colspan = 8;
+                                table.AddCell(a6);
+                            }
+
+                            valgtKandidat = "Kandidatvalg 7";
+                            var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b7.FixedHeight = 50f;
+                            b7.Colspan = 4;
+                            table.AddCell(b7);
+
+
+                            if (sedlerPreferansevalg[j].kandidatnrSju != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSju;
+                                var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a7.FixedHeight = 50f;
+                                a7.Colspan = 8;
+                                table.AddCell(a7);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a7.FixedHeight = 50f;
+                                a7.Colspan = 8;
+                                table.AddCell(a7);
+                            }
+                            valgtKandidat = "Kandidatvalg 8";
+                            var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b8.FixedHeight = 50f;
+                            b8.Colspan = 4;
+                            table.AddCell(b8);
+
+                            if (sedlerPreferansevalg[j].kandidatnrÅtte != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrÅtte;
+                                var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a8.FixedHeight = 50f;
+                                a8.Colspan = 8;
+                                table.AddCell(a8);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a8.FixedHeight = 50f;
+                                a8.Colspan = 8;
+                                table.AddCell(a8);
+                            }
+
+                            valgtKandidat = "Kandidatvalg 9";
+                            var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b9.FixedHeight = 50f;
+                            b9.Colspan = 4;
+                            table.AddCell(b9);
+
+                            if (sedlerPreferansevalg[j].kandidatnrNi != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrNi;
+                                var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a9.FixedHeight = 50f;
+                                a9.Colspan = 8;
+                                table.AddCell(a9);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a9.FixedHeight = 50f;
+                                a9.Colspan = 8;
+                                table.AddCell(a9);
+                            }
+                            valgtKandidat = "Kandidatvalg 10";
+                            var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b10.FixedHeight = 50f;
+                            b10.Colspan = 4;
+                            table.AddCell(b10);
+
+                            if (sedlerPreferansevalg[j].kandidatnrTi != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTi;
+                                var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a10.FixedHeight = 50f;
+                                a10.Colspan = 8;
+                                table.AddCell(a10);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a10.FixedHeight = 50f;
+                                a10.Colspan = 8;
+                                table.AddCell(a10);
+                            }
+                            valgtKandidat = "Kandidatvalg 11";
+                            var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b11.FixedHeight = 50f;
+                            b11.Colspan = 4;
+                            table.AddCell(b11);
+
+                            if (sedlerPreferansevalg[j].kandidatnrElleve != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrElleve;
+                                var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a11.FixedHeight = 50f;
+                                a11.Colspan = 8;
+                                table.AddCell(a11);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a11.FixedHeight = 50f;
+                                a11.Colspan = 8;
+                                table.AddCell(a11);
+                            }
+                            valgtKandidat = "Kandidatvalg 12";
+                            var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                            b12.FixedHeight = 50f;
+                            b12.Colspan = 4;
+                            table.AddCell(b12);
+
+                            if (sedlerPreferansevalg[j].kandidatnrTolv != null)
+                            {
+                                valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTolv;
+                                var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a12.FixedHeight = 50f;
+                                a12.Colspan = 8;
+                                table.AddCell(a12);
+                            }
+                            else
+                            {
+                                valgtKandidatNavn = "";
+                                var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                a12.FixedHeight = 50f;
+                                a12.Colspan = 8;
+                                table.AddCell(a12);
+                            }
+
+                        }
+
                         doc.Add(table);
                         doc.Close();
                         return ms;
@@ -467,6 +762,294 @@ namespace Studentparlamentet_28.DAL
                                         alleValgteCell.AddElement(leggTilValgtP);
                                     }
                                     table.AddCell(alleValgteCell);
+
+
+                                    //Legger til stemmesedler for valget
+                                    string valgtKandidat = "";
+                                    string valgtKandidatNavn = "";
+                                    int sedlerTeller = sedlerPreferansevalg.Count();
+
+                                    for (int j = 0; j < sedlerTeller; j++)
+                                    {
+                                        int stemmeID = sedlerPreferansevalg[j].stemmeseddelID;
+                                        PdfPCell cell7 = new PdfPCell(new Phrase(" \n Stemmesedler med stemmeID \n " + stemmeID + "\n \n", tablefont3));
+                                        cell7.Colspan = 12;
+                                        cell7.HorizontalAlignment = 1;
+                                        table.AddCell(cell7);
+
+                                        valgtKandidat = "Kandidatvalg 1";
+                                        var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b1.FixedHeight = 50f;
+                                        b1.Colspan = 4;
+                                        table.AddCell(b1);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrEn != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrEn;
+                                            var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+
+
+                                        valgtKandidat = "Kandidatvalg 2";
+                                        var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b2.FixedHeight = 50f;
+                                        b2.Colspan = 4;
+                                        table.AddCell(b2);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTo != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTo;
+                                            var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a2.FixedHeight = 50f;
+                                            a2.Colspan = 8;
+                                            table.AddCell(a2);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a2.FixedHeight = 50f;
+                                            a2.Colspan = 8;
+                                            table.AddCell(a2);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 3";
+                                        var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b3.FixedHeight = 50f;
+                                        b3.Colspan = 4;
+                                        table.AddCell(b3);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTre != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTre;
+                                            var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a3.FixedHeight = 50f;
+                                            a3.Colspan = 8;
+                                            table.AddCell(a3);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a3.FixedHeight = 50f;
+                                            a3.Colspan = 8;
+                                            table.AddCell(a3);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 4";
+                                        var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b4.FixedHeight = 50f;
+                                        b4.Colspan = 4;
+                                        table.AddCell(b4);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrFire != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFire;
+                                            var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a4.FixedHeight = 50f;
+                                            a4.Colspan = 8;
+                                            table.AddCell(a4);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a4.FixedHeight = 50f;
+                                            a4.Colspan = 8;
+                                            table.AddCell(a4);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 5";
+                                        var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b5.FixedHeight = 50f;
+                                        b5.Colspan = 4;
+                                        table.AddCell(b5);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrFem != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFem;
+                                            var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a5.FixedHeight = 50f;
+                                            a5.Colspan = 8;
+                                            table.AddCell(a5);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a5.FixedHeight = 50f;
+                                            a5.Colspan = 8;
+                                            table.AddCell(a5);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 6";
+                                        var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b6.FixedHeight = 50f;
+                                        b6.Colspan = 4;
+                                        table.AddCell(b6);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrSeks != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSeks;
+                                            var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a6.FixedHeight = 50f;
+                                            a6.Colspan = 8;
+                                            table.AddCell(a6);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a6.FixedHeight = 50f;
+                                            a6.Colspan = 8;
+                                            table.AddCell(a6);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 7";
+                                        var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b7.FixedHeight = 50f;
+                                        b7.Colspan = 4;
+                                        table.AddCell(b7);
+
+
+                                        if (sedlerPreferansevalg[j].kandidatnrSju != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSju;
+                                            var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a7.FixedHeight = 50f;
+                                            a7.Colspan = 8;
+                                            table.AddCell(a7);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a7.FixedHeight = 50f;
+                                            a7.Colspan = 8;
+                                            table.AddCell(a7);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 8";
+                                        var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b8.FixedHeight = 50f;
+                                        b8.Colspan = 4;
+                                        table.AddCell(b8);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrÅtte != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrÅtte;
+                                            var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a8.FixedHeight = 50f;
+                                            a8.Colspan = 8;
+                                            table.AddCell(a8);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a8.FixedHeight = 50f;
+                                            a8.Colspan = 8;
+                                            table.AddCell(a8);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 9";
+                                        var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b9.FixedHeight = 50f;
+                                        b9.Colspan = 4;
+                                        table.AddCell(b9);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrNi != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrNi;
+                                            var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a9.FixedHeight = 50f;
+                                            a9.Colspan = 8;
+                                            table.AddCell(a9);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a9.FixedHeight = 50f;
+                                            a9.Colspan = 8;
+                                            table.AddCell(a9);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 10";
+                                        var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b10.FixedHeight = 50f;
+                                        b10.Colspan = 4;
+                                        table.AddCell(b10);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTi != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTi;
+                                            var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a10.FixedHeight = 50f;
+                                            a10.Colspan = 8;
+                                            table.AddCell(a10);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a10.FixedHeight = 50f;
+                                            a10.Colspan = 8;
+                                            table.AddCell(a10);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 11";
+                                        var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b11.FixedHeight = 50f;
+                                        b11.Colspan = 4;
+                                        table.AddCell(b11);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrElleve != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrElleve;
+                                            var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a11.FixedHeight = 50f;
+                                            a11.Colspan = 8;
+                                            table.AddCell(a11);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a11.FixedHeight = 50f;
+                                            a11.Colspan = 8;
+                                            table.AddCell(a11);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 12";
+                                        var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b12.FixedHeight = 50f;
+                                        b12.Colspan = 4;
+                                        table.AddCell(b12);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTolv != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTolv;
+                                            var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a12.FixedHeight = 50f;
+                                            a12.Colspan = 8;
+                                            table.AddCell(a12);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a12.FixedHeight = 50f;
+                                            a12.Colspan = 8;
+                                            table.AddCell(a12);
+                                        }
+
+                                    }
                                     doc.Add(table);
                                     doc.Close();
                                     return ms;
@@ -506,8 +1089,297 @@ namespace Studentparlamentet_28.DAL
                                         alleValgteCell.AddElement(leggTilValgtP);
                                     }
                                     table.AddCell(alleValgteCell);
+                                    //Legger til stemmesedler for valget
+                                    string valgtKandidat = "";
+                                    string valgtKandidatNavn = "";
+                                    int sedlerTeller = sedlerPreferansevalg.Count();
+
+                                    for (int j = 0; j < sedlerTeller; j++)
+                                    {
+                                        int stemmeID = sedlerPreferansevalg[j].stemmeseddelID;
+                                        PdfPCell cell7 = new PdfPCell(new Phrase(" \n Stemmesedler med stemmeID \n " + stemmeID + "\n \n", tablefont3));
+                                        cell7.Colspan = 12;
+                                        cell7.HorizontalAlignment = 1;
+                                        table.AddCell(cell7);
+
+                                        valgtKandidat = "Kandidatvalg 1";
+                                        var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b1.FixedHeight = 50f;
+                                        b1.Colspan = 4;
+                                        table.AddCell(b1);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrEn != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrEn;
+                                            var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a1.FixedHeight = 50f;
+                                            a1.Colspan = 8;
+                                            table.AddCell(a1);
+                                        }
+
+
+                                        valgtKandidat = "Kandidatvalg 2";
+                                        var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b2.FixedHeight = 50f;
+                                        b2.Colspan = 4;
+                                        table.AddCell(b2);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTo != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTo;
+                                            var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a2.FixedHeight = 50f;
+                                            a2.Colspan = 8;
+                                            table.AddCell(a2);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a2.FixedHeight = 50f;
+                                            a2.Colspan = 8;
+                                            table.AddCell(a2);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 3";
+                                        var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b3.FixedHeight = 50f;
+                                        b3.Colspan = 4;
+                                        table.AddCell(b3);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTre != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTre;
+                                            var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a3.FixedHeight = 50f;
+                                            a3.Colspan = 8;
+                                            table.AddCell(a3);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a3.FixedHeight = 50f;
+                                            a3.Colspan = 8;
+                                            table.AddCell(a3);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 4";
+                                        var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b4.FixedHeight = 50f;
+                                        b4.Colspan = 4;
+                                        table.AddCell(b4);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrFire != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFire;
+                                            var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a4.FixedHeight = 50f;
+                                            a4.Colspan = 8;
+                                            table.AddCell(a4);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a4.FixedHeight = 50f;
+                                            a4.Colspan = 8;
+                                            table.AddCell(a4);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 5";
+                                        var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b5.FixedHeight = 50f;
+                                        b5.Colspan = 4;
+                                        table.AddCell(b5);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrFem != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFem;
+                                            var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a5.FixedHeight = 50f;
+                                            a5.Colspan = 8;
+                                            table.AddCell(a5);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a5.FixedHeight = 50f;
+                                            a5.Colspan = 8;
+                                            table.AddCell(a5);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 6";
+                                        var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b6.FixedHeight = 50f;
+                                        b6.Colspan = 4;
+                                        table.AddCell(b6);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrSeks != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSeks;
+                                            var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a6.FixedHeight = 50f;
+                                            a6.Colspan = 8;
+                                            table.AddCell(a6);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a6.FixedHeight = 50f;
+                                            a6.Colspan = 8;
+                                            table.AddCell(a6);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 7";
+                                        var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b7.FixedHeight = 50f;
+                                        b7.Colspan = 4;
+                                        table.AddCell(b7);
+
+
+                                        if (sedlerPreferansevalg[j].kandidatnrSju != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSju;
+                                            var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a7.FixedHeight = 50f;
+                                            a7.Colspan = 8;
+                                            table.AddCell(a7);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a7.FixedHeight = 50f;
+                                            a7.Colspan = 8;
+                                            table.AddCell(a7);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 8";
+                                        var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b8.FixedHeight = 50f;
+                                        b8.Colspan = 4;
+                                        table.AddCell(b8);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrÅtte != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrÅtte;
+                                            var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a8.FixedHeight = 50f;
+                                            a8.Colspan = 8;
+                                            table.AddCell(a8);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a8.FixedHeight = 50f;
+                                            a8.Colspan = 8;
+                                            table.AddCell(a8);
+                                        }
+
+                                        valgtKandidat = "Kandidatvalg 9";
+                                        var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b9.FixedHeight = 50f;
+                                        b9.Colspan = 4;
+                                        table.AddCell(b9);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrNi != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrNi;
+                                            var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a9.FixedHeight = 50f;
+                                            a9.Colspan = 8;
+                                            table.AddCell(a9);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a9.FixedHeight = 50f;
+                                            a9.Colspan = 8;
+                                            table.AddCell(a9);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 10";
+                                        var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b10.FixedHeight = 50f;
+                                        b10.Colspan = 4;
+                                        table.AddCell(b10);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTi != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTi;
+                                            var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a10.FixedHeight = 50f;
+                                            a10.Colspan = 8;
+                                            table.AddCell(a10);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a10.FixedHeight = 50f;
+                                            a10.Colspan = 8;
+                                            table.AddCell(a10);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 11";
+                                        var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b11.FixedHeight = 50f;
+                                        b11.Colspan = 4;
+                                        table.AddCell(b11);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrElleve != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrElleve;
+                                            var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a11.FixedHeight = 50f;
+                                            a11.Colspan = 8;
+                                            table.AddCell(a11);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a11.FixedHeight = 50f;
+                                            a11.Colspan = 8;
+                                            table.AddCell(a11);
+                                        }
+                                        valgtKandidat = "Kandidatvalg 12";
+                                        var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                        b12.FixedHeight = 50f;
+                                        b12.Colspan = 4;
+                                        table.AddCell(b12);
+
+                                        if (sedlerPreferansevalg[j].kandidatnrTolv != null)
+                                        {
+                                            valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTolv;
+                                            var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a12.FixedHeight = 50f;
+                                            a12.Colspan = 8;
+                                            table.AddCell(a12);
+                                        }
+                                        else
+                                        {
+                                            valgtKandidatNavn = "";
+                                            var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                            a12.FixedHeight = 50f;
+                                            a12.Colspan = 8;
+                                            table.AddCell(a12);
+                                        }
+
+                                    }
+
                                     doc.Add(table);
                                     doc.Close();
+
+
                                     return ms;
                                 }
                             }
@@ -602,6 +1474,292 @@ namespace Studentparlamentet_28.DAL
                             cell.BorderWidthLeft = 0;
                             cell.BorderWidthRight = 0;
                             table.AddCell(cell);
+                            //Legger til stemmesedler for valget
+                            string valgtKandidat = "";
+                            string valgtKandidatNavn = "";
+                            int sedlerTeller = sedlerPreferansevalg.Count();
+
+                            for (int j = 0; j < sedlerTeller; j++)
+                            {
+                                int stemmeID = sedlerPreferansevalg[j].stemmeseddelID;
+                                PdfPCell cell7 = new PdfPCell(new Phrase(" \n Stemmesedler med stemmeID \n " + stemmeID + "\n \n", tablefont3));
+                                cell7.Colspan = 12;
+                                cell7.HorizontalAlignment = 1;
+                                table.AddCell(cell7);
+
+                                valgtKandidat = "Kandidatvalg 1";
+                                var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b1.FixedHeight = 50f;
+                                b1.Colspan = 4;
+                                table.AddCell(b1);
+
+                                if (sedlerPreferansevalg[j].kandidatnrEn != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrEn;
+                                    var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a1.FixedHeight = 50f;
+                                    a1.Colspan = 8;
+                                    table.AddCell(a1);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a1.FixedHeight = 50f;
+                                    a1.Colspan = 8;
+                                    table.AddCell(a1);
+                                }
+
+
+                                valgtKandidat = "Kandidatvalg 2";
+                                var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b2.FixedHeight = 50f;
+                                b2.Colspan = 4;
+                                table.AddCell(b2);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTo != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTo;
+                                    var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a2.FixedHeight = 50f;
+                                    a2.Colspan = 8;
+                                    table.AddCell(a2);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a2.FixedHeight = 50f;
+                                    a2.Colspan = 8;
+                                    table.AddCell(a2);
+                                }
+                                valgtKandidat = "Kandidatvalg 3";
+                                var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b3.FixedHeight = 50f;
+                                b3.Colspan = 4;
+                                table.AddCell(b3);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTre != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTre;
+                                    var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a3.FixedHeight = 50f;
+                                    a3.Colspan = 8;
+                                    table.AddCell(a3);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a3.FixedHeight = 50f;
+                                    a3.Colspan = 8;
+                                    table.AddCell(a3);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 4";
+                                var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b4.FixedHeight = 50f;
+                                b4.Colspan = 4;
+                                table.AddCell(b4);
+
+                                if (sedlerPreferansevalg[j].kandidatnrFire != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFire;
+                                    var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a4.FixedHeight = 50f;
+                                    a4.Colspan = 8;
+                                    table.AddCell(a4);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a4.FixedHeight = 50f;
+                                    a4.Colspan = 8;
+                                    table.AddCell(a4);
+                                }
+                                valgtKandidat = "Kandidatvalg 5";
+                                var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b5.FixedHeight = 50f;
+                                b5.Colspan = 4;
+                                table.AddCell(b5);
+
+                                if (sedlerPreferansevalg[j].kandidatnrFem != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFem;
+                                    var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a5.FixedHeight = 50f;
+                                    a5.Colspan = 8;
+                                    table.AddCell(a5);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a5.FixedHeight = 50f;
+                                    a5.Colspan = 8;
+                                    table.AddCell(a5);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 6";
+                                var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b6.FixedHeight = 50f;
+                                b6.Colspan = 4;
+                                table.AddCell(b6);
+
+                                if (sedlerPreferansevalg[j].kandidatnrSeks != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSeks;
+                                    var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a6.FixedHeight = 50f;
+                                    a6.Colspan = 8;
+                                    table.AddCell(a6);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a6.FixedHeight = 50f;
+                                    a6.Colspan = 8;
+                                    table.AddCell(a6);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 7";
+                                var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b7.FixedHeight = 50f;
+                                b7.Colspan = 4;
+                                table.AddCell(b7);
+
+
+                                if (sedlerPreferansevalg[j].kandidatnrSju != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSju;
+                                    var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a7.FixedHeight = 50f;
+                                    a7.Colspan = 8;
+                                    table.AddCell(a7);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a7.FixedHeight = 50f;
+                                    a7.Colspan = 8;
+                                    table.AddCell(a7);
+                                }
+                                valgtKandidat = "Kandidatvalg 8";
+                                var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b8.FixedHeight = 50f;
+                                b8.Colspan = 4;
+                                table.AddCell(b8);
+
+                                if (sedlerPreferansevalg[j].kandidatnrÅtte != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrÅtte;
+                                    var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a8.FixedHeight = 50f;
+                                    a8.Colspan = 8;
+                                    table.AddCell(a8);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a8.FixedHeight = 50f;
+                                    a8.Colspan = 8;
+                                    table.AddCell(a8);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 9";
+                                var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b9.FixedHeight = 50f;
+                                b9.Colspan = 4;
+                                table.AddCell(b9);
+
+                                if (sedlerPreferansevalg[j].kandidatnrNi != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrNi;
+                                    var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a9.FixedHeight = 50f;
+                                    a9.Colspan = 8;
+                                    table.AddCell(a9);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a9.FixedHeight = 50f;
+                                    a9.Colspan = 8;
+                                    table.AddCell(a9);
+                                }
+                                valgtKandidat = "Kandidatvalg 10";
+                                var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b10.FixedHeight = 50f;
+                                b10.Colspan = 4;
+                                table.AddCell(b10);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTi != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTi;
+                                    var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a10.FixedHeight = 50f;
+                                    a10.Colspan = 8;
+                                    table.AddCell(a10);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a10.FixedHeight = 50f;
+                                    a10.Colspan = 8;
+                                    table.AddCell(a10);
+                                }
+                                valgtKandidat = "Kandidatvalg 11";
+                                var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b11.FixedHeight = 50f;
+                                b11.Colspan = 4;
+                                table.AddCell(b11);
+
+                                if (sedlerPreferansevalg[j].kandidatnrElleve != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrElleve;
+                                    var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a11.FixedHeight = 50f;
+                                    a11.Colspan = 8;
+                                    table.AddCell(a11);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a11.FixedHeight = 50f;
+                                    a11.Colspan = 8;
+                                    table.AddCell(a11);
+                                }
+                                valgtKandidat = "Kandidatvalg 12";
+                                var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b12.FixedHeight = 50f;
+                                b12.Colspan = 4;
+                                table.AddCell(b12);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTolv != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTolv;
+                                    var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a12.FixedHeight = 50f;
+                                    a12.Colspan = 8;
+                                    table.AddCell(a12);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a12.FixedHeight = 50f;
+                                    a12.Colspan = 8;
+                                    table.AddCell(a12);
+                                }
+
+                            }
                             doc.Add(table);
                             doc.Close();
                             return ms;
@@ -1789,6 +2947,293 @@ namespace Studentparlamentet_28.DAL
                                 alleValgteCell.AddElement(leggTilValgtP);
                             }
                             table.AddCell(alleValgteCell);
+                            //Legger til stemmesedler for valget
+                            string valgtKandidat = "";
+                            string valgtKandidatNavn = "";
+                            int sedlerTeller = sedlerPreferansevalg.Count();
+
+                            for (int j = 0; j < sedlerTeller; j++)
+                            {
+                                int stemmeID = sedlerPreferansevalg[j].stemmeseddelID;
+                                PdfPCell cell7 = new PdfPCell(new Phrase(" \n Stemmesedler med stemmeID \n " + stemmeID + "\n \n", tablefont3));
+                                cell7.Colspan = 12;
+                                cell7.HorizontalAlignment = 1;
+                                table.AddCell(cell7);
+
+                                valgtKandidat = "Kandidatvalg 1";
+                                var b1 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b1.FixedHeight = 50f;
+                                b1.Colspan = 4;
+                                table.AddCell(b1);
+
+                                if (sedlerPreferansevalg[j].kandidatnrEn != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrEn;
+                                    var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a1.FixedHeight = 50f;
+                                    a1.Colspan = 8;
+                                    table.AddCell(a1);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a1 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a1.FixedHeight = 50f;
+                                    a1.Colspan = 8;
+                                    table.AddCell(a1);
+                                }
+
+
+                                valgtKandidat = "Kandidatvalg 2";
+                                var b2 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b2.FixedHeight = 50f;
+                                b2.Colspan = 4;
+                                table.AddCell(b2);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTo != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTo;
+                                    var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a2.FixedHeight = 50f;
+                                    a2.Colspan = 8;
+                                    table.AddCell(a2);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a2 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a2.FixedHeight = 50f;
+                                    a2.Colspan = 8;
+                                    table.AddCell(a2);
+                                }
+                                valgtKandidat = "Kandidatvalg 3";
+                                var b3 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b3.FixedHeight = 50f;
+                                b3.Colspan = 4;
+                                table.AddCell(b3);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTre != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTre;
+                                    var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a3.FixedHeight = 50f;
+                                    a3.Colspan = 8;
+                                    table.AddCell(a3);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a3 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a3.FixedHeight = 50f;
+                                    a3.Colspan = 8;
+                                    table.AddCell(a3);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 4";
+                                var b4 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b4.FixedHeight = 50f;
+                                b4.Colspan = 4;
+                                table.AddCell(b4);
+
+                                if (sedlerPreferansevalg[j].kandidatnrFire != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFire;
+                                    var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a4.FixedHeight = 50f;
+                                    a4.Colspan = 8;
+                                    table.AddCell(a4);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a4 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a4.FixedHeight = 50f;
+                                    a4.Colspan = 8;
+                                    table.AddCell(a4);
+                                }
+                                valgtKandidat = "Kandidatvalg 5";
+                                var b5 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b5.FixedHeight = 50f;
+                                b5.Colspan = 4;
+                                table.AddCell(b5);
+
+                                if (sedlerPreferansevalg[j].kandidatnrFem != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrFem;
+                                    var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a5.FixedHeight = 50f;
+                                    a5.Colspan = 8;
+                                    table.AddCell(a5);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a5 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a5.FixedHeight = 50f;
+                                    a5.Colspan = 8;
+                                    table.AddCell(a5);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 6";
+                                var b6 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b6.FixedHeight = 50f;
+                                b6.Colspan = 4;
+                                table.AddCell(b6);
+
+                                if (sedlerPreferansevalg[j].kandidatnrSeks != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSeks;
+                                    var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a6.FixedHeight = 50f;
+                                    a6.Colspan = 8;
+                                    table.AddCell(a6);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a6 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a6.FixedHeight = 50f;
+                                    a6.Colspan = 8;
+                                    table.AddCell(a6);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 7";
+                                var b7 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b7.FixedHeight = 50f;
+                                b7.Colspan = 4;
+                                table.AddCell(b7);
+
+
+                                if (sedlerPreferansevalg[j].kandidatnrSju != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrSju;
+                                    var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a7.FixedHeight = 50f;
+                                    a7.Colspan = 8;
+                                    table.AddCell(a7);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a7 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a7.FixedHeight = 50f;
+                                    a7.Colspan = 8;
+                                    table.AddCell(a7);
+                                }
+                                valgtKandidat = "Kandidatvalg 8";
+                                var b8 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b8.FixedHeight = 50f;
+                                b8.Colspan = 4;
+                                table.AddCell(b8);
+
+                                if (sedlerPreferansevalg[j].kandidatnrÅtte != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrÅtte;
+                                    var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a8.FixedHeight = 50f;
+                                    a8.Colspan = 8;
+                                    table.AddCell(a8);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a8 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a8.FixedHeight = 50f;
+                                    a8.Colspan = 8;
+                                    table.AddCell(a8);
+                                }
+
+                                valgtKandidat = "Kandidatvalg 9";
+                                var b9 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b9.FixedHeight = 50f;
+                                b9.Colspan = 4;
+                                table.AddCell(b9);
+
+                                if (sedlerPreferansevalg[j].kandidatnrNi != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrNi;
+                                    var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a9.FixedHeight = 50f;
+                                    a9.Colspan = 8;
+                                    table.AddCell(a9);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a9 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a9.FixedHeight = 50f;
+                                    a9.Colspan = 8;
+                                    table.AddCell(a9);
+                                }
+                                valgtKandidat = "Kandidatvalg 10";
+                                var b10 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b10.FixedHeight = 50f;
+                                b10.Colspan = 4;
+                                table.AddCell(b10);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTi != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTi;
+                                    var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a10.FixedHeight = 50f;
+                                    a10.Colspan = 8;
+                                    table.AddCell(a10);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a10 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a10.FixedHeight = 50f;
+                                    a10.Colspan = 8;
+                                    table.AddCell(a10);
+                                }
+                                valgtKandidat = "Kandidatvalg 11";
+                                var b11 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b11.FixedHeight = 50f;
+                                b11.Colspan = 4;
+                                table.AddCell(b11);
+
+                                if (sedlerPreferansevalg[j].kandidatnrElleve != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrElleve;
+                                    var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a11.FixedHeight = 50f;
+                                    a11.Colspan = 8;
+                                    table.AddCell(a11);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a11 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a11.FixedHeight = 50f;
+                                    a11.Colspan = 8;
+                                    table.AddCell(a11);
+                                }
+                                valgtKandidat = "Kandidatvalg 12";
+                                var b12 = new PdfPCell(new Paragraph(valgtKandidat, tablefont4));
+                                b12.FixedHeight = 50f;
+                                b12.Colspan = 4;
+                                table.AddCell(b12);
+
+                                if (sedlerPreferansevalg[j].kandidatnrTolv != null)
+                                {
+                                    valgtKandidatNavn = sedlerPreferansevalg[j].kandidatnrTolv;
+                                    var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a12.FixedHeight = 50f;
+                                    a12.Colspan = 8;
+                                    table.AddCell(a12);
+                                }
+                                else
+                                {
+                                    valgtKandidatNavn = "";
+                                    var a12 = new PdfPCell(new Paragraph(valgtKandidatNavn, tablefont2));
+                                    a12.FixedHeight = 50f;
+                                    a12.Colspan = 8;
+                                    table.AddCell(a12);
+                                }
+
+                            }
+
                             doc.Add(table);
                             doc.Close();
                             return ms;
@@ -1854,6 +3299,7 @@ namespace Studentparlamentet_28.DAL
                     }//While stopper her
 
                 }
+
                 return ms;
             }
 
@@ -1878,7 +3324,67 @@ namespace Studentparlamentet_28.DAL
                     kandidatnrTolv = k.KandidatnrTolv,
                     stemmeseddelID = k.StemmeseddelID
                 }).Where(k => k.valgtypeid == id).ToList();
-                return stemmeseddel;
+
+                //For å få ut 'tom' istedenfor Velg kandidat
+                List<Stemmeseddel> returStemmesedler = new List<Stemmeseddel>();
+                for(int i = 0; i < stemmeseddel.Count(); i++)
+                {
+                    returStemmesedler.Add(stemmeseddel[i]);
+                }
+                for(int i = 0; i < returStemmesedler.Count(); i++)
+                {
+                    Stemmeseddel seddel = returStemmesedler[i];
+                    if(seddel.kandidatnrEn == "Velg kandidat")
+                    {
+                        seddel.kandidatnrEn = "-";
+                    }
+                    if(seddel.kandidatnrTo == "Velg kandidat")
+                    {
+                        seddel.kandidatnrTo = "-";
+                    }
+                    if (seddel.kandidatnrTre == "Velg kandidat")
+                    {
+                        seddel.kandidatnrTre = "-";
+                    }
+                    if (seddel.kandidatnrFire == "Velg kandidat")
+                    {
+                        seddel.kandidatnrFire = "-";
+                    }
+                    if (seddel.kandidatnrFem== "Velg kandidat")
+                    {
+                        seddel.kandidatnrFem = "-";
+                    }
+                    if (seddel.kandidatnrSeks == "Velg kandidat")
+                    {
+                        seddel.kandidatnrSeks= "-";
+                    }
+                    if (seddel.kandidatnrSju == "Velg kandidat")
+                    {
+                        seddel.kandidatnrSju= "-";
+                    }
+                    if (seddel.kandidatnrÅtte == "Velg kandidat")
+                    {
+                        seddel.kandidatnrÅtte= "-";
+                    }
+                    if (seddel.kandidatnrNi == "Velg kandidat")
+                    {
+                        seddel.kandidatnrNi = "-";
+                    }
+                    if (seddel.kandidatnrTi == "Velg kandidat")
+                    {
+                        seddel.kandidatnrTi = "-";
+                    }
+                    if (seddel.kandidatnrElleve== "Velg kandidat")
+                    {
+                        seddel.kandidatnrElleve= "";
+                    }
+                    if (seddel.kandidatnrTolv == "Velg kandidat")
+                    {
+                        seddel.kandidatnrTolv= "-";
+                    }
+                }
+
+                return returStemmesedler;
             }
         }
         public PersonvalgResultat hentinfoPersonvalg(int id)
@@ -2223,11 +3729,11 @@ namespace Studentparlamentet_28.DAL
         {
             var db = new BrukerContext();
             BeregnStemmetallFørsteRunde(valgtypeid); //Beregner stemmetallene og sorterer de for første runde
-            //double valgtall = 4;
-            double valgtall = BeregnValgtall(valgtypeid);
+            double valgtall = 0.5;
+            //double valgtall = BeregnValgtall(valgtypeid);
             var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
-            int antallRepresentanter = preferansevalg.AntallRepresentanter;
-            //int antallRepresentanter = 3;
+            //int antallRepresentanter = preferansevalg.AntallRepresentanter;
+            int antallRepresentanter = 2;
             int antallLedigeplasser = antallRepresentanter;
             int runde = 1;
             int høyesteEkskluderes = 0;
