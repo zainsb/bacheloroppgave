@@ -8,7 +8,7 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 
 namespace Studentparlamentet_28.DAL
 {
-    
+
     public class Admin_db
     {
         [Key]
@@ -19,7 +19,9 @@ namespace Studentparlamentet_28.DAL
         public bool Innlogget { get; set; }
 
         public bool Administrator { get; set; }
+        public string Email { get; set; }
 
+        public string Passordemail { get; set; }
     }
 
     public class Bruker_db

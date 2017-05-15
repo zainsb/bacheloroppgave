@@ -10,7 +10,7 @@ namespace Studentparlamentet_28.Models
     {
 
         [Required(ErrorMessage = "Brukernavn må oppgis")]
-        public string  brukernavn { get; set; }
+        public string brukernavn { get; set; }
 
         [Required(ErrorMessage = "Passord må oppgis")]
         public string passord { get; set; }
@@ -20,5 +20,14 @@ namespace Studentparlamentet_28.Models
         public bool administrator { get; set; }
 
         public byte[] passwordhash { get; set; }
+
+        [Display(Name = "Skriv inn riktig Epost")]
+        [Required(ErrorMessage = "Skriv inn riktig Epost")]
+        [EmailAddress(ErrorMessage = "Skriv inn riktig Epost")]
+        public string email { get; set; }
+        [Display(Name = "Not a valid Email")]
+        [Required(ErrorMessage = "Not a valid Email")]
+        [EmailAddress(ErrorMessage = "Not a valid Email")]
+        public string emailEng { get; set; }
     }
 }

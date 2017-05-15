@@ -168,10 +168,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\DatabaseSP94.mdf" />
-    <Content Include="App_Data\DatabaseSP94_log.ldf" />
-    <Content Include="App_Data\DatabaseSP95.mdf" />
-    <Content Include="App_Data\DatabaseSP95_log.ldf" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -196,7 +192,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Style\StyleSheet22.css" />
+    <Content Include="Style\StyleSheet.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -223,7 +219,6 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Bruker\AdminLoggetInn.cshtml" />
     <Content Include="Views\Bruker\Votering.cshtml" />
-    <Content Include="Views\Bruker\Preferansevalg.cshtml" />
     <Content Include="Views\Bruker\Personvalg.cshtml" />
     <Content Include="Views\Bruker\Resultat.cshtml" />
     <Content Include="Views\User\AdminLoggetInnEng.cshtml" />
@@ -304,6 +299,8 @@
     <Content Include="Views\User\endreAdminkontoEng.cshtml" />
     <Content Include="Views\Bruker\SletteModalEndreAdminKonto.cshtml" />
     <Content Include="Views\User\SletteModalEndreAdminKontoEng.cshtml" />
+    <Content Include="Views\User\IndexGlemtEng.cshtml" />
+    <Content Include="Views\Bruker\IndexGlemt.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -322,6 +319,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="Models\" />
     <Folder Include="pdf\" />
   </ItemGroup>

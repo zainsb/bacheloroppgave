@@ -1,4 +1,4 @@
-﻿@model Studentparlamentet_28.Models.Bruker
+﻿@model Studentparlamentet_28.Models.Kandidat
 <div id="sletteModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -15,8 +15,8 @@
                         <div class="alert alert-danger" id="slettNavnDiv">
                             You are a about to delete all stored data in the system, please enter your password to delete. 
                         </div>
-                        <div class="alert alert-warning" id="feilpassord" style="display:none">
-                            Feil passord
+                        <div class="alert alert-warning" id="feilpassordDiv" style="display:none">
+                            Wrong password
                         </div>
                     </div>
                     @Html.AntiForgeryToken()
@@ -24,17 +24,17 @@
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                            @Html.EditorFor(model => model.passord, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
+                            @Html.EditorFor(model => model.passordEng, new { htmlAttributes = new { @type = "password", @class = "form-control", placeholder = "Passord" } })
                         </div>
                         <div>
-                            @Html.ValidationMessageFor(model => model.passord, "", new { @class = "text-danger" })
+                            @Html.ValidationMessageFor(model => model.passordEng, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <input name="submit" type="submit" value="Delete" class="btn btn-danger" />
-                    <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                    <input name="submit" type="submit" value="Delete" class="btn btn-success" />
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                 </div>
             }
         </div>

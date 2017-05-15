@@ -13,7 +13,6 @@ background: -o-linear-gradient(-45deg, #e0dedf 50%,#e37d72 50%);
 background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 }
 
-
 #AdminEndre {
     background-color: whitesmoke;
     border-radius: 25px;
@@ -65,20 +64,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
 {
     font-size:15px;
 }
-/*#feilmeldingslettemodal
-{
-    width: 199px;
-}*/
-/*#sucessSletteModal
-{
-    height: 400px;
-}*/
 
-/*#sletteModalText
-{
-    font-size:38px;
-   
-}*/
 #panelVoteringResultat
 {
      border-radius: 25px;
@@ -150,7 +136,7 @@ background: linear-gradient(135deg, #e0dedf 50%,#e37d72 50%);
     width:100%;
     font-size: 20px;
     background-color:white;
-   text-align:center;
+   
     
 }
 #stemmeKnapp

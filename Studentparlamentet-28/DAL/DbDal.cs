@@ -14,11 +14,158 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.IO;
 using iTextSharp.text.pdf.draw;
+using System.Net.Mail;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Studentparlamentet_28.DAL
 {
     public class DbDal
     {
+        // ENDRE ADMINISTRATORKONTO
+
+        public string encrypt(string encryptString)
+        {
+            string EncryptionKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            byte[] clearBytes = Encoding.Unicode.GetBytes(encryptString);
+            using (Aes encryptor = Aes.Create())
+            {
+                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
+            0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76
+            });
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        cs.Close();
+                    }
+                    encryptString = Convert.ToBase64String(ms.ToArray());
+                }
+            }
+            return encryptString;
+        }
+        public string Decrypt(string cipherText)
+        {
+            string EncryptionKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            cipherText = cipherText.Replace(" ", "+");
+            byte[] cipherBytes = Convert.FromBase64String(cipherText);
+            using (Aes encryptor = Aes.Create())
+            {
+                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
+            0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76
+           });
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        cs.Close();
+                    }
+                    cipherText = Encoding.Unicode.GetString(ms.ToArray());
+                }
+            }
+            return cipherText;
+        }
+        public bool glemtPassord(Admin innBruker)
+        {
+            var db = new BrukerContext();
+            if (innBruker.emailEng != null)
+            {
+                var email = db.AdminBrukere.FirstOrDefault(b => b.Email == innBruker.emailEng); // sjekk om epost er i db
+                if (email != null) //if true start funksjon send epost
+                {
+                    //var enkryptPassord = encrypt("Admin");
+
+                    Admin_db admin = db.AdminBrukere.FirstOrDefault(b => b.Email == innBruker.emailEng);
+                    admin.Innlogget = false;             // sett innlogget kolonne til false
+                                                         //   admin.Passordemail = enkryptPassord;
+                    db.SaveChanges();
+
+                    // henter ut dekryptert passord og dekrypterer det 
+                    var kryptertPassord = db.AdminBrukere.FirstOrDefault(b => b.Email == innBruker.emailEng);
+
+                    var dekryptertPassord = Decrypt(kryptertPassord.Passordemail);
+
+
+                    // funksjon som sender epost med passord
+
+                    // legg til email.email ----->
+                    MailMessage mail = new MailMessage();
+                    mail.From = new MailAddress(email.Email, "Enquiry");
+                    mail.To.Add("s188319@stud.hioa.no");
+                    mail.IsBodyHtml = true;
+                    mail.Subject = "Glemt passord ValgogVotering";
+                    mail.Body = "Her er passordet ditt " + dekryptertPassord;
+                    mail.Priority = MailPriority.High;
+
+                    SmtpClient smtp = new SmtpClient("smtp.office365.com", 587);
+                    //smtp.UseDefaultCredentials = true;
+                    smtp.Credentials = new System.Net.NetworkCredential("s188319@stud.hioa.no", "Fronter1993"); // Sender fra Tommy sin mail men vi skal benytte orgkons@studentparlamentet.no
+                    smtp.EnableSsl = true;
+                    //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                    smtp.Send(mail);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                var email = db.AdminBrukere.FirstOrDefault(b => b.Email == innBruker.email); // sjekk om epost er i db
+                if (email != null) //if true start funksjon send epost
+                {
+                    //var enkryptPassord = encrypt("Admin");
+
+                    Admin_db admin = db.AdminBrukere.FirstOrDefault(b => b.Email == innBruker.email);
+                    admin.Innlogget = false;             // sett innlogget kolonne til false
+                                                         //   admin.Passordemail = enkryptPassord;
+                    db.SaveChanges();
+
+                    // henter ut dekryptert passord og dekrypterer det 
+                    var kryptertPassord = db.AdminBrukere.FirstOrDefault(b => b.Email == innBruker.email);
+
+                    var dekryptertPassord = Decrypt(kryptertPassord.Passordemail);
+
+
+                    // funksjon som sender epost med passord
+
+                    // legg til email.email ----->
+                    MailMessage mail = new MailMessage();
+                    mail.From = new MailAddress(email.Email, "Enquiry");
+                    mail.To.Add("s188319@stud.hioa.no");
+                    mail.IsBodyHtml = true;
+                    mail.Subject = "Glemt passord ValgogVotering";
+                    mail.Body = "Her er passordet ditt " + dekryptertPassord;
+                    mail.Priority = MailPriority.High;
+
+                    SmtpClient smtp = new SmtpClient("smtp.office365.com", 587);
+                    //smtp.UseDefaultCredentials = true;
+                    smtp.Credentials = new System.Net.NetworkCredential("s188319@stud.hioa.no", "Fronter1993");
+                    smtp.EnableSsl = true;
+                    //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                    smtp.Send(mail);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+            }
+
+
+
+        }
         public void tømAlleDatabaser()
         {
             var db = new BrukerContext();
@@ -38,9 +185,9 @@ namespace Studentparlamentet_28.DAL
 
             db.SaveChanges();
         }
-
         public string endreBrukernavnAdmin(string gammeltBrukernavn, string nyttBrukernavn)
         {
+
             var db = new BrukerContext();
 
             Admin_db gammel = db.AdminBrukere.FirstOrDefault(a => a.Brukernavn == gammeltBrukernavn);
@@ -54,15 +201,19 @@ namespace Studentparlamentet_28.DAL
                 Brukernavn = nyttBrukernavn,
                 Passord = gammel.Passord,
                 Innlogget = gammel.Innlogget,
-                Administrator = gammel.Administrator
+                Administrator = gammel.Administrator,
+                Email = gammel.Email,
+                Passordemail = gammel.Passordemail
             };
             db.AdminBrukere.Remove(gammel);
             db.AdminBrukere.Add(oppdatertAdmin);
             db.SaveChanges();
             return "OK";
+
         }
         public string endrePassordAdmin(string brukernavn, string gammeltPassord, string nyttpassord)
         {
+            string passordEmail = encrypt(nyttpassord);   // Legger passorder i passordemail kolonne for gjenoppretting    
             var db = new BrukerContext();
 
             byte[] passwordhash = lagHash(nyttpassord);
@@ -85,7 +236,9 @@ namespace Studentparlamentet_28.DAL
                     Brukernavn = gammel.Brukernavn,
                     Passord = passwordhash,
                     Innlogget = gammel.Innlogget,
-                    Administrator = gammel.Administrator
+                    Administrator = gammel.Administrator,
+                    Email = gammel.Email,
+                    Passordemail = passordEmail // <--
                 };
                 db.AdminBrukere.Remove(gammel);
                 db.AdminBrukere.Add(oppdatertAdmin);
@@ -95,14 +248,2038 @@ namespace Studentparlamentet_28.DAL
 
         }
 
+        // VOTERING
+
+        public bool sjekkValgStemme(int ID)
+        {
+            var db = new BrukerContext();
+            PersonvalgResultatStemmer_db avlagtstemme = db.PersonvalgResultatStemmer.FirstOrDefault(b => b.ValgtypeID == ID);
+            if (avlagtstemme != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public string kjørerValg()
+        {
+            var db = new BrukerContext();
+            Valgtyper valg = valgPågår();
+            if (valg != null)
+            {
+                return "Ja";
+            }
+            else
+            {
+                return "Nei";
+            }
+
+        }
+        public Valgtyper hentValg(int id)
+        {
+            var db = new BrukerContext();
+
+            var enDbValg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+
+            if (enDbValg == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utBruker = new Valgtyper()
+                {
+                    valgtypeid = enDbValg.ValgtypeID
+                };
+                return utBruker;
+            }
+        }
+        public bool finnesdetvalg_ID(int id)
+        {
+            var db = new BrukerContext();
+            var antall = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+            if (antall == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public bool finnesdetvalg()
+        {
+            var db = new BrukerContext();
+            int antall = db.Valgtyper.Count();
+            if (antall <= 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public int antallstemteVotering(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.BrukereStemt.Count(b => b.ValgtypeID == id && b.Valgtype == "Votering");
+            return antall;
+        }
+        public int antallFor(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarFor == "for");
+            return antall;
+        }
+        public int antallMot(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarMot == "mot");
+            return antall;
+        }
+        public int antallBlank(int id)
+        {
+            var db = new BrukerContext();
+            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarBlank == "blank");
+            return antall;
+        }
+        public int hensisteVotering()
+        {
+            var db = new BrukerContext();
+            var sistevotering = db.Valgtyper.Max(b => b.ValgtypeID);
+            if (sistevotering > 0)
+            {
+                return sistevotering;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public int hentAntallStemte_int()
+        {
+            var db = new BrukerContext();
+            var valg = VoteringPågår();
+            if (valg != null)
+            {
+                String valgtype = valg.valgtype;
+                int valgID = valg.valgtypeid;
+                System.Int32 antall = db.BrukereStemt.Count(b => b.Valgtype == valgtype && b.ValgtypeID == valgID);
+                return antall;
+            }
+            else return 0;
+        }
+        public int hentAntallBrukere_int()
+        {
+            var db = new BrukerContext();
+            System.Int32 antall = db.Brukere.Count();
+            return antall;
+        }
+        public bool GenererBrukere(int antallBrukere)
+        {
+            var db = new BrukerContext();
+
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Bruker_db]");
+            db.SaveChanges();
+
+            PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
+            String brukernavn = "SP";
+            int teller = 1;
+            String passord = "";
+
+
+            for (int i = 0; i < antallBrukere; i++)
+            {
+                passord = randPassord.Next();
+
+                var nyBruker = new Bruker_db()
+                {
+                    Brukernavn = brukernavn + "" + teller,
+                    Passord = passord
+                };
+
+                teller++;
+                db.Brukere.Add(nyBruker);
+                db.SaveChanges();
+
+            }
+
+            return true;
+        }
+        public bool GenererEnNyBruker()
+        {
+            var db = new BrukerContext();
+
+            PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
+            String brukernavn = "SP";
+            int teller = db.Brukere.Count();
+            int spNummer = teller + 1;
+            String passord = "";
+
+            for (int i = 0; i < 1; i++)
+            {
+                passord = randPassord.Next();
+
+                var nyBruker = new Bruker_db()
+                {
+                    Brukernavn = brukernavn + "" + spNummer,
+                    Passord = passord
+                };
+                teller++;
+                db.Brukere.Add(nyBruker);
+                db.SaveChanges();
+            }
+
+            return true;
+        }
+        public List<Bruker> hentData()
+        {
+
+            using (var db = new BrukerContext())
+            {
+                var listeAvBrukere = db.Brukere.Select(k => new Bruker()
+                {
+                    id = k.Id,
+                    brukernavn = k.Brukernavn,
+                    passord = k.Passord,
+                    innlogget = k.Innlogget
+                }).ToList();
+                return listeAvBrukere;
+            }
+        }
+        public Bruker lastNedListe()
+        {
+            return null;
+        }
+        public Bruker hentEnBruker(string id)
+        {
+            var db = new BrukerContext();
+
+            var enDbBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
+
+            if (enDbBruker == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utBruker = new Bruker()
+                {
+                    brukernavn = enDbBruker.Brukernavn,
+                    passord = enDbBruker.Passord
+                };
+                return utBruker;
+            }
+        }
+        public Admin hentEnAdmin(string id)
+        {
+            var db = new BrukerContext();
+
+            var enDbAdmin = db.AdminBrukere.FirstOrDefault(b => b.Brukernavn == id);
+
+            if (enDbAdmin == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utBruker = new Admin()
+                {
+                    brukernavn = enDbAdmin.Brukernavn,
+                    passwordhash = enDbAdmin.Passord
+                };
+                return utBruker;
+            }
+        }
+        public Admin hentRolleAdmin(string rolle)
+        {
+            var db = new BrukerContext();
+            var enDbAdmin = db.AdminBrukere.FirstOrDefault(b => b.Brukernavn == rolle);
+            // var enDbAdmin = db.AdminBrukere.Find(rolle);
+            if (enDbAdmin == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utRolle = new Admin()
+                {
+                    administrator = enDbAdmin.Administrator
+                };
+
+
+                return utRolle;
+
+            }
+
+        }
+        public Bruker hentRolleBruker(string rolle)
+        {
+            var db = new BrukerContext();
+            var enDbAdmin = db.Brukere.FirstOrDefault(b => b.Brukernavn == rolle);
+            //  var enDbAdmin = db.Brukere.Find(rolle);
+            if (enDbAdmin == null)
+            {
+                return null;
+            }
+            else
+            {
+                var utRolle = new Bruker()
+                {
+                    administrator = enDbAdmin.Administrator
+                };
+
+
+                return utRolle;
+
+            }
+
+        }
+        public bool slettBrukerint(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Bruker_db slettBruker = db.Brukere.FirstOrDefault(b => b.Id == id);
+                db.Brukere.Remove(slettBruker);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool slettBruker(String id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Bruker_db slettBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
+                db.Brukere.Remove(slettBruker);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool loggUtBruker(String id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Bruker_db bruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
+                bruker.Innlogget = (bool)false;
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        private static byte[] lagHash(string passord)
+        {
+            byte[] inndata, utdata;
+
+            var algoritme = System.Security.Cryptography.SHA256.Create();
+
+            inndata = System.Text.Encoding.ASCII.GetBytes(passord);
+            utdata = algoritme.ComputeHash(inndata);
+            return utdata;
+        }
+        public bool bruker_i_db(Bruker innPerson)
+        {
+            using (var db = new BrukerContext())
+            {
+
+
+                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == innPerson.passord && b.Brukernavn == innPerson.brukernavn);
+
+                if (funnetBruker == null)
+                {
+                    return false; // return bruker er ikke i systemet, kontakt systemansvarlig
+                }
+                else if (funnetBruker.Innlogget == (bool)true) // sjekker om en bruker en innlogget
+                {
+                    return false;
+                }
+                else if (funnetBruker.Administrator == (bool)false) // sjekker om bruker er administrator
+                {
+                    funnetBruker.Innlogget = (bool)true; // flagger at bruker er innlogget
+                    db.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false; // ikke en vanlig bruker
+                }
+            }
+
+        }
+        public bool admin_i_db(Bruker innAdmin)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innAdmin.passord);
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
+                if (funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
+                {
+                    return false;
+                }
+                else if (funnetBruker.Innlogget == (bool)true)
+                {
+                    return false;
+
+                }
+
+                else if (funnetBruker.Administrator == (bool)true)
+                {
+                    funnetBruker.Innlogget = (bool)true;// flagger at bruker er innlogget
+                    db.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }
+        public bool logg_ut_bruker(String id)
+        {
+            using (var db = new BrukerContext())
+            {
+                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
+
+                if (funnetBruker != null)
+                {
+                    funnetBruker.Innlogget = (bool)false;
+                    db.SaveChanges();
+                    return true;
+                }
+                else if (funnetBruker == null)
+                {
+                    Admin_db funnetAdmin = db.AdminBrukere.Find(id);
+                    if (funnetAdmin != null)
+                    {
+                        funnetAdmin.Innlogget = (bool)false;
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+        }
+        public bool startVotering()
+        {
+            var db = new BrukerContext();
+            var start = new Valgtyper_db()
+            {
+                Valgtype = "Votering",
+                Start = true
+            };
+            db.Valgtyper.Add(start);
+            db.SaveChanges();
+            return true;
+
+        }
+        public bool stopVotering()
+        {
+            var db = new BrukerContext();
+            int antall = db.Valgtyper.Where(b => b.Start == true && b.Valgtype == "Votering").Count();
+            for (int i = 0; i < antall; i++)
+            {
+                Valgtyper_db stop = db.Valgtyper.FirstOrDefault(b => b.Start == true && b.Valgtype == "Votering");
+                if (stop != null)
+                {
+                    stop.Start = false;
+                    db.SaveChanges();
+                }
+            }
+            return true;
+
+        }
+        public bool voteringsvar(String svar)
+        {
+            var db = new BrukerContext();
+            var valgType = VoteringPågår();
+
+            if (svar == "for")
+            {
+                var svarvalg = new Votering_db()
+                {
+                    svarFor = svar,
+                    ValgtypeID = valgType.valgtypeid
+                };
+                db.Voteringer.Add(svarvalg);
+                db.SaveChanges();
+                return true;
+            }
+            else if (svar == "mot")
+            {
+                var svarvalg = new Votering_db()
+                {
+                    svarMot = svar,
+                    ValgtypeID = valgType.valgtypeid
+                };
+                db.Voteringer.Add(svarvalg);
+                db.SaveChanges();
+                return true;
+            }
+            else if (svar == "blank")
+            {
+                var svarvalg = new Votering_db()
+                {
+                    svarBlank = svar,
+                    ValgtypeID = valgType.valgtypeid
+                };
+                db.Voteringer.Add(svarvalg);
+                db.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        public string voteringBrukerStart()
+        {
+            var db = new BrukerContext();
+            string melding = "";
+
+            var valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Votering" && v.Start == true);
+
+            if (valg != null)
+            {
+                melding = "Votering";
+                return melding;
+            }
+            else
+            {
+                melding = "";
+            }
+
+            valg = null;
+            valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Personvalg" && v.Start == true);
+
+            if (valg != null)
+            {
+                melding = "Personvalg";
+                return melding;
+            }
+            else
+            {
+                melding = "";
+            }
+
+
+            return melding;
+        }
+        public List<Valgtyper> hentValgTyper()
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
+                {
+                    valgtypeid = k.ValgtypeID,
+                    valgtype = k.Valgtype,
+                    start = k.Start,
+
+                }).ToList();
+
+
+                return listeAvValgTyper;
+            }
+        }
+        public bool slettValg(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Valgtyper_db valgtyper = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+                // slett også 
+                db.Valgtyper.Remove(valgtyper);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool admin_i_db_innlogget(Bruker innAdmin, string brukernavn)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innAdmin.passord);
+
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
+                if (funnetBruker != null) // Sjekker om bruker finnes i systemet
+                {
+                    //slettValg(valgnr);
+                    return true;
+                }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }
+        public bool admin_i_db_innloggetEng(Bruker innAdmin, string brukernavn)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innAdmin.passord);
+
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
+                if (funnetBruker != null) // Sjekker om bruker finnes i systemet
+                {
+                    //slettValg(valgnr);
+                    return true;
+                }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }
+        public Valgtyper VoteringPågår()
+        {
+            var db = new BrukerContext();
+
+            Valgtyper_db valgtype_db = db.Valgtyper.FirstOrDefault(b => b.Start == true && b.Valgtype == "Votering");
+
+            if (valgtype_db == null)
+            {
+                return null;
+            }
+            else
+            {
+                var valgtype = new Valgtyper()
+                {
+                    valgtypeid = valgtype_db.ValgtypeID,
+                    valgtype = valgtype_db.Valgtype,
+                    start = valgtype_db.Start
+                };
+
+                return valgtype;
+            }
+        }
+        public string HarBrukerStemt(string brukernavn)
+        {
+            var db = new BrukerContext();
+            Valgtyper valg = valgPågår();
+
+
+            if (valg.valgtype == "Votering")
+            {
+                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == valg.valgtype);
+
+                if (brukerStemt != null)
+                {
+                    return "JA";
+                }
+                else
+                {
+                    return "NEI";
+                }
+            }
+
+
+            else if (valg.valgtype == "Preferansevalg")
+            {
+                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == "Preferansevalg");
+                if (brukerStemt != null)
+                {
+                    return "JA";
+                }
+                else
+                {
+                    return "NEI";
+                }
+            }
+            else if (valg.valgtype == "Personvalg")
+            {
+                int valgID = PersonvalgKjørerID();
+                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valgID && b.Valgtype == "Personvalg");
+                if (brukerStemt != null)
+                {
+                    return "JA";
+                }
+                else
+                {
+                    return "NEI";
+                }
+            }
+            else
+            {
+                return "";
+            }
+
+        }
+        public void LagreBrukerStemt(Valgtyper valg, string brukernavn)
+        {
+            var db = new BrukerContext();
+
+            if (valg == null || brukernavn == null)
+            {
+                return;
+            }
+            else
+            {
+                var brukerStemt = new BrukereStemt_db()
+                {
+                    Brukernavn = brukernavn,
+                    ValgtypeID = valg.valgtypeid,
+                    Valgtype = valg.valgtype
+                };
+
+                db.BrukereStemt.Add(brukerStemt);
+                db.SaveChanges();
+            }
+        }
+        public bool VoteringKjorer()
+        {
+            using (var db = new BrukerContext())
+            {
+                Valgtyper_db voteringkjorer = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Votering" && b.Start == true);
+                if (voteringkjorer != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        public string hentAntallStemt(int id)
+        {
+            var db = new BrukerContext();
+            int antallStemt = db.BrukereStemt.Where(b => b.ValgtypeID == id).Count();
+            int antallbrukere = hentData().Count();
+
+            string utskrift = antallStemt + "/" + antallbrukere;
+            return utskrift;
+        }
+        public int antallValgFullført()
+        {
+            var db = new BrukerContext();
+            int antall = hentValgTyper().Count();
+
+            return antall;
+        }
+        public List<Votering> hentVoteringer(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var voteringer = db.Voteringer.Select(k => new Votering()
+                {
+                    valgtypeid = k.ValgtypeID,
+                    svarfor = k.svarFor,
+                    svarmot = k.svarMot,
+                    svarblank = k.svarBlank
+                }).Where(k => k.valgtypeid == id).ToList();
+                return voteringer;
+            }
+        }
+        public List<Valgtyper> hentValgTyperVotering()
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
+                {
+                    valgtypeid = k.ValgtypeID,
+                    valgtype = k.Valgtype,
+                    start = k.Start,
+
+                }).Where(k => k.valgtype == "Votering").ToList();
+
+
+
+                return listeAvValgTyper;
+            }
+        }
+        public void LeggTilMeldingVotering(string id)
+        {
+            var db = new BrukerContext();
+            Valgtyper_db votering = db.Valgtyper.FirstOrDefault(b => b.Start == true);
+            votering.Melding = id;
+            db.SaveChanges();
+        }
+
+        // Personvalg
+
+        public PersonvalgResultat hentinfoPersonvalg(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                PersonvalgResultat_db value = db.PersonvalgResultat.FirstOrDefault(b => b.ValgtypeID == id);
+                var utValue = new PersonvalgResultat()
+                {
+                    valgtypeid = value.ValgtypeID,
+                    vinner = value.Vinner,
+                    stemmer = value.Stemmer,
+                    totalantallStemmer = value.TotalantallStemmer,
+                    antallkandidater = value.AntallKandidater
+                };
+                return utValue;
+
+            }
+        }
+        public string valgtype(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var value = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+                string valgtype = Convert.ToString(value.Valgtype);
+                return valgtype;
+            }
+        }
+        public List<PersonvalgStemmer> hentPersonvalg(int id)
+        {
+            using (var db = new BrukerContext())
+
+            {
+
+                    var personvalg = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                    {
+                        valgtypeid = k.ValgtypeID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn
+                    }).Where(k => k.valgtypeid == id).ToList();
+                    
+                    return personvalg;
+                
+
+            }
+        }
+        public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
+        {
+            using (var db = new BrukerContext())
+            {
+                var slettListe = db.PersonvalgKandidatResultat.Select(k => new PersonvalgKandidatResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    stemmer = k.Stemmer
+                }).ToList();
+
+                int teller2 = slettListe.Count();
+                if (teller2 > 0)
+                {
+
+
+                    for (int i = 0; i < teller2; i++)
+                    {
+                        var slett = db.PersonvalgKandidatResultat.FirstOrDefault();
+                        db.PersonvalgKandidatResultat.Remove(slett);
+                        db.SaveChanges();
+                    }
+
+                }
+                var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    valgtypeid = k.ValgtypeID
+                }).ToList();
+                int teller = listeAvKandidater.Count();
+
+                var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn
+
+                }).ToList();
+
+                for (int i = 0; i < teller; i++)
+                {
+                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != id);
+                    if (itemToRemove != null)
+                    {
+                        listeAvKandidater.Remove(itemToRemove);
+
+                    }
+                }
+                int antallkandidater = listeAvKandidater.Count();
+                int[] stemmer = new int[antallkandidater];
+                string[] kandidater = new string[antallkandidater];
+                for (int i = 0; i < antallkandidater; i++)
+                {
+                    var kandidat = listeAvKandidater.FirstOrDefault();
+                    int antallstemmer = listeAvStemmesedler.Count(r => r.valgtypeid == id && r.fornavn == kandidat.fornavn && r.etternavn == kandidat.etternavn);
+                    var test = db.PersonvalgKandidatResultat.FirstOrDefault(r => r.Fornavn == kandidat.fornavn && r.Etternavn == kandidat.etternavn && r.ValgtypeID == id);
+                    if (test == null)
+                    {
+                        var kandidatResultat = new PersonvalgKandidatResultat_db()
+                        {
+                            ValgtypeID = id,
+                            Fornavn = kandidat.fornavn,
+                            Etternavn = kandidat.etternavn,
+                            Stemmer = antallstemmer,
+                        };
+                        db.PersonvalgKandidatResultat.Add(kandidatResultat);
+                        db.SaveChanges();
+                    }
+                    listeAvKandidater.Remove(kandidat);
+
+                }
+
+                var listeResultat = db.PersonvalgKandidatResultat.Select(k => new PersonvalgKandidatResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    stemmer = k.Stemmer
+
+                }).ToList();
+                int teller3 = listeResultat.Count();
+                for (int i = 0; i < teller3; i++)
+                {
+                    var itemRemove = listeResultat.FirstOrDefault(r => r.valgtypeid != id);
+                    if (itemRemove != null)
+                    {
+                        listeResultat.Remove(itemRemove);
+
+                    }
+                }
+
+                return listeResultat;
+            }
+
+        }
+        public void SlettPersonvalg(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Valgtyper_db personvalg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
+                db.Valgtyper.Remove(personvalg);
+                db.SaveChanges();
+
+                PersonvalgResultat_db personvalgResultat = db.PersonvalgResultat.FirstOrDefault(b => b.ValgtypeID == id);
+                db.PersonvalgResultat.Remove(personvalgResultat);
+                db.SaveChanges();
+
+                int antallkandidater = db.Personvalger.Count(b => b.ValgtypeID == id);
+                if (antallkandidater > 0)
+                {
+                    for (int i = 0; i < antallkandidater; i++)
+                    {
+                        Personvalg_db fjernKandidat = db.Personvalger.FirstOrDefault(b => b.ValgtypeID == id);
+                        db.Personvalger.Remove(fjernKandidat);
+                    }
+
+                }
+
+                int antallstemmer = db.Personvalger.Count(b => b.ValgtypeID == id);
+                if (antallstemmer > 0)
+                {
+                    for (int i = 0; i < antallstemmer; i++)
+                    {
+                        PersonvalgResultatStemmer_db fjernStemme = db.PersonvalgResultatStemmer.FirstOrDefault(b => b.ValgtypeID == id);
+                        db.PersonvalgResultatStemmer.Remove(fjernStemme);
+                    }
+                }
+
+            }
+            catch (Exception feil)
+            {
+
+            }
+        }
+        public bool StemPersonvalg(int id)
+        {
+            var db = new BrukerContext();
+            int valgtypeID = PersonvalgKjørerID();
+            var kandidat = db.Personvalger.FirstOrDefault(b => b.ID == id && b.ValgtypeID == valgtypeID);
+            var stemmeseddel = new PersonvalgResultatStemmer_db()
+            {
+                ValgtypeID = valgtypeID,
+                Fornavn = kandidat.Fornavn,
+                Etternavn = kandidat.Etternavn
+            };
+            db.PersonvalgResultatStemmer.Add(stemmeseddel);
+            db.SaveChanges();
+            return true;
+
+
+
+        }
+        public List<Personvalg> hentKandidaterPersonvalg(int ID)
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    valgtypeid = k.ValgtypeID
+                }).ToList();
+                int teller = listeAvKandidater.Count();
+                for (int i = 0; i < teller; i++)
+                {
+                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != ID);
+                    if (itemToRemove != null)
+                    {
+                        listeAvKandidater.Remove(itemToRemove);
+                    }
+                }
+
+                return listeAvKandidater;
+            }
+        }
+        public int hentAntallStemtePersonvalg_int()
+        {
+            var db = new BrukerContext();
+
+            var personvalg = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
+
+            if (personvalg != null)
+            {
+                System.Int32 antall = db.PersonvalgResultatStemmer.Count(b => b.ValgtypeID == personvalg.ValgtypeID);
+                return antall;
+            }
+            else return 0;
+        }
+        public int antallPersonvalgStemmer(int ID)
+        {
+            var db = new BrukerContext();
+            var listeAvStemmer = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+            {
+                valgtypeid = k.ValgtypeID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn
+            }).ToList();
+            int antall = listeAvStemmer.Count(b => b.valgtypeid == ID);
+            return antall;
+        }
+        public int PersonvalgKjørerID()
+        {
+            var db = new BrukerContext();
+            var personvalg = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
+            ;
+            return personvalg.ValgtypeID;
+        }
+        public bool stopPersonvalg()
+        {
+            var db = new BrukerContext();
+            var listeAvPersonvalg = db.Valgtyper.Select(k => new Valgtyper()
+            {
+                valgtypeid = k.ValgtypeID,
+                valgtype = k.Valgtype,
+                start = k.Start
+            }).ToList();
+
+            int teller = listeAvPersonvalg.Count();
+
+            for (int i = 0; i < teller; i++)
+            {
+                var personvalg = listeAvPersonvalg.FirstOrDefault(b => b.valgtype == "Personvalg" && b.start == true);
+
+                if (personvalg != null)
+                {
+                    Valgtyper_db personvalg2 = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == personvalg.valgtypeid && b.Valgtype == "Personvalg" && b.Start == true);
+                    personvalg2.Start = (bool)false;
+                    db.SaveChanges();
+                    listeAvPersonvalg.Remove(personvalg);
+                }
+            }
+            using (var db2 = new BrukerContext())
+            {
+                Valgtyper_db Personvalgkjorer = db2.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
+                if (Personvalgkjorer != null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+        public bool startPersonvalg(int ID)
+        {
+            var db = new BrukerContext();
+            Valgtyper_db personvalg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == ID && b.Valgtype == "Personvalg" && b.Start == false);
+            if (personvalg != null)
+            {
+                personvalg.Start = (bool)true;
+                db.SaveChanges();
+
+                using (var db2 = new BrukerContext())
+                {
+                    Valgtyper_db Personvalgkjorer = db2.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
+                    if (Personvalgkjorer != null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        public bool PersonvalgKjorer()
+        {
+            using (var db = new BrukerContext())
+            {
+                Valgtyper_db Personvalgkjorer = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
+                if (Personvalgkjorer != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        public int finnValgtypeID(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == id);
+                return kandidat.ValgtypeID;
+
+            }
+            catch (Exception feil)
+            {
+                return 0;
+            }
+
+        }
+        public bool Kandidatendre(Kandidat innkandidat)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
+                kandidat.Fornavn = innkandidat.fornavn;
+                kandidat.Etternavn = innkandidat.etternavn;
+                db.SaveChanges();
+                return true;
+
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool SjekkPassord(Kandidat innkandidat, string brukernavn)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innkandidat.passord);
+
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
+                if (funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
+                {
+                    return false;
+                }
+                else if (funnetBruker.Innlogget == (bool)true && funnetBruker.Administrator == (bool)true)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }
+        public bool SjekkPassordEng(Kandidat innkandidat, string brukernavn)
+        {
+            using (var db = new BrukerContext())
+            {
+
+                byte[] passwordhash = lagHash(innkandidat.passordEng);
+
+                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
+                if (funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
+                {
+                    return false;
+                }
+                else if (funnetBruker.Innlogget == (bool)true && funnetBruker.Administrator == (bool)true)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false; // ikke en administrator bruker 
+                }
+
+            }
+        }
+        public bool KandidatSlett(Kandidat innkandidat)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
+                db.Personvalger.Remove(kandidat);
+                db.SaveChanges();
+                return true;
+
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+
+        }
+        public bool KandidatendreFornavn(Kandidat innkandidat)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
+                kandidat.Fornavn = innkandidat.fornavn;
+                db.SaveChanges();
+                return true;
+
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public bool KandidatendreEtternavn(Kandidat innkandidat)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
+                kandidat.Etternavn = innkandidat.etternavn;
+                db.SaveChanges();
+                return true;
+
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public List<String> hentKandidaterLagretNavn(int ID)
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    lagret = k.Lagret,
+                    valgtypeid = k.ValgtypeID
+                }).ToList();
+                int teller = listeAvKandidater.Count();
+
+                for (int i = 0; i < teller; i++)
+                {
+                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != ID);
+                    if (itemToRemove != null)
+                    {
+                        listeAvKandidater.Remove(itemToRemove);
+                    }
+                }
+                int teller2 = listeAvKandidater.Count();
+                List<string> stringarray = new List<string>();
+                for (int i = 0; i < teller2; i++)
+                {
+                    stringarray.Add("<b>KandidatID " + listeAvKandidater.FirstOrDefault().id + " " + listeAvKandidater.FirstOrDefault().fornavn + " " + listeAvKandidater.FirstOrDefault().etternavn + "</b>");
+                    var remove = listeAvKandidater.FirstOrDefault();
+                    if (remove != null)
+                    {
+                        listeAvKandidater.Remove(remove);
+                    }
+
+                }
+                return stringarray;
+            }
+        }
+
+        public List<Kandidat> hentKandidaterLagret(int ID)
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    lagret = k.Lagret,
+                    valgtypeid = k.ValgtypeID
+                }).ToList();
+                int teller = listeAvKandidater.Count();
+
+                for (int i = 0; i < teller; i++)
+                {
+                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != ID);
+                    if (itemToRemove != null)
+                    {
+                        listeAvKandidater.Remove(itemToRemove);
+                    }
+                }
+
+                return listeAvKandidater;
+            }
+        }
+        public List<PersonvalgResultat> hentPersonvalgResultat()
+        {
+            using (var db = new BrukerContext())
+            {
+
+                var listeAvPersonvalg = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    stemmer = k.Stemmer,
+                    vinner = k.Vinner,
+                    totalantallStemmer = k.TotalantallStemmer,
+                    antallkandidater = k.AntallKandidater
+                }).ToList();
+                // Antall Personvalg
+                int teller = listeAvPersonvalg.Count();
+
+
+                for (int i = 0; i < teller; i++)
+                {
+                    // Et enkelt personvalg
+                    var personvalg = listeAvPersonvalg.FirstOrDefault();
+
+                    var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                    {
+                        id = k.ID,
+                        valgtypeid = k.ValgtypeID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn
+
+                    }).ToList();
+
+                    // TotalantallStemmer
+                    var totalAntallStemmer = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid);
+
+
+                    var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                    {
+                        id = k.ID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn,
+                        valgtypeid = k.ValgtypeID,
+                        lagret = k.Lagret,
+
+                    }).ToList();
+
+                    // AntallKandidater
+                    var antallkandidater = listeAvKandidater.Count(k => k.valgtypeid == personvalg.valgtypeid);
+
+
+                    if (totalAntallStemmer > 0)
+                    {
+                        // Finn vinner 
+                        int[] stemmer = new int[antallkandidater];
+                        string[] kandidater = new string[antallkandidater];
+
+                        for (int j = 0; j < antallkandidater; j++)
+                        {
+                            var kandidat = listeAvKandidater.FirstOrDefault(k => k.valgtypeid == personvalg.valgtypeid);
+                            int antallstemmerkandidat = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
+                            string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
+                            kandidater[j] = kandidatnavn;
+                            stemmer[j] = antallstemmerkandidat;
+                            listeAvKandidater.Remove(kandidat);
+                        }
+                        string vinnerKandidat = "";
+                        int vinnerstemmer = stemmer.Max();
+
+
+                        for (int j = 0; j < stemmer.Length; j++)
+                        {
+                            if (stemmer[j].Equals(vinnerstemmer))
+                            {
+                                vinnerKandidat = kandidater[j];
+                            }
+
+                        }
+                        int x = 0;
+                        // Metode for for sjekke om det er uavgjort
+                        for (int k = 0; k < stemmer.Length; k++)
+                        {
+                            if (vinnerstemmer == stemmer[k])
+                            {
+                                x++;
+                            }
+                        }
+                        if (x >= 2)
+                        {
+                            vinnerKandidat = "";
+                            vinnerKandidat = "Uavgjort";
+                            vinnerstemmer = 0;
+
+                        }
+                        // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
+
+
+                        try
+                        {
+                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
+                            personvalgresultat.Vinner = vinnerKandidat;
+                            personvalgresultat.Stemmer = vinnerstemmer;
+                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
+                            personvalgresultat.AntallKandidater = antallkandidater;
+                            db.SaveChanges();
+                            listeAvPersonvalg.Remove(personvalg);
+
+                        }
+                        catch (Exception feil)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
+                            personvalgresultat.Vinner = "Ingen forløpig";
+                            personvalgresultat.Stemmer = 0;
+                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
+                            personvalgresultat.AntallKandidater = antallkandidater;
+                            db.SaveChanges();
+                            listeAvPersonvalg.Remove(personvalg);
+
+                        }
+                        catch (Exception feil)
+                        {
+
+                        }
+                    }
+                }
+                // Henter ut liste
+                var listeAvPersonvalg2 = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    stemmer = k.Stemmer,
+                    vinner = k.Vinner,
+                    totalantallStemmer = k.TotalantallStemmer,
+                    antallkandidater = k.AntallKandidater
+                }).ToList();
+                return listeAvPersonvalg2;
+
+            }
+
+        }
+        public List<PersonvalgResultat> hentPersonvalgResultatEng()
+        {
+            using (var db = new BrukerContext())
+            {
+
+                var listeAvPersonvalg = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    stemmer = k.Stemmer,
+                    vinner = k.Vinner,
+                    totalantallStemmer = k.TotalantallStemmer,
+                    antallkandidater = k.AntallKandidater
+                }).ToList();
+                // Antall Personvalg
+                int teller = listeAvPersonvalg.Count();
+
+
+                for (int i = 0; i < teller; i++)
+                {
+                    // Et enkelt personvalg
+                    var personvalg = listeAvPersonvalg.FirstOrDefault();
+
+                    var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+                    {
+                        id = k.ID,
+                        valgtypeid = k.ValgtypeID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn
+
+                    }).ToList();
+
+                    // TotalantallStemmer
+                    var totalAntallStemmer = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid);
+
+
+                    var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
+                    {
+                        id = k.ID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn,
+                        valgtypeid = k.ValgtypeID,
+                        lagret = k.Lagret,
+
+                    }).ToList();
+
+                    // AntallKandidater
+                    var antallkandidater = listeAvKandidater.Count(k => k.valgtypeid == personvalg.valgtypeid);
+
+
+                    if (totalAntallStemmer > 0)
+                    {
+                        // Finn vinner 
+                        int[] stemmer = new int[antallkandidater];
+                        string[] kandidater = new string[antallkandidater];
+
+                        for (int j = 0; j < antallkandidater; j++)
+                        {
+                            var kandidat = listeAvKandidater.FirstOrDefault(k => k.valgtypeid == personvalg.valgtypeid);
+                            int antallstemmerkandidat = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
+                            string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
+                            kandidater[j] = kandidatnavn;
+                            stemmer[j] = antallstemmerkandidat;
+                            listeAvKandidater.Remove(kandidat);
+                        }
+                        string vinnerKandidat = "";
+                        int vinnerstemmer = stemmer.Max();
+
+
+                        for (int j = 0; j < stemmer.Length; j++)
+                        {
+                            if (stemmer[j].Equals(vinnerstemmer))
+                            {
+                                vinnerKandidat = kandidater[j];
+                            }
+
+                        }
+                        int x = 0;
+                        // Metode for for sjekke om det er uavgjort
+                        for (int k = 0; k < stemmer.Length; k++)
+                        {
+                            if (vinnerstemmer == stemmer[k])
+                            {
+                                x++;
+                            }
+                        }
+                        if (x >= 2)
+                        {
+                            vinnerKandidat = "";
+                            vinnerKandidat = "Draw";
+                            vinnerstemmer = 0;
+
+                        }
+                        // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
+
+
+                        try
+                        {
+                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
+                            personvalgresultat.Vinner = vinnerKandidat;
+                            personvalgresultat.Stemmer = vinnerstemmer;
+                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
+                            personvalgresultat.AntallKandidater = antallkandidater;
+                            db.SaveChanges();
+                            listeAvPersonvalg.Remove(personvalg);
+
+                        }
+                        catch (Exception feil)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
+                            personvalgresultat.Vinner = "No votes";
+                            personvalgresultat.Stemmer = 0;
+                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
+                            personvalgresultat.AntallKandidater = antallkandidater;
+                            db.SaveChanges();
+                            listeAvPersonvalg.Remove(personvalg);
+
+                        }
+                        catch (Exception feil)
+                        {
+
+                        }
+                    }
+                }
+                // Henter ut liste
+                var listeAvPersonvalg2 = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
+                {
+                    id = k.ID,
+                    valgtypeid = k.ValgtypeID,
+                    stemmer = k.Stemmer,
+                    vinner = k.Vinner,
+                    totalantallStemmer = k.TotalantallStemmer,
+                    antallkandidater = k.AntallKandidater
+                }).ToList();
+                return listeAvPersonvalg2;
+
+            }
+
+        }
+        public bool LagrePersonvalgResultat()
+        {
+
+            var db = new BrukerContext();
+            // if antall stemmer == 0
+            // legg verdiene i tabellene
+
+
+            // PersonvalgID == ValgtypeID
+
+            var ValgtypeIDliste = db.Valgtyper.Select(k => new Valgtyper()
+            {
+                valgtypeid = k.ValgtypeID,
+                valgtype = k.Valgtype,
+                start = k.Start
+            }).ToList();
+
+            var listedescendingOrder = ValgtypeIDliste.OrderByDescending(i => i.valgtypeid);
+
+            var valgtypeID = listedescendingOrder.FirstOrDefault(i => i.valgtype == "Personvalg" && i.start == false);
+
+            // Antall avlagte stemmer
+
+            var liste = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
+            {
+                id = k.ID,
+                valgtypeid = k.ValgtypeID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn
+            }).ToList();
+
+
+            int totallstemmer = liste.Count(k => k.valgtypeid == valgtypeID.valgtypeid);
+
+            // Ingen resultat
+            if (totallstemmer == 0)
+            {
+                try
+                {
+                    var liste2 = db.Personvalger.Select(k => new Personvalg()
+                    {
+                        id = k.ID,
+                        fornavn = k.Fornavn,
+                        etternavn = k.Etternavn,
+                        valgtypeid = k.ValgtypeID,
+                        lagret = k.Lagret
+                    }).ToList();
+
+                    var antallkandidater = liste2.Count(k => k.valgtypeid == valgtypeID.valgtypeid);
+
+                    var nyResultat = new PersonvalgResultat_db()
+                    {
+                        ValgtypeID = valgtypeID.valgtypeid,
+                        Vinner = "No Votes",
+                        TotalantallStemmer = 0,
+                        AntallKandidater = antallkandidater,
+                    };
+                    db.PersonvalgResultat.Add(nyResultat);
+                    db.SaveChanges();
+                    return true;
+
+                }
+                catch (Exception feil)
+                {
+                    return false;
+                }
+            }
+
+            // Finnes Resultat
+            else
+            {
+                // Antall kandidater
+
+                var liste2 = db.Personvalger.Select(k => new Personvalg()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    valgtypeid = k.ValgtypeID,
+                    lagret = k.Lagret
+                }).ToList();
+
+                int antallkandidater = liste2.Count(k => k.valgtypeid == valgtypeID.valgtypeid);
+
+                // Finn vinner
+
+                int[] stemmer = new int[antallkandidater];
+                string[] kandidater = new string[antallkandidater];
+
+                for (int i = 0; i < antallkandidater; i++)
+                {
+                    var kandidat = liste2.FirstOrDefault(k => k.valgtypeid == valgtypeID.valgtypeid);
+                    int antallstemmerkandidat = liste.Count(k => k.valgtypeid == valgtypeID.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
+                    liste2.Remove(kandidat);
+                    string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
+                    kandidater[antallkandidater] = kandidatnavn;
+                    stemmer[antallkandidater] = antallstemmerkandidat;
+
+                }
+                string vinnerKandidat = "";
+                int vinnerstemmer = stemmer.Max();
+                for (int i = 0; i < stemmer.Length; i++)
+                {
+                    if (stemmer[i].Equals(vinnerstemmer))
+                    {
+                        vinnerKandidat = kandidater[i];
+                    }
+                }
+
+                // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
+
+
+                try
+                {
+                    PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == valgtypeID.valgtypeid);
+                    personvalgresultat.Vinner = vinnerKandidat;
+                    personvalgresultat.Stemmer = vinnerstemmer;
+                    personvalgresultat.TotalantallStemmer = totallstemmer;
+                    personvalgresultat.AntallKandidater = antallkandidater;
+
+                    db.SaveChanges();
+                    return true;
+                }
+                catch (Exception feil)
+                {
+                    return false;
+                }
+
+
+            }
+
+        }
+        public bool LagrePersonvalg()
+        {
+            var db2 = new BrukerContext();
+            var start = new Valgtyper_db()
+            {
+                Valgtype = "Personvalg",
+                Start = false
+            };
+            db2.Valgtyper.Add(start); // lager nytt Personvalg
+            db2.SaveChanges();
+
+            var db = new BrukerContext();
+
+
+            var liste = db.Valgtyper.Select(k => new Valgtyper()
+            {
+                valgtypeid = k.ValgtypeID,
+                valgtype = k.Valgtype,
+                start = k.Start
+            }).ToList(); // henter alle valg
+
+            var listedescendingOrder = liste.OrderByDescending(i => i.valgtypeid); // lister de i ut basert på valgtypeID
+
+            var PersonvalgID = listedescendingOrder.FirstOrDefault(i => i.valgtype == "Personvalg" && i.start == false); // henter inn siste personvalg som ble lagt inn
+
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList(); // henter alle kandidater
+            int tellersjekk = listeAvKandidater.Count(b => b.valgtypeid == 0); // sjekker om det er kandidater
+            if (tellersjekk == 0)
+            {
+                return false;
+            }
+            int teller = listeAvKandidater.Count(); // teller kandidater
+            for (int i = 0; i < teller; i++)
+            {
+                var listeAvKandidater2 = db.Personvalger.Select(k => new Kandidat()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    lagret = k.Lagret,
+                    valgtypeid = k.ValgtypeID
+                }).ToList(); // henter alle kandidater
+
+
+
+
+                var itemToChange = listeAvKandidater2.FirstOrDefault(r => r.lagret == false); // hente rut bruker som ikke er lagret
+                if (itemToChange != null)
+                {
+                    if (itemToChange.lagret == false)
+                    {
+                        try
+                        {
+                            int id = itemToChange.id;
+                            int valgID = PersonvalgID.valgtypeid;
+
+                            Personvalg_db endre = db.Personvalger.FirstOrDefault(r => r.ID == id);
+                            endre.ValgtypeID = valgID; // legger til valgtypeID
+                            endre.Lagret = (bool)true; // markerer at bruker er lagret
+                            db.SaveChanges();
+                        }
+                        catch (Exception feil)
+                        {
+                            return false;
+                        }
+                    }
+
+
+
+
+                }
+            }
+            try
+            {
+                int valgID = PersonvalgID.valgtypeid; // legger til blank "Kandidat
+                var blank = new Personvalg_db()
+                {
+                    Fornavn = "Blank",
+                    Etternavn = "Blank",
+                    ValgtypeID = valgID,
+                    Lagret = true,
+                };
+
+                db.Personvalger.Add(blank);
+                db.SaveChanges();
+                return true;
+            }
+
+            catch (Exception feil)
+            {
+                return false;
+            }
+
+        }
+        public bool slettKandidat(int id)
+        {
+            var db = new BrukerContext();
+            try
+            {
+                Personvalg_db personvalger = db.Personvalger.FirstOrDefault(b => b.ID == id);
+                // slett også 
+                db.Personvalger.Remove(personvalger);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception feil)
+            {
+                return false;
+            }
+        }
+        public List<Kandidat> hentKandidater()
+        {
+            using (var db = new BrukerContext())
+            {
+                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+                {
+                    id = k.ID,
+                    fornavn = k.Fornavn,
+                    etternavn = k.Etternavn,
+                    lagret = k.Lagret
+                }).ToList();
+                int teller = listeAvKandidater.Count();
+
+                for (int i = 0; i < teller; i++)
+                {
+                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.lagret == (bool)true);
+                    if (itemToRemove != null)
+                    {
+                        listeAvKandidater.Remove(itemToRemove);
+                    }
+                }
+
+                return listeAvKandidater;
+            }
+        }
+        public bool leggtilPersonvalgKandidatEng(Kandidat innKandidat)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_RequiredEng && b.etternavn == innKandidat.etternavn_RequiredEng && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+
+                return false;
+
+
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_RequiredEng,
+                    Etternavn = innKandidat.etternavn_RequiredEng,
+                    Lagret = (bool)false,
+
+                    ValgtypeID = 0
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+
+
+
+
+
+
+        }
+        public bool leggtilPersonvalgKandidatPersonvalgEng(Kandidat innKandidat, int id)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_RequiredEng && b.etternavn == innKandidat.etternavn_RequiredEng && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+                return false;
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_RequiredEng,
+                    Etternavn = innKandidat.etternavn_RequiredEng,
+                    Lagret = (bool)true,
+
+                    ValgtypeID = id
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+
+
+
+        }
+        public bool leggtilPersonvalgKandidatPersonvalg(Kandidat innKandidat, int id)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_Required && b.etternavn == innKandidat.etternavn_Required && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+
+                return false;
+
+
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_Required,
+                    Etternavn = innKandidat.etternavn_Required,
+                    Lagret = (bool)true,
+
+                    ValgtypeID = id
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+
+
+
+        }
+        public bool leggtilPersonvalgKandidat(Kandidat innKandidat)
+        {
+            var db = new BrukerContext();
+            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
+            {
+                id = k.ID,
+                fornavn = k.Fornavn,
+                etternavn = k.Etternavn,
+                lagret = k.Lagret,
+                valgtypeid = k.ValgtypeID
+            }).ToList();
+            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_Required && b.etternavn == innKandidat.etternavn_Required && b.valgtypeid == 0);
+            if (teller > 0)
+            {
+
+                return false;
+
+
+            }
+            else
+            {
+                var nyKandidat = new Personvalg_db()
+                {
+                    Fornavn = innKandidat.fornavn_Required,
+                    Etternavn = innKandidat.etternavn_Required,
+                    Lagret = (bool)false,
+
+                    ValgtypeID = 0
+                };
+                db.Personvalger.Add(nyKandidat);
+                db.SaveChanges();
+                return true;
+            }
+
+
+
+        }
+
+
+
         //Preferansevalg
+
         public int alleStemmesedlerPreferansevalg(int valgtypeid)
         {
             var db = new BrukerContext();
             int antallStemmer = db.Stemmesedler.Where(s => s.ValgtypeID == valgtypeid).Count();
             return antallStemmer;
         }
-
         public List<Stemmeseddel> stemmesedlerMedID(int valgtypeid)
         {
             var db = new BrukerContext();
@@ -131,8 +2308,6 @@ namespace Studentparlamentet_28.DAL
             }
             return stemmesedler;
         }
-
-        //Skrive preferansevalg framgangsmåte
         public MemoryStream ResultatPreferansevalgTilPDF(int valgtypeid, string klasse1, string klasse2, int prosent1, int prosent2) //Kanskje gjøre om senere når jeg regner ut med kvotering
         {
             using (MemoryStream ms = new MemoryStream())
@@ -3308,7 +5483,8 @@ namespace Studentparlamentet_28.DAL
         {
             using (var db = new BrukerContext())
             {
-                var stemmeseddel = db.Stemmesedler.Select(k => new Stemmeseddel() {
+                var stemmeseddel = db.Stemmesedler.Select(k => new Stemmeseddel()
+                {
                     valgtypeid = k.ValgtypeID,
                     kandidatnrEn = k.KandidatnrEn,
                     kandidatnrTo = k.KandidatnrTo,
@@ -3327,18 +5503,18 @@ namespace Studentparlamentet_28.DAL
 
                 //For å få ut 'tom' istedenfor Velg kandidat
                 List<Stemmeseddel> returStemmesedler = new List<Stemmeseddel>();
-                for(int i = 0; i < stemmeseddel.Count(); i++)
+                for (int i = 0; i < stemmeseddel.Count(); i++)
                 {
                     returStemmesedler.Add(stemmeseddel[i]);
                 }
-                for(int i = 0; i < returStemmesedler.Count(); i++)
+                for (int i = 0; i < returStemmesedler.Count(); i++)
                 {
                     Stemmeseddel seddel = returStemmesedler[i];
-                    if(seddel.kandidatnrEn == "Velg kandidat")
+                    if (seddel.kandidatnrEn == "Velg kandidat")
                     {
                         seddel.kandidatnrEn = "-";
                     }
-                    if(seddel.kandidatnrTo == "Velg kandidat")
+                    if (seddel.kandidatnrTo == "Velg kandidat")
                     {
                         seddel.kandidatnrTo = "-";
                     }
@@ -3350,21 +5526,21 @@ namespace Studentparlamentet_28.DAL
                     {
                         seddel.kandidatnrFire = "-";
                     }
-                    if (seddel.kandidatnrFem== "Velg kandidat")
+                    if (seddel.kandidatnrFem == "Velg kandidat")
                     {
                         seddel.kandidatnrFem = "-";
                     }
                     if (seddel.kandidatnrSeks == "Velg kandidat")
                     {
-                        seddel.kandidatnrSeks= "-";
+                        seddel.kandidatnrSeks = "-";
                     }
                     if (seddel.kandidatnrSju == "Velg kandidat")
                     {
-                        seddel.kandidatnrSju= "-";
+                        seddel.kandidatnrSju = "-";
                     }
                     if (seddel.kandidatnrÅtte == "Velg kandidat")
                     {
-                        seddel.kandidatnrÅtte= "-";
+                        seddel.kandidatnrÅtte = "-";
                     }
                     if (seddel.kandidatnrNi == "Velg kandidat")
                     {
@@ -3374,124 +5550,19 @@ namespace Studentparlamentet_28.DAL
                     {
                         seddel.kandidatnrTi = "-";
                     }
-                    if (seddel.kandidatnrElleve== "Velg kandidat")
+                    if (seddel.kandidatnrElleve == "Velg kandidat")
                     {
-                        seddel.kandidatnrElleve= "";
+                        seddel.kandidatnrElleve = "";
                     }
                     if (seddel.kandidatnrTolv == "Velg kandidat")
                     {
-                        seddel.kandidatnrTolv= "-";
+                        seddel.kandidatnrTolv = "-";
                     }
                 }
 
                 return returStemmesedler;
             }
         }
-        public PersonvalgResultat hentinfoPersonvalg(int id)
-        {
-            using (var db = new BrukerContext())
-            {
-                PersonvalgResultat_db value = db.PersonvalgResultat.FirstOrDefault(b => b.ValgtypeID == id);
-                var utValue = new PersonvalgResultat()
-                {
-                    valgtypeid = value.ValgtypeID,
-                    vinner = value.Vinner,
-                    stemmer = value.Stemmer,
-                    totalantallStemmer = value.TotalantallStemmer,
-                    antallkandidater = value.AntallKandidater
-                };
-                return utValue;
-
-            }
-        }
-        public string valgtype(int id)
-        {
-            using (var db = new BrukerContext())
-            {
-                var value = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
-                string valgtype = Convert.ToString(value.Valgtype);
-                return valgtype;
-            }
-        }
-        public List<PersonvalgStemmer> hentPersonvalg(int id)
-        {
-            using (var db = new BrukerContext())
-            {
-                var personvalg = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-                {
-                    valgtypeid = k.ValgtypeID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn
-                }).Where(k => k.valgtypeid == id).ToList();
-                return personvalg;
-            }
-        }
-        public List<Votering> hentVoteringer(int id)
-        {
-            using (var db = new BrukerContext())
-            {
-                var voteringer = db.Voteringer.Select(k => new Votering()
-                {
-                    valgtypeid = k.ValgtypeID,
-                    svarfor = k.svarFor,
-                    svarmot = k.svarMot,
-                    svarblank = k.svarBlank
-                }).Where(k => k.valgtypeid == id).ToList();
-                return voteringer;
-            }
-        }
-        public List<Valgtyper> hentValgTyperVotering()
-        {
-            using (var db = new BrukerContext())
-            {
-                var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
-                {
-                    valgtypeid = k.ValgtypeID,
-                    valgtype = k.Valgtype,
-                    start = k.Start,
-
-                }).Where(k => k.valgtype == "Votering").ToList();
-
-
-
-                return listeAvValgTyper;
-            }
-        }
-        public void LeggTilMeldingVotering(string id)
-        {
-            var db = new BrukerContext();
-            Valgtyper_db votering = db.Valgtyper.FirstOrDefault(b => b.Start == true);
-            votering.Melding = id;
-            db.SaveChanges();
-        }
-        public bool sjekkValgStemme(int ID)
-        {
-            var db = new BrukerContext();
-            PersonvalgResultatStemmer_db avlagtstemme = db.PersonvalgResultatStemmer.FirstOrDefault(b => b.ValgtypeID == ID);
-            if(avlagtstemme != null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public string kjørerValg()
-        {
-            var db = new BrukerContext();
-            Valgtyper valg = valgPågår();
-            if (valg != null)
-            {
-                return "Ja";
-            }
-            else
-            {
-                return "Nei";
-            }
-            
-        }
-        //Preferansevalg
         public List<PreferansevalgValgte> hentValgteKandidater(int valgtypeid)
         {
             var db = new BrukerContext();
@@ -3510,9 +5581,6 @@ namespace Studentparlamentet_28.DAL
             }
             return returliste;
         }
-
-        
-
         public string HarBrukerStemtSTV(string brukernavn)
         {
             var db = new BrukerContext();
@@ -3557,7 +5625,6 @@ namespace Studentparlamentet_28.DAL
                 return valgtype;
             }
         }
-
         public string startLagretPreferansevalg(int valgtypeid, string beskrivelse)
         {
             var db = new BrukerContext();
@@ -3709,7 +5776,6 @@ namespace Studentparlamentet_28.DAL
 
             return valgtall;
         }
-
         public void leggTilValgteKandidater(List<KandidatSTV> valgtekandidater)
         {
             var db = new BrukerContext();
@@ -3724,7 +5790,6 @@ namespace Studentparlamentet_28.DAL
             }
             db.SaveChanges();
         }
-
         public List<KandidatSTV> ResultatPreferansevalg(int valgtypeid, string klasse1, string klasse2, int prosent1, int prosent2)
         {
             var db = new BrukerContext();
@@ -5280,8 +7345,6 @@ namespace Studentparlamentet_28.DAL
             leggTilValgteKandidater(valgteKandidater); //Foreløig
             return valgteKandidater; //Foreløpig
         }
-        //Til hit
-        //Herifra
         public Preferansevalg hentPreferanseValg(int id)
         {
             var db = new BrukerContext();
@@ -5888,1898 +7951,7 @@ namespace Studentparlamentet_28.DAL
         }
 
 
-        // Personvalg
-        public List<PersonvalgKandidatResultat> hentPersonvalgResultatFane(int id)
-        {
-            using (var db = new BrukerContext())
-            {
-                var slettListe = db.PersonvalgKandidatResultat.Select(k => new PersonvalgKandidatResultat()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    stemmer = k.Stemmer
-                }).ToList();
-
-                int teller2 = slettListe.Count();
-                if (teller2 > 0)
-                {
-
-
-                    for (int i = 0; i < teller2; i++)
-                    {
-                        var slett = db.PersonvalgKandidatResultat.FirstOrDefault();
-                        db.PersonvalgKandidatResultat.Remove(slett);
-                        db.SaveChanges();
-                    }
-
-                }
-                var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    valgtypeid = k.ValgtypeID
-                }).ToList();
-                int teller = listeAvKandidater.Count();
-
-                var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn
-
-                }).ToList();
-
-                for (int i = 0; i < teller; i++)
-                {
-                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != id);
-                    if (itemToRemove != null)
-                    {
-                        listeAvKandidater.Remove(itemToRemove);
-
-                    }
-                }
-                int antallkandidater = listeAvKandidater.Count();
-                int[] stemmer = new int[antallkandidater];
-                string[] kandidater = new string[antallkandidater];
-                for (int i = 0; i < antallkandidater; i++)
-                {
-                    var kandidat = listeAvKandidater.FirstOrDefault();
-                    int antallstemmer = listeAvStemmesedler.Count(r => r.valgtypeid == id && r.fornavn == kandidat.fornavn && r.etternavn == kandidat.etternavn);
-                    var test = db.PersonvalgKandidatResultat.FirstOrDefault(r => r.Fornavn == kandidat.fornavn && r.Etternavn == kandidat.etternavn && r.ValgtypeID == id);
-                    if (test == null)
-                    {
-                        var kandidatResultat = new PersonvalgKandidatResultat_db()
-                        {
-                            ValgtypeID = id,
-                            Fornavn = kandidat.fornavn,
-                            Etternavn = kandidat.etternavn,
-                            Stemmer = antallstemmer,
-                        };
-                        db.PersonvalgKandidatResultat.Add(kandidatResultat);
-                        db.SaveChanges();
-                    }
-                    listeAvKandidater.Remove(kandidat);
-
-                }
-
-                var listeResultat = db.PersonvalgKandidatResultat.Select(k => new PersonvalgKandidatResultat()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    stemmer = k.Stemmer
-
-                }).ToList();
-                int teller3 = listeResultat.Count();
-                for (int i = 0; i < teller3; i++)
-                {
-                    var itemRemove = listeResultat.FirstOrDefault(r => r.valgtypeid != id);
-                    if (itemRemove != null)
-                    {
-                        listeResultat.Remove(itemRemove);
-
-                    }
-                }
-               
-                return listeResultat;
-            }
-
-        }        
-        public void SlettPersonvalg(int id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Valgtyper_db personvalg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
-                db.Valgtyper.Remove(personvalg);
-                db.SaveChanges();
-
-                PersonvalgResultat_db personvalgResultat = db.PersonvalgResultat.FirstOrDefault(b => b.ValgtypeID == id);
-                db.PersonvalgResultat.Remove(personvalgResultat);
-                db.SaveChanges();
-
-                int antallkandidater = db.Personvalger.Count(b => b.ValgtypeID == id);
-                if(antallkandidater > 0)
-                {
-                for(int i = 0; i < antallkandidater; i++)
-                    {
-                        Personvalg_db fjernKandidat = db.Personvalger.FirstOrDefault(b => b.ValgtypeID == id);
-                        db.Personvalger.Remove(fjernKandidat);
-                    }   
-           
-                }
-
-                int antallstemmer = db.Personvalger.Count(b => b.ValgtypeID == id);
-                if(antallstemmer > 0)
-                {
-                    for(int i = 0; i < antallstemmer; i++)
-                    {
-                       PersonvalgResultatStemmer_db fjernStemme = db.PersonvalgResultatStemmer.FirstOrDefault(b => b.ValgtypeID == id);
-                        db.PersonvalgResultatStemmer.Remove(fjernStemme);
-                    }
-                }
-
-            }
-            catch (Exception feil)
-            {
-               
-            }
-        }
-        public bool StemPersonvalg(int id)
-        {
-            var db = new BrukerContext();
-            int valgtypeID = PersonvalgKjørerID();
-            var kandidat = db.Personvalger.FirstOrDefault(b => b.ID == id && b.ValgtypeID == valgtypeID);
-            var stemmeseddel = new PersonvalgResultatStemmer_db()
-            {
-                ValgtypeID = valgtypeID,
-                Fornavn = kandidat.Fornavn,
-                Etternavn = kandidat.Etternavn
-            };
-            db.PersonvalgResultatStemmer.Add(stemmeseddel);
-            db.SaveChanges();
-            return true;
-
-
-
-        }
-        public List<Personvalg> hentKandidaterPersonvalg(int ID)
-        {
-            using (var db = new BrukerContext())
-            {
-                var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    valgtypeid = k.ValgtypeID
-                }).ToList();
-                int teller = listeAvKandidater.Count();
-                for (int i = 0; i < teller; i++)
-                {
-                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != ID);
-                    if (itemToRemove != null)
-                    {
-                        listeAvKandidater.Remove(itemToRemove);
-                    }
-                }
-
-                return listeAvKandidater;
-            }
-        }
-        public int hentAntallStemtePersonvalg_int()
-        {
-            var db = new BrukerContext();
        
-            var personvalg = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
-            
-            if (personvalg != null)
-            {
-                System.Int32 antall = db.PersonvalgResultatStemmer.Count(b => b.ValgtypeID == personvalg.ValgtypeID);
-                return antall;
-            }
-            else return 0;
-        }
-        public int antallPersonvalgStemmer(int ID)
-        {
-            var db = new BrukerContext();
-            var listeAvStemmer = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-            {
-                valgtypeid = k.ValgtypeID,
-                fornavn = k.Fornavn,
-                etternavn = k.Etternavn
-            }).ToList();
-            int antall = listeAvStemmer.Count(b => b.valgtypeid == ID);
-            return antall;
-        }
-        //Endra på denne
-        public int PersonvalgKjørerID()
-        {
-            var db = new BrukerContext();
-            var personvalg = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
-            ;
-            return personvalg.ValgtypeID;
-        }
-        public bool stopPersonvalg()
-        {
-            var db = new BrukerContext();
-            var listeAvPersonvalg = db.Valgtyper.Select(k => new Valgtyper()
-            {
-                valgtypeid = k.ValgtypeID,
-                valgtype = k.Valgtype,
-                start = k.Start            
-            }).ToList();
-
-            int teller = listeAvPersonvalg.Count();
-
-            for(int i = 0; i < teller; i++)
-            {
-                var personvalg = listeAvPersonvalg.FirstOrDefault(b => b.valgtype == "Personvalg" && b.start == true);
-
-                if (personvalg != null)
-                {
-                    Valgtyper_db personvalg2 = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == personvalg.valgtypeid && b.Valgtype == "Personvalg" && b.Start == true);
-                    personvalg2.Start = (bool)false;
-                    db.SaveChanges();
-                    listeAvPersonvalg.Remove(personvalg);
-                }
-            }
-            using (var db2 = new BrukerContext())
-            {
-                Valgtyper_db Personvalgkjorer = db2.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
-                if (Personvalgkjorer != null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-        }
-        public bool startPersonvalg(int ID)
-        {
-            var db = new BrukerContext();
-            Valgtyper_db personvalg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == ID && b.Valgtype == "Personvalg" && b.Start == false);
-            if(personvalg != null)
-            {
-                personvalg.Start = (bool)true;
-                db.SaveChanges();
-
-                using (var db2 = new BrukerContext())
-                {
-                    Valgtyper_db Personvalgkjorer = db2.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
-                    if (Personvalgkjorer != null)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
-            }
-            
-        }
-        public bool PersonvalgKjorer()
-        {
-            using (var db = new BrukerContext())
-            {
-                Valgtyper_db Personvalgkjorer = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Personvalg" && b.Start == true);
-                if (Personvalgkjorer != null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        public int finnValgtypeID(int id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == id);
-                return kandidat.ValgtypeID;
-
-            }
-            catch (Exception feil)
-            {
-                return 0;
-            }
-
-        }
-        public bool Kandidatendre(Kandidat innkandidat)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
-                kandidat.Fornavn = innkandidat.fornavn;
-                kandidat.Etternavn = innkandidat.etternavn;
-                db.SaveChanges();
-                return true;
-
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public bool SjekkPassord(Kandidat innkandidat, string brukernavn)
-        {
-            using (var db = new BrukerContext())
-            {
-
-                byte[] passwordhash = lagHash(innkandidat.passord);
-                
-                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
-                if (funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
-                {
-                    return false;
-                }
-                else if (funnetBruker.Innlogget == (bool)true && funnetBruker.Administrator == (bool)true)
-                {
-                    return true;
-
-                }
-                else
-                {
-                    return false; // ikke en administrator bruker 
-                }
-
-            }
-        }
-        public bool SjekkPassordEng(Kandidat innkandidat, string brukernavn)
-        {
-            using (var db = new BrukerContext())
-            {
-
-                byte[] passwordhash = lagHash(innkandidat.passordEng);
-
-                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
-                if (funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
-                {
-                    return false;
-                }
-                else if (funnetBruker.Innlogget == (bool)true && funnetBruker.Administrator == (bool)true)
-                {
-                    return true;
-
-                }
-                else
-                {
-                    return false; // ikke en administrator bruker 
-                }
-
-            }
-        }
-        public bool KandidatSlett(Kandidat innkandidat)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
-                db.Personvalger.Remove(kandidat);
-                db.SaveChanges();
-                return true;
-              
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        
-        }
-        public bool KandidatendreFornavn(Kandidat innkandidat)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
-                kandidat.Fornavn = innkandidat.fornavn;
-                db.SaveChanges();
-                return true;
-
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public bool KandidatendreEtternavn(Kandidat innkandidat)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Personvalg_db kandidat = db.Personvalger.FirstOrDefault(b => b.ID == innkandidat.id);
-                kandidat.Etternavn = innkandidat.etternavn;
-                db.SaveChanges();
-                return true;
-
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public List<String> hentKandidaterLagretNavn(int ID)
-        {
-            using (var db = new BrukerContext())
-            {
-                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    lagret = k.Lagret,
-                    valgtypeid = k.ValgtypeID
-                }).ToList();
-                int teller = listeAvKandidater.Count();
-
-                for (int i = 0; i < teller; i++)
-                {
-                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != ID);
-                    if (itemToRemove != null)
-                    {
-                        listeAvKandidater.Remove(itemToRemove);
-                    }
-                }
-                int teller2 = listeAvKandidater.Count();
-                List <string> stringarray = new List<string>();
-                for (int i = 0; i < teller2; i++)
-                {
-                    stringarray.Add("<b>KandidatID " + listeAvKandidater.FirstOrDefault().id + " " + listeAvKandidater.FirstOrDefault().fornavn + " " + listeAvKandidater.FirstOrDefault().etternavn + "</b>") ;
-                    var remove = listeAvKandidater.FirstOrDefault();
-                    if(remove != null)
-                    {
-                        listeAvKandidater.Remove(remove);
-                    }
-                          
-                }
-                return stringarray;
-            }
-        }
-
-        public List<Kandidat> hentKandidaterLagret(int ID)
-        {
-            using (var db = new BrukerContext())
-            {
-                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    lagret = k.Lagret,
-                    valgtypeid = k.ValgtypeID
-                }).ToList();
-                int teller = listeAvKandidater.Count();
-
-                for (int i = 0; i < teller; i++)
-                {
-                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.valgtypeid != ID);
-                    if (itemToRemove != null)
-                    {
-                        listeAvKandidater.Remove(itemToRemove);
-                    }
-                }
-
-                return listeAvKandidater;
-            }
-        }
-        public List<PersonvalgResultat> hentPersonvalgResultat()
-        {
-            using (var db = new BrukerContext())
-            {
-                
-                var listeAvPersonvalg = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    stemmer = k.Stemmer,
-                    vinner = k.Vinner,
-                    totalantallStemmer = k.TotalantallStemmer,
-                    antallkandidater = k.AntallKandidater
-                }).ToList();
-                // Antall Personvalg
-                int teller = listeAvPersonvalg.Count();
-
-
-                for (int i = 0; i < teller; i++)
-                {
-                    // Et enkelt personvalg
-                    var personvalg = listeAvPersonvalg.FirstOrDefault();
-
-                    var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-                    {
-                        id = k.ID,
-                        valgtypeid = k.ValgtypeID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn
-
-                    }).ToList();
-
-                    // TotalantallStemmer
-                    var totalAntallStemmer = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid);
-
-
-                    var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
-                    {
-                        id = k.ID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn,
-                        valgtypeid = k.ValgtypeID,
-                        lagret = k.Lagret,
-                        
-                    }).ToList();
-
-                    // AntallKandidater
-                    var antallkandidater = listeAvKandidater.Count(k => k.valgtypeid == personvalg.valgtypeid);
-
-
-                    if (totalAntallStemmer > 0)
-                    {
-                        // Finn vinner 
-                        int[] stemmer = new int[antallkandidater];
-                        string[] kandidater = new string[antallkandidater];
-
-                        for (int j = 0; j < antallkandidater; j++)
-                        {
-                            var kandidat = listeAvKandidater.FirstOrDefault(k => k.valgtypeid == personvalg.valgtypeid);
-                            int antallstemmerkandidat = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
-                            string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
-                            kandidater[j] = kandidatnavn;
-                            stemmer[j] = antallstemmerkandidat;
-                            listeAvKandidater.Remove(kandidat);
-                        }
-                        string vinnerKandidat = "";
-                        int vinnerstemmer = stemmer.Max();
-                        
-
-                        for (int j = 0; j < stemmer.Length; j++)
-                        {
-                            if (stemmer[j].Equals(vinnerstemmer))
-                            {
-                                vinnerKandidat = kandidater[j];
-                            }
-
-                        }
-                        int x = 0;
-                        // Metode for for sjekke om det er uavgjort
-                        for(int k = 0; k < stemmer.Length; k++)
-                        {
-                            if(vinnerstemmer == stemmer[k])
-                            {
-                                x++;
-                            }
-                        }
-                        if(x >= 2)
-                        {
-                            vinnerKandidat = "";
-                            vinnerKandidat = "Uavgjort";
-                            vinnerstemmer = 0;
-
-                        }
-                        // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
-
-
-                        try
-                        {
-                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
-                            personvalgresultat.Vinner = vinnerKandidat;
-                            personvalgresultat.Stemmer = vinnerstemmer;
-                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
-                            personvalgresultat.AntallKandidater = antallkandidater;
-                            db.SaveChanges();
-                            listeAvPersonvalg.Remove(personvalg);
-
-                        }
-                        catch (Exception feil)
-                        {
-
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
-                            personvalgresultat.Vinner = "Ingen forløpig";
-                            personvalgresultat.Stemmer = 0;
-                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
-                            personvalgresultat.AntallKandidater = antallkandidater;
-                            db.SaveChanges();
-                            listeAvPersonvalg.Remove(personvalg);
-
-                        }
-                        catch (Exception feil)
-                        {
-
-                        }
-                    }
-                }
-                // Henter ut liste
-                var listeAvPersonvalg2 = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    stemmer = k.Stemmer,
-                    vinner = k.Vinner,
-                    totalantallStemmer = k.TotalantallStemmer,
-                    antallkandidater = k.AntallKandidater
-                }).ToList();
-                return listeAvPersonvalg2;
-
-                }
-            
-        }
-        public List<PersonvalgResultat> hentPersonvalgResultatEng()
-        {
-            using (var db = new BrukerContext())
-            {
-
-                var listeAvPersonvalg = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    stemmer = k.Stemmer,
-                    vinner = k.Vinner,
-                    totalantallStemmer = k.TotalantallStemmer,
-                    antallkandidater = k.AntallKandidater
-                }).ToList();
-                // Antall Personvalg
-                int teller = listeAvPersonvalg.Count();
-
-
-                for (int i = 0; i < teller; i++)
-                {
-                    // Et enkelt personvalg
-                    var personvalg = listeAvPersonvalg.FirstOrDefault();
-
-                    var listeAvStemmesedler = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-                    {
-                        id = k.ID,
-                        valgtypeid = k.ValgtypeID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn
-
-                    }).ToList();
-
-                    // TotalantallStemmer
-                    var totalAntallStemmer = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid);
-
-
-                    var listeAvKandidater = db.Personvalger.Select(k => new Personvalg()
-                    {
-                        id = k.ID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn,
-                        valgtypeid = k.ValgtypeID,
-                        lagret = k.Lagret,
-
-                    }).ToList();
-
-                    // AntallKandidater
-                    var antallkandidater = listeAvKandidater.Count(k => k.valgtypeid == personvalg.valgtypeid);
-
-
-                    if (totalAntallStemmer > 0)
-                    {
-                        // Finn vinner 
-                        int[] stemmer = new int[antallkandidater];
-                        string[] kandidater = new string[antallkandidater];
-
-                        for (int j = 0; j < antallkandidater; j++)
-                        {
-                            var kandidat = listeAvKandidater.FirstOrDefault(k => k.valgtypeid == personvalg.valgtypeid);
-                            int antallstemmerkandidat = listeAvStemmesedler.Count(k => k.valgtypeid == personvalg.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
-                            string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
-                            kandidater[j] = kandidatnavn;
-                            stemmer[j] = antallstemmerkandidat;
-                            listeAvKandidater.Remove(kandidat);
-                        }
-                        string vinnerKandidat = "";
-                        int vinnerstemmer = stemmer.Max();
-
-
-                        for (int j = 0; j < stemmer.Length; j++)
-                        {
-                            if (stemmer[j].Equals(vinnerstemmer))
-                            {
-                                vinnerKandidat = kandidater[j];
-                            }
-
-                        }
-                        int x = 0;
-                        // Metode for for sjekke om det er uavgjort
-                        for (int k = 0; k < stemmer.Length; k++)
-                        {
-                            if (vinnerstemmer == stemmer[k])
-                            {
-                                x++;
-                            }
-                        }
-                        if (x >= 2)
-                        {
-                            vinnerKandidat = "";
-                            vinnerKandidat = "Draw";
-                            vinnerstemmer = 0;
-
-                        }
-                        // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
-
-
-                        try
-                        {
-                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
-                            personvalgresultat.Vinner = vinnerKandidat;
-                            personvalgresultat.Stemmer = vinnerstemmer;
-                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
-                            personvalgresultat.AntallKandidater = antallkandidater;
-                            db.SaveChanges();
-                            listeAvPersonvalg.Remove(personvalg);
-
-                        }
-                        catch (Exception feil)
-                        {
-
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == personvalg.valgtypeid);
-                            personvalgresultat.Vinner = "No votes";
-                            personvalgresultat.Stemmer = 0;
-                            personvalgresultat.TotalantallStemmer = totalAntallStemmer;
-                            personvalgresultat.AntallKandidater = antallkandidater;
-                            db.SaveChanges();
-                            listeAvPersonvalg.Remove(personvalg);
-
-                        }
-                        catch (Exception feil)
-                        {
-
-                        }
-                    }
-                }
-                // Henter ut liste
-                var listeAvPersonvalg2 = db.PersonvalgResultat.Select(k => new PersonvalgResultat()
-                {
-                    id = k.ID,
-                    valgtypeid = k.ValgtypeID,
-                    stemmer = k.Stemmer,
-                    vinner = k.Vinner,
-                    totalantallStemmer = k.TotalantallStemmer,
-                    antallkandidater = k.AntallKandidater
-                }).ToList();
-                return listeAvPersonvalg2;
-
-            }
-
-        }
-        public bool LagrePersonvalgResultat()
-        {
-
-            var db = new BrukerContext();
-            // if antall stemmer == 0
-            // legg verdiene i tabellene
-
-
-            // PersonvalgID == ValgtypeID
-
-            var ValgtypeIDliste = db.Valgtyper.Select(k => new Valgtyper()
-            {
-                valgtypeid = k.ValgtypeID,
-                valgtype = k.Valgtype,
-                start = k.Start
-            }).ToList();
-
-            var listedescendingOrder = ValgtypeIDliste.OrderByDescending(i => i.valgtypeid);
-
-            var valgtypeID = listedescendingOrder.FirstOrDefault(i => i.valgtype == "Personvalg" && i.start == false);
-
-            // Antall avlagte stemmer
-
-            var liste = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
-            {
-                id = k.ID,
-                valgtypeid = k.ValgtypeID,
-                fornavn = k.Fornavn,
-                etternavn = k.Etternavn
-            }).ToList();
-
-
-            int totallstemmer = liste.Count(k => k.valgtypeid == valgtypeID.valgtypeid);
-
-            // Ingen resultat
-            if (totallstemmer == 0)
-            {
-                try
-                {
-                    var liste2 = db.Personvalger.Select(k => new Personvalg()
-                    {
-                        id = k.ID,
-                        fornavn = k.Fornavn,
-                        etternavn = k.Etternavn,
-                        valgtypeid = k.ValgtypeID,
-                        lagret = k.Lagret
-                    }).ToList();
-
-                    var antallkandidater = liste2.Count(k => k.valgtypeid == valgtypeID.valgtypeid);
-
-                    var nyResultat= new PersonvalgResultat_db()
-                    {
-                        ValgtypeID = valgtypeID.valgtypeid,
-                        Vinner = "No Votes",
-                        TotalantallStemmer = 0,
-                        AntallKandidater = antallkandidater,
-                    };
-                    db.PersonvalgResultat.Add(nyResultat);
-                    db.SaveChanges();
-                    return true;
-
-                }
-                catch (Exception feil)
-                {
-                    return false;
-                }
-            }
-
-            // Finnes Resultat
-            else
-            {
-                // Antall kandidater
-
-                var liste2 = db.Personvalger.Select(k => new Personvalg()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    valgtypeid = k.ValgtypeID,
-                    lagret = k.Lagret
-                }).ToList();
-
-                int antallkandidater = liste2.Count(k => k.valgtypeid == valgtypeID.valgtypeid);
-
-                // Finn vinner
-
-                int[] stemmer = new int[antallkandidater];
-                string[] kandidater = new string[antallkandidater];
-
-                for (int i = 0; i < antallkandidater; i++)
-                {
-                    var kandidat = liste2.FirstOrDefault(k => k.valgtypeid == valgtypeID.valgtypeid);
-                    int antallstemmerkandidat = liste.Count(k => k.valgtypeid == valgtypeID.valgtypeid && k.fornavn == kandidat.fornavn && k.etternavn == kandidat.etternavn);
-                    liste2.Remove(kandidat);
-                    string kandidatnavn = kandidat.fornavn + " " + kandidat.etternavn;
-                    kandidater[antallkandidater] = kandidatnavn;
-                    stemmer[antallkandidater] = antallstemmerkandidat;
-
-                }
-                string vinnerKandidat = "";
-                int vinnerstemmer = stemmer.Max();
-                for (int i = 0; i < stemmer.Length; i++)
-                {
-                    if (stemmer[i].Equals(vinnerstemmer))
-                    {
-                        vinnerKandidat = kandidater[i];
-                    }
-                }
-
-                // Legg Vinner, Stemmer, Totalantallstemmer, AntallKandidater  i PersonvalgResultat_db
-
-
-                try
-                {
-                    PersonvalgResultat_db personvalgresultat = db.PersonvalgResultat.FirstOrDefault(k => k.ValgtypeID == valgtypeID.valgtypeid);
-                    personvalgresultat.Vinner = vinnerKandidat;
-                    personvalgresultat.Stemmer = vinnerstemmer;
-                    personvalgresultat.TotalantallStemmer = totallstemmer;
-                    personvalgresultat.AntallKandidater = antallkandidater;
-
-                    db.SaveChanges();
-                    return true;
-                }
-                catch (Exception feil)
-                {
-                    return false;
-                }
-
-
-            }
-            
-        }
-        public bool LagrePersonvalg()
-        {
-            var db2 = new BrukerContext();
-            var start = new Valgtyper_db()
-            {
-                Valgtype = "Personvalg",
-                Start = false
-            };
-            db2.Valgtyper.Add(start); // lager nytt Personvalg
-            db2.SaveChanges();
-
-            var db = new BrukerContext();
-            
-
-                var liste = db.Valgtyper.Select(k => new Valgtyper()
-                {
-                    valgtypeid = k.ValgtypeID,
-                    valgtype = k.Valgtype,
-                    start = k.Start
-                }).ToList(); // henter alle valg
-
-                var listedescendingOrder = liste.OrderByDescending(i => i.valgtypeid); // lister de i ut basert på valgtypeID
-                 
-                var PersonvalgID = listedescendingOrder.FirstOrDefault(i => i.valgtype == "Personvalg" && i.start == false); // henter inn siste personvalg som ble lagt inn
-                
-                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    lagret = k.Lagret,
-                    valgtypeid = k.ValgtypeID
-                }).ToList(); // henter alle kandidater
-            int tellersjekk = listeAvKandidater.Count(b => b.valgtypeid == 0); // sjekker om det er kandidater
-            if(tellersjekk == 0)
-            {
-                return false;
-            }
-            int teller = listeAvKandidater.Count(); // teller kandidater
-                for(int i = 0; i < teller; i++)
-                {
-                    var listeAvKandidater2 = db.Personvalger.Select(k => new Kandidat()
-                     {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    lagret = k.Lagret,
-                    valgtypeid = k.ValgtypeID
-                     }).ToList(); // henter alle kandidater
-                  
-
-
-    
-                       var itemToChange = listeAvKandidater2.FirstOrDefault(r => r.lagret == false); // hente rut bruker som ikke er lagret
-                      if(itemToChange != null)
-                {
-                    if (itemToChange.lagret == false)
-                    {
-                        try
-                        {
-                            int id = itemToChange.id;
-                            int valgID = PersonvalgID.valgtypeid;
-
-                            Personvalg_db endre = db.Personvalger.FirstOrDefault(r => r.ID == id);
-                            endre.ValgtypeID = valgID; // legger til valgtypeID
-                            endre.Lagret = (bool)true; // markerer at bruker er lagret
-                            db.SaveChanges();
-                        }
-                        catch (Exception feil)
-                        {
-                            return false;
-                        }
-                    }
-
-                    
-
-
-                }
-           }
-                try
-            {
-                int valgID = PersonvalgID.valgtypeid; // legger til blank "Kandidat
-                var blank = new Personvalg_db()
-                {
-                    Fornavn = "Blank",
-                    Etternavn = "Blank",
-                    ValgtypeID = valgID,
-                    Lagret = true,
-                };
-
-                db.Personvalger.Add(blank);
-                db.SaveChanges();
-                return true;
-            }
-   
-               catch (Exception feil)
-            {
-                return false;
-            }
-
-        }
-        public bool slettKandidat(int id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Personvalg_db personvalger = db.Personvalger.FirstOrDefault(b => b.ID == id);
-                // slett også 
-                db.Personvalger.Remove(personvalger);
-                db.SaveChanges();
-                return true;
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public List<Kandidat> hentKandidater()
-        {
-            using (var db = new BrukerContext())
-            {
-                var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-                {
-                    id = k.ID,
-                    fornavn = k.Fornavn,
-                    etternavn = k.Etternavn,
-                    lagret = k.Lagret
-                }).ToList();
-                int teller = listeAvKandidater.Count();
-                
-                for (int i = 0; i < teller; i++)
-                {
-                    var itemToRemove = listeAvKandidater.FirstOrDefault(r => r.lagret == (bool)true);
-                    if (itemToRemove != null)
-                    {
-                        listeAvKandidater.Remove(itemToRemove);
-                    }
-                }
-               
-                return listeAvKandidater;
-            }
-        }
-        public bool leggtilPersonvalgKandidatEng(Kandidat innKandidat)
-        {
-            var db = new BrukerContext();
-            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-            {
-                id = k.ID,
-                fornavn = k.Fornavn,
-                etternavn = k.Etternavn,
-                lagret = k.Lagret,
-                valgtypeid = k.ValgtypeID
-            }).ToList();
-            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_RequiredEng && b.etternavn == innKandidat.etternavn_RequiredEng && b.valgtypeid == 0);
-            if (teller > 0)
-            {
-
-                return false;
-
-
-            }
-            else
-            {
-                var nyKandidat = new Personvalg_db()
-                {
-                    Fornavn = innKandidat.fornavn_RequiredEng,
-                    Etternavn = innKandidat.etternavn_RequiredEng,
-                    Lagret = (bool)false,
-
-                    ValgtypeID = 0
-                };
-                db.Personvalger.Add(nyKandidat);
-                db.SaveChanges();
-                return true;
-            }
-
-
-
-
-
-
-        }
-        public bool leggtilPersonvalgKandidatPersonvalgEng(Kandidat innKandidat, int id)
-        {
-            var db = new BrukerContext();
-            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-            {
-                id = k.ID,
-                fornavn = k.Fornavn,
-                etternavn = k.Etternavn,
-                lagret = k.Lagret,
-                valgtypeid = k.ValgtypeID
-            }).ToList();
-            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_RequiredEng && b.etternavn == innKandidat.etternavn_RequiredEng && b.valgtypeid == 0);
-            if (teller > 0)
-            {
-                return false;
-            }
-            else
-            {
-                var nyKandidat = new Personvalg_db()
-                {
-                    Fornavn = innKandidat.fornavn_RequiredEng,
-                    Etternavn = innKandidat.etternavn_RequiredEng,
-                    Lagret = (bool)true,
-
-                    ValgtypeID = id
-                };
-                db.Personvalger.Add(nyKandidat);
-                db.SaveChanges();
-                return true;
-            }
-
-
-
-        }
-        public bool leggtilPersonvalgKandidatPersonvalg(Kandidat innKandidat, int id)
-        {
-            var db = new BrukerContext();
-            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-            {
-                id = k.ID,
-                fornavn = k.Fornavn,
-                etternavn = k.Etternavn,
-                lagret = k.Lagret,
-                valgtypeid = k.ValgtypeID
-            }).ToList();
-            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_Required && b.etternavn == innKandidat.etternavn_Required && b.valgtypeid == 0);
-            if (teller > 0)
-            {
-
-                return false;
-
-
-            }
-            else
-            {
-                var nyKandidat = new Personvalg_db()
-                {
-                    Fornavn = innKandidat.fornavn_Required,
-                    Etternavn = innKandidat.etternavn_Required,
-                    Lagret = (bool)true,
-
-                    ValgtypeID = id
-                };
-                db.Personvalger.Add(nyKandidat);
-                db.SaveChanges();
-                return true;
-            }
-           
-
-
-        }
-        public bool leggtilPersonvalgKandidat(Kandidat innKandidat)
-        {
-            var db = new BrukerContext();
-            var listeAvKandidater = db.Personvalger.Select(k => new Kandidat()
-            {
-                id = k.ID,
-                fornavn = k.Fornavn,
-                etternavn = k.Etternavn,
-                lagret = k.Lagret,
-                valgtypeid = k.ValgtypeID
-            }).ToList();
-            int teller = listeAvKandidater.Count(b => b.fornavn == innKandidat.fornavn_Required && b.etternavn == innKandidat.etternavn_Required && b.valgtypeid == 0);
-            if(teller > 0)
-            {
-
-                return false;
-
-
-            }
-            else
-            {
-                var nyKandidat = new Personvalg_db()
-                {
-                    Fornavn = innKandidat.fornavn_Required,
-                    Etternavn = innKandidat.etternavn_Required,
-                    Lagret = (bool)false,
-
-                    ValgtypeID = 0
-                };
-                db.Personvalger.Add(nyKandidat);
-                db.SaveChanges();
-                return true;
-            }
-
-
-
-        }
-        // Personvalg
-        public Valgtyper hentValg(int id)
-        {
-            var db = new BrukerContext();
-
-            var enDbValg = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
-
-            if (enDbValg == null)
-            {
-                return null;
-            }
-            else
-            {
-                var utBruker = new Valgtyper()
-                {
-                    valgtypeid = enDbValg.ValgtypeID
-                };
-                return utBruker;
-            }
-        }
-        public bool finnesdetvalg_ID(int id)
-        {
-            var db = new BrukerContext();
-            var antall = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
-            if (antall == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        public bool finnesdetvalg()
-        {
-            var db = new BrukerContext();
-            int antall = db.Valgtyper.Count();
-            if (antall <= 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        public int antallstemteVotering(int id)
-        {
-            var db = new BrukerContext();
-            int antall = db.BrukereStemt.Count(b => b.ValgtypeID == id && b.Valgtype == "Votering");
-            return antall;
-        }
-        public int antallFor(int id)
-        {
-            var db = new BrukerContext();
-            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarFor == "for");
-            return antall;
-        }
-        public int antallMot(int id)
-        {
-            var db = new BrukerContext();
-            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarMot == "mot");
-            return antall;
-        }
-        public int antallBlank(int id)
-        {
-            var db = new BrukerContext();
-            int antall = db.Voteringer.Count(b => b.ValgtypeID == id && b.svarBlank == "blank");
-            return antall;
-        }
-        public int hensisteVotering()
-        {
-            var db = new BrukerContext();
-            var sistevotering = db.Valgtyper.Max(b => b.ValgtypeID);
-            if (sistevotering > 0)
-            {
-                return sistevotering;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-        public int hentAntallStemte_int()
-        {
-            var db = new BrukerContext();
-            var valg = VoteringPågår();
-            if (valg != null)
-            {
-                String valgtype = valg.valgtype;
-                int valgID = valg.valgtypeid;
-                System.Int32 antall = db.BrukereStemt.Count(b => b.Valgtype == valgtype && b.ValgtypeID == valgID);
-                return antall;
-            }
-            else return 0;
-        }
-        public int hentAntallBrukere_int()
-        {
-            var db = new BrukerContext();
-            System.Int32 antall = db.Brukere.Count();
-            return antall;
-        }
-        public bool GenererBrukere(int antallBrukere)
-        {
-            var db = new BrukerContext();
-
-            db.Database.ExecuteSqlCommand("TRUNCATE TABLE [Bruker_db]");
-            db.SaveChanges();
-
-            PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
-            String brukernavn = "SP";
-            int teller = 1;
-            String passord = "";
-            
-
-            for (int i = 0; i < antallBrukere; i++)
-            {
-                passord = randPassord.Next();
-
-                 var nyBruker = new Bruker_db()
-                 {
-                     Brukernavn = brukernavn + "" + teller,
-                     Passord = passord
-                 };
-
-                teller++;
-                db.Brukere.Add(nyBruker);
-                db.SaveChanges();
-                
-            }
-
-            return true;
-        }
-        public bool GenererEnNyBruker()
-        {
-            var db = new BrukerContext();
-
-            PasswordGenerator randPassord = new PasswordGenerator(8).IncludeLowercase().IncludeUppercase();
-            String brukernavn = "SP";
-            int teller = db.Brukere.Count();
-            int spNummer = teller + 1;
-            String passord = "";
-
-            for (int i = 0; i < 1; i++)
-            {
-                passord = randPassord.Next();
-
-                var nyBruker = new Bruker_db()
-                {
-                    Brukernavn = brukernavn + "" + spNummer,
-                    Passord = passord
-                };
-                teller++;
-                db.Brukere.Add(nyBruker);
-                db.SaveChanges();
-            }
-
-            return true;
-        }
-        public List<Bruker> hentData()
-        {
-
-            using (var db = new BrukerContext())
-            {
-                var listeAvBrukere = db.Brukere.Select(k => new Bruker()
-                {
-                    id = k.Id,
-                    brukernavn = k.Brukernavn,
-                    passord = k.Passord,
-                    innlogget = k.Innlogget 
-                }).ToList();
-                return listeAvBrukere;
-            } 
-        }
-        public Bruker lastNedListe()
-        {
-            return null;
-        }
-        public Bruker hentEnBruker(string id)
-        {
-            var db = new BrukerContext();
-
-            var enDbBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
-
-            if (enDbBruker == null)
-            {
-                return null;
-            }
-            else
-            {
-                var utBruker = new Bruker()
-                {
-                    brukernavn = enDbBruker.Brukernavn,
-                    passord = enDbBruker.Passord
-                };
-                return utBruker;
-            }
-        }
-        public Admin hentEnAdmin(string id)
-        {
-            var db = new BrukerContext();
-
-            var enDbAdmin = db.AdminBrukere.FirstOrDefault(b => b.Brukernavn == id);
-
-            if (enDbAdmin == null)
-            {
-                return null;
-            }
-            else
-            {
-                var utBruker = new Admin()
-                {
-                    brukernavn = enDbAdmin.Brukernavn,
-                    passwordhash = enDbAdmin.Passord
-                };
-                return utBruker;
-            }
-        }
-        public Admin hentRolleAdmin(string rolle)
-        {
-            var db = new BrukerContext();
-            var enDbAdmin = db.AdminBrukere.FirstOrDefault(b=> b.Brukernavn == rolle);
-           // var enDbAdmin = db.AdminBrukere.Find(rolle);
-            if (enDbAdmin == null)
-            {
-                return null;
-            }
-            else
-            {
-                var utRolle = new Admin()
-                {
-                    administrator = enDbAdmin.Administrator
-                };
-
-
-            return utRolle;
-               
-            }
-            
-       }
-        public Bruker hentRolleBruker(string rolle)
-        {
-            var db = new BrukerContext();
-            var enDbAdmin = db.Brukere.FirstOrDefault(b => b.Brukernavn == rolle);
-            //  var enDbAdmin = db.Brukere.Find(rolle);
-            if (enDbAdmin == null)
-            {
-                return null;
-            }
-            else
-            {
-                var utRolle = new Bruker()
-                {
-                    administrator = enDbAdmin.Administrator
-                };
-
-
-                return utRolle;
-
-            }
-
-        }
-        public bool slettBrukerint(int id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Bruker_db slettBruker = db.Brukere.FirstOrDefault(b => b.Id == id);
-                db.Brukere.Remove(slettBruker);
-                db.SaveChanges();
-                return true;
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public bool slettBruker(String id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Bruker_db slettBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
-                db.Brukere.Remove(slettBruker);
-                db.SaveChanges();
-                return true;
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public bool loggUtBruker(String id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Bruker_db bruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
-                bruker.Innlogget = (bool)false;
-                db.SaveChanges();
-                return true;
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        private static byte[] lagHash(string passord)
-        {
-            byte[] inndata, utdata;
-
-            var algoritme = System.Security.Cryptography.SHA256.Create();
-
-            inndata = System.Text.Encoding.ASCII.GetBytes(passord);
-            utdata = algoritme.ComputeHash(inndata);
-            return utdata;
-        }
-        public bool bruker_i_db(Bruker innPerson)
-        {
-            using (var db = new BrukerContext())
-            {
-
-                
-                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Passord == innPerson.passord && b.Brukernavn == innPerson.brukernavn);
-
-                if (funnetBruker == null)
-                {
-                    return false; // return bruker er ikke i systemet, kontakt systemansvarlig
-                }
-                else if (funnetBruker.Innlogget == (bool)true) // sjekker om en bruker en innlogget
-                {
-                    return false; 
-                }
-                else if (funnetBruker.Administrator == (bool)false) // sjekker om bruker er administrator
-                {
-                    funnetBruker.Innlogget = (bool)true; // flagger at bruker er innlogget
-                    db.SaveChanges();
-                    return true;
-                }                            
-                else
-                {
-                   return false; // ikke en vanlig bruker
-                }
-            }
-
-        }
-        public bool admin_i_db(Bruker innAdmin)
-        {
-            using (var db = new BrukerContext())
-            {
-
-                byte[] passwordhash = lagHash(innAdmin.passord);
-                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == innAdmin.brukernavn);
-                if(funnetBruker == null) // Sjekker om bruker finnes i systemet og sjekker om bruker allerede er innlogget
-                {
-                   return false;
-                }
-                else if(funnetBruker.Innlogget == (bool)true)
-                {
-                    return false;
-                    
-                }
-                               
-                else if (funnetBruker.Administrator == (bool)true)
-                {
-                    funnetBruker.Innlogget = (bool)true;// flagger at bruker er innlogget
-                    db.SaveChanges();
-                    return true;
-                }
-                else
-                {
-                    return false; // ikke en administrator bruker 
-                }
-
-            }
-        }
-        public bool logg_ut_bruker(String id)
-        {
-            using (var db = new BrukerContext())
-            {
-                Bruker_db funnetBruker = db.Brukere.FirstOrDefault(b => b.Brukernavn == id);
-
-                if (funnetBruker != null)
-                {
-                    funnetBruker.Innlogget = (bool)false;
-                    db.SaveChanges();
-                    return true;
-                }
-                else if (funnetBruker == null)
-                {
-                    Admin_db funnetAdmin = db.AdminBrukere.Find(id);
-                    if (funnetAdmin != null)
-                    {
-                        funnetAdmin.Innlogget = (bool)false;
-                        db.SaveChanges();
-                        return true;
-                    }
-                    return false;
-                }
-                return false;
-            }
-        }
-        public bool startVotering()
-        {
-            var db = new BrukerContext();
-            var start = new Valgtyper_db()
-            {
-                Valgtype = "Votering",
-                Start = true
-            };
-            db.Valgtyper.Add(start);
-            db.SaveChanges();
-            return true;
-
-        }
-        public bool stopVotering()
-        {
-            var db = new BrukerContext();
-            int antall = db.Valgtyper.Where(b => b.Start == true && b.Valgtype == "Votering").Count();
-            for (int i = 0; i < antall; i++)
-            {
-                Valgtyper_db stop = db.Valgtyper.FirstOrDefault(b => b.Start == true && b.Valgtype == "Votering");
-                if (stop != null)
-                {
-                    stop.Start = false;
-                    db.SaveChanges();
-                }
-            }
-            return true;
-
-        }
-        public bool voteringsvar(String svar)
-        {
-            var db = new BrukerContext();
-            var valgType = VoteringPågår();
-           
-            if (svar == "for")
-            {
-                var svarvalg = new Votering_db()
-                {
-                    svarFor = svar,
-                    ValgtypeID = valgType.valgtypeid
-                };
-                db.Voteringer.Add(svarvalg);
-                db.SaveChanges();
-                return true;
-            }
-            else if (svar == "mot")
-            {
-                var svarvalg = new Votering_db()
-                {
-                    svarMot = svar,
-                    ValgtypeID = valgType.valgtypeid
-                };
-                db.Voteringer.Add(svarvalg);
-                db.SaveChanges();
-                return true;
-            }
-            else if (svar == "blank")
-            {
-                var svarvalg = new Votering_db()
-                {
-                    svarBlank = svar,
-                    ValgtypeID = valgType.valgtypeid
-                };
-                db.Voteringer.Add(svarvalg);
-                db.SaveChanges();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-            
-        }
-        public string voteringBrukerStart()
-        {
-            var db = new BrukerContext();
-            string melding = "";
-
-            var valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Votering" && v.Start == true);
-
-            if(valg != null)
-            {
-                melding = "Votering";
-                return melding;
-            }
-            else
-            {
-                melding = "";
-            }
-
-            valg = null;
-            valg = db.Valgtyper.FirstOrDefault(v => v.Valgtype == "Personvalg" && v.Start == true);
-
-            if (valg != null)
-            {
-                melding = "Personvalg";
-                return melding;
-            }
-            else
-            {
-                melding = "";
-            }
-            
-
-            return melding;
-        }
-        public List<Valgtyper> hentValgTyper()
-        {
-            using (var db = new BrukerContext())
-            {
-                var listeAvValgTyper = db.Valgtyper.Select(k => new Valgtyper()
-                {
-                    valgtypeid = k.ValgtypeID,
-                    valgtype = k.Valgtype,
-                    start = k.Start,
-
-                }).ToList();
-
-               
-                return listeAvValgTyper;
-            }
-        }
-        public bool slettValg(int id)
-        {
-            var db = new BrukerContext();
-            try
-            {
-                Valgtyper_db valgtyper = db.Valgtyper.FirstOrDefault(b => b.ValgtypeID == id);
-                // slett også 
-                db.Valgtyper.Remove(valgtyper);
-                db.SaveChanges();
-                return true;
-            }
-            catch (Exception feil)
-            {
-                return false;
-            }
-        }
-        public bool admin_i_db_innlogget(Bruker innAdmin, string brukernavn)
-        {
-            using (var db = new BrukerContext())
-            {
-                
-                byte[] passwordhash = lagHash(innAdmin.passord);
-                
-                Admin_db funnetBruker = db.AdminBrukere.FirstOrDefault(b => b.Passord == passwordhash && b.Brukernavn == brukernavn);
-                if (funnetBruker != null) // Sjekker om bruker finnes i systemet
-                {
-                    //slettValg(valgnr);
-                    return true;
-                }
-                else
-                {
-                    return false; // ikke en administrator bruker 
-                }
-
-            }
-        }
-        public Valgtyper VoteringPågår()
-        {
-            var db = new BrukerContext();
-
-            Valgtyper_db valgtype_db = db.Valgtyper.FirstOrDefault(b => b.Start == true && b.Valgtype == "Votering");
-
-            if (valgtype_db == null)
-            {
-                return null;
-            }
-            else
-            {
-                var valgtype = new Valgtyper()
-                {
-                    valgtypeid = valgtype_db.ValgtypeID,
-                    valgtype = valgtype_db.Valgtype,
-                    start = valgtype_db.Start
-                };
-
-                return valgtype;
-            }
-        }
-        public string HarBrukerStemt(string brukernavn)
-        {
-            var db = new BrukerContext();
-            Valgtyper valg = valgPågår(); 
-            
-        
-            if (valg.valgtype == "Votering")
-            {
-                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == valg.valgtype);
-
-                if (brukerStemt != null)
-                {
-                    return "JA";
-                }
-                else
-                {
-                    return "NEI";
-                }
-            }
-            
-        
-            else if (valg.valgtype == "Preferansevalg")
-            {
-                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valg.valgtypeid && b.Valgtype == "Preferansevalg");
-                if (brukerStemt != null)
-                {
-                    return "JA";
-                }
-                else
-                {
-                    return "NEI";
-                }
-            }
-            else if(valg.valgtype == "Personvalg" )
-            {
-                int valgID = PersonvalgKjørerID();
-                BrukereStemt_db brukerStemt = db.BrukereStemt.FirstOrDefault(b => b.Brukernavn == brukernavn && b.ValgtypeID == valgID && b.Valgtype == "Personvalg");
-                    if (brukerStemt != null)
-                    {
-                        return "JA";
-                    }
-                    else
-                    {
-                        return "NEI";
-                    }
-            }
-             else
-            {
-                return "";
-            }
-            
-        }
-        public void LagreBrukerStemt(Valgtyper valg, string brukernavn)
-        {
-            var db = new BrukerContext();
-
-            if (valg == null || brukernavn == null)
-            {
-                return;
-            }
-            else
-            {
-                var brukerStemt = new BrukereStemt_db()
-                {
-                    Brukernavn = brukernavn,
-                    ValgtypeID = valg.valgtypeid,
-                    Valgtype = valg.valgtype
-                };
-
-                db.BrukereStemt.Add(brukerStemt);
-                db.SaveChanges();
-            }
-        }
-        public bool VoteringKjorer()
-        {
-            using (var db = new BrukerContext())
-            {
-                Valgtyper_db voteringkjorer = db.Valgtyper.FirstOrDefault(b => b.Valgtype == "Votering" && b.Start == true);
-                if (voteringkjorer != null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-        public string hentAntallStemt(int id)
-        {
-            var db = new BrukerContext();
-            int antallStemt = db.BrukereStemt.Where(b => b.ValgtypeID == id).Count();
-            int antallbrukere = hentData().Count();
-
-            string utskrift = antallStemt + "/" + antallbrukere;
-            return utskrift;
-        }
-        public int antallValgFullført()
-        {
-            var db = new BrukerContext();
-            int antall = hentValgTyper().Count();
-
-            return antall;
-        }
-
         
     }
 }

@@ -1,5 +1,7 @@
 ﻿@model Studentparlamentet_28.Models.Bruker
-
+@{
+    ViewBag.Title = "Sign in";
+}
 
 <br /><br />
 
@@ -72,7 +74,11 @@
                     <input type="submit" value="Sign in" class="btn btn-primary" />
                 </div>
             </div>
-
+            <div title="Forgot password, push here">
+                <a href="@Url.Action("IndexGlemtEng", "Bruker")" style="float:left;">
+                    <span class="glyphicon glyphicon-question-sign"></span>
+                </a>
+            </div>
         </div>
     }
 </div>

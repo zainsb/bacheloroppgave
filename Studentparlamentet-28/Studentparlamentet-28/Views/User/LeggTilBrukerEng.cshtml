@@ -1,5 +1,7 @@
 ﻿@model Studentparlamentet_28.Models.Leggtilbruker
-
+@{
+    ViewBag.Title = "Generate list";
+}
 
 <div class="col-sm-12" id="LoginForm">
     @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
@@ -17,7 +19,7 @@
     </div>
 
     <br />
-    <h2 style="text-align:left;">Generate list of users for election and voting</h2>
+    <h2 style="text-align:left;"><b>Generate list of users for election and voting</b></h2>
     <br />
     <p>Choose number of users for voting and generate a list</p>
     <br />

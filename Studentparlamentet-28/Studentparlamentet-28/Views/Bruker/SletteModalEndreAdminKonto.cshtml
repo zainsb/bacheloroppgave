@@ -1,4 +1,7 @@
 ﻿@model Studentparlamentet_28.Models.Bruker
+@{
+    ViewBag.Title = "Slett database";
+}
 <div id="sletteModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -15,9 +18,10 @@
                         <div class="alert alert-danger" id="slettNavnDiv">
                             Du er i ferd med å tømme alle lagrede data på systemet, vennligst skriv inn ditt passord for å slette.
                         </div>
-                        <div class="alert alert-warning" id="feilpassord" style="display:none">
-                            Feil passord
+                        <div class="alert alert-warning" id="feilPassordDiv" style="display:none">
+                           Feil passord
                         </div>
+
                     </div>
                     @Html.AntiForgeryToken()
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -33,8 +37,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <input name="submit" type="submit" value="Slett" class="btn btn-danger" />
-                    <button type="button" class="btn btn-success" data-dismiss="modal">Lukk</button>
+                    <input name="submit" type="submit" value="Slett" class="btn btn-success" />
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Lukk</button>
                 </div>
             }
         </div>

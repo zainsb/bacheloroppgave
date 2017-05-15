@@ -13,6 +13,11 @@ namespace Studentparlamentet_28.BLL
     public class BrukerBLL
 
     {
+        public bool glemtPassord(Admin innBruker)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.glemtPassord(innBruker);
+        }
         public void tømAlleDatabaser()
         {
             var brukerdal = new DbDal();
@@ -573,7 +578,11 @@ namespace Studentparlamentet_28.BLL
             var brukerDal = new DbDal();
             return brukerDal.admin_i_db_innlogget(innAdmin, brukernavn);
         }
-
+        public bool admin_i_db_innloggetEng(Bruker innAdmin, string brukernavn)
+        {
+            var brukerDal = new DbDal();
+            return brukerDal.admin_i_db_innloggetEng(innAdmin, brukernavn);
+        }
 
         public Valgtyper VoteringPågår()
         {

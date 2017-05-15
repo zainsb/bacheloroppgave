@@ -1,6 +1,7 @@
 ﻿@model Studentparlamentet_28.Models.Admin
-
-
+@{
+    ViewBag.Title = "Change accountinfo";
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,35 +10,6 @@
         //Hjelpevariabler
 
         $(function () {
-            //Endre brukernavn metode
-            $("#btnEndreBrukernavn").click(function () {
-                var gammeltBrukernavn = $("#gammelbrukernavn").val();
-                var nyttbrukernavn = $("#nyttbrukernavn").val();
-
-
-                $.ajax({
-                    url: '/Bruker/endreAdminBrukernavn',
-                    data: {
-                        gammeltbrukernavn: gammeltBrukernavn,
-                        nyttbrukernavn: nyttbrukernavn
-                    },
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (melding) {
-                        if (melding == "OK") {
-
-                            $("#mldBrukernavn").html("Username has been changed.");
-                        }
-                        else {
-                            $("#mldBrukernavn").html("Username not changed, try again.");
-                        }
-                    },
-                    error: function (x, y, z) {
-                    }
-                });
-
-            });
-
             //Endre passord metode
             $("#btnEndrePassord").click(function () {
                 var gammeltPassord = $("#gammelpassord").val();
@@ -45,7 +17,11 @@
                 var nyttPassord2 = $("#nyttpassord2").val();
 
                 if (nyttPassord != nyttPassord2) {
-                    $("#mldPassord").html("De nye passordene er ikke like.");
+                    $("#sletteMelding").hide();
+                    $("#sletteMelding").hide();
+                    $("#mldPassord").hide();
+                    $("#mldfeilPassord").show();
+                    $("#mldfeilPassord").html("");
                 }
                 else {
                     $.ajax({
@@ -58,13 +34,22 @@
                         dataType: 'json',
                         success: function (melding) {
                             if (melding == "OK") {
+                                $("#sletteMelding").hide();
+                                $("#mldfeilPassord").hide();
+                                $("#mldPassord").show();
                                 $("#mldPassord").html("Password has been changed.");
                             }
                             else if (melding == "Gammelt passord feil") {
-                                $("#mldPassord").html("Current password is incorrect.");
+                                $("#sletteMelding").hide();
+                                $("#mldPassord").hide();
+                                $("#mldfeilPassord").show();
+                                $("#mldfeilPassord").html("Current password is incorrect.");
                             }
                             else {
-                                $("#mldPassord").html("Password not changed, try again.");
+                                $("#sletteMelding").hide();
+                                $("#mldPassord").hide();
+                                $("#mldfeilPassord").show();
+                                $("#mldfeilPassord").html("Password not changed, try again.");
                             }
                         },
                         error: function (x, y, z) {
@@ -75,7 +60,20 @@
             });
 
         }) //Her stopper function()
+        $(document).ready(function () {
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/')
+            var data_id = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            if (data_id == 0) {
+                $("#sletteModal").modal()
+                $("#slettNavnDiv").hide();
+                $("#feilpassordDiv").show();
 
+            }
+            else if (data_id == 1) {
+                $("#sletteMelding").show();
+            }
+        });
     </script>
 </head>
 <body>
@@ -86,7 +84,7 @@
     <div class="col-sm-12" id="AdminEndre">
         @Html.ActionLink(" ", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default glyphicon glyphicon-home btn-md" })
         <div class="form-inline" style="float:right;">
-            @Html.ActionLink("Back", "Tilbake", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+            @Html.ActionLink("Back", "IndexEng", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
             <div class="dropdown" style="float:right;">
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                     English
@@ -99,37 +97,34 @@
         </div>
 
         <br />
-        <h2>Change administrator account</h2>
+        <h2><b>Change administrator account</b></h2>
         <br /><br />
+        <h3>Here you can delete all data like voteslips and results from the database </h3>
+        <br />
         <a href="#sletteModal" class="btn btn-large btn-danger" id="sletteKnapp" data-toggle="modal" data-sletteModal="true">Reset system</a>
-        <div class="col-sm-12"><hr id="hrSTV" /></div>
         <br /><br />
-        <div id="brukernavn">
-            <p>Change administrator username</p>
-            <input type="text" id="gammelbrukernavn" name="Gammel brukernavn" placeholder="Current username">
-            <input type="text" id="nyttbrukernavn" name="Nytt brukernavn" placeholder="New username">
-            <br /><br />
-            <div class="form-group" id="EndreBrukernavnBtn">
-                <input type="button" value="Change usename" id="btnEndreBrukernavn" class="btn btn-primary" />
-                <div id="mldBrukernavn"></div>
-            </div>
-            <br />
-        </div>
+        <div class="alert alert-success" id="sletteMelding" style="display:none">All data has been deleted.</div>
+        <div class="col-sm-12"><hr id="hrSTV" /></div>
+        <br />
         <div id="passord">
-            <p>Change administrator password</p>
+            <h3>Change administrator password</h3>
+            <br />
             <input type="password" id="gammelpassord" style="position:center" name="Gammel passord" placeholder="Old password">
-            <input type="password" id="nyttpassord" style="position:center" name="Nytt passord" placeholder="New password">
-            <input type="password" id="nyttpassord2" style="position:center" name="Nytt passord" placeholder="Repeat new password">
+           <br /><br />
+             <input type="password" id="nyttpassord" style="position:center" name="Nytt passord" placeholder="New password">
+            <br /><br />
+             <input type="password" id="nyttpassord2" style="position:center" name="Nytt passord" placeholder="Repeat new password">
             <br /><br />
             <div class="form-group" id="EndreBtn">
                 <input type="button" value="Change password" id="btnEndrePassord" class="btn btn-primary" />
-                <div id="mldPassord"></div>
+                <div class="alert alert-warning" id="mldfeilPassord" style="display:none"></div>
+                <div class="alert alert-success" id="mldPassord" style="display:none"></div>
             </div>
-            <br />
+            <br /><br />
         </div>
     </div>
 
-    @Html.Partial("../User/SletteModalEndreAdminKontoEng", new Studentparlamentet_28.Models.Bruker())
+    @Html.Partial("../User/SletteModalEndreAdminKontoEng", new Studentparlamentet_28.Models.Kandidat())
 </body>
 </html>
 

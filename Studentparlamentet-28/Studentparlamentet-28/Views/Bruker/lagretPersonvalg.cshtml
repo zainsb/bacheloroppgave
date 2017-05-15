@@ -1,4 +1,8 @@
 ﻿@model List<Studentparlamentet_28.Models.PersonvalgResultat>
+
+@{
+    ViewBag.Title = "Lagret personvalg";
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +19,7 @@
                     {
 
                         $("#feilmeldingValgKjører").show();
+
                     }
                     else if(data == "Nei")
                     {

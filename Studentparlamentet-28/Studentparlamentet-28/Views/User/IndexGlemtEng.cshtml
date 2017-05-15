@@ -1,0 +1,106 @@
+﻿@model Studentparlamentet_28.Models.Admin
+@{
+    ViewBag.Title = "Retrieve password";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('/') // Split the string into an array with = as separator
+            var data_id = url_array[url_array.length - 1];// Get the last part of the array (-1)
+            if(isNaN(data_id) == false)
+            {
+                if (data_id == 0) {
+                    $("#feilEpost").show();
+                }
+                else if(data_id == 1)
+                {
+                    $("#EpostSendt").show();
+                    $("#EpostFelt").hide();
+                }
+            }
+            else
+            {
+                $("#EpostFelt").show();
+                $("#EpostSendt").hide();
+                $("#feilEpost").hide();
+            }
+        });
+
+    </script>
+</head>
+<body>
+    <br /><br />
+    <div class="col-sm-12" id="LoginForm">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="dropdown" style="float:right;">
+                <div class="form-inline" style="float:right;">
+                    @Html.ActionLink("Back", "Index", new { /* id=item.PrimaryKey */ }, new { @class = "btn btn-default" })
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        English
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("IndexGlemt", "Bruker")">Norsk</a></li>
+                    </ul>
+                </div>
+            </div>
+                <br /><br />
+                <h2 style="text-align:left;">Forgot Password</h2>
+                <h4 class="LoginHeader">Fill in the administrator Email to retrieve the password</h4>
+
+
+                <br /><br />
+                <div class="alert alert-warning" id="feilEpost" style="display:none">
+                   Not a valid Email             
+                </div>
+                <div class="alert alert-success" id="EpostSendt" style="display:none">
+                    The password has been sent your Email
+                </div>
+
+                <div id="EpostFelt">
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                                @Html.EditorFor(model => model.emailEng, new { htmlAttributes = new { @class = "form-control", placeholder = "Email" } })
+                            </div>
+                            <div>
+                                <br />
+                                @Html.ValidationMessageFor(model => model.emailEng, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="form-group" id="LogginnBtn">
+                    <div class="col-md-10">
+                        <input type="submit" value="Retrieve password" class="btn btn-primary" />
+
+                    </div>
+
+                    <br /><br />
+                </div>
+        }
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
