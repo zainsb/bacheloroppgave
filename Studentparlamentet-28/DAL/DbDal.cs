@@ -2318,11 +2318,9 @@ namespace Studentparlamentet_28.DAL
 
                     var db = new BrukerContext();
 
-                    //double valgtall = BeregnValgtall(valgtypeid);
-                    double valgtall = 0.5;
+                    double valgtall = BeregnValgtall(valgtypeid);
                     var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
-                    //int antallRepresentanter = preferansevalg.AntallRepresentanter;
-                    int antallRepresentanter = 2;
+                    int antallRepresentanter = preferansevalg.AntallRepresentanter;
                     int antallLedigeplasser = antallRepresentanter;
                     int runde = 1;
                     int høyesteEkskluderes = 0;
@@ -2536,9 +2534,7 @@ namespace Studentparlamentet_28.DAL
                     //Antall ledige plasser er fylt ut
                     if (valgteKandidater.Count() == antallRepresentanter)
                     {
-                        //leggTilValgteKandidater(valgteKandidater);
-                        //return valgteKandidater;
-                        //table.AddCell(cell);
+                        
                         cell.AddElement(new Paragraph("  "));
                         Paragraph nyttParagraf = new Paragraph("Antall faste valgrepresentanter som skal velges er fylt, valget avsluttes.");
                         cell.AddElement(nyttParagraf);
@@ -2853,7 +2849,7 @@ namespace Studentparlamentet_28.DAL
                     else if (valgteKandidater.Count() == 0)
                     {
                         cell.AddElement(new Paragraph("  "));
-                        Paragraph nyttParagraf = new Paragraph("Det ble valgt " + valgteKandidater.Count() + " denne runden. Valget fortsetter.");
+                        Paragraph nyttParagraf = new Paragraph("Det ble ikke valgt noen representanter denne runden. Valget fortsetter.");
                         cell.AddElement(nyttParagraf);
                         cell.PaddingBottom = 20;
                         cell.BorderWidthTop = 0;
@@ -2867,7 +2863,6 @@ namespace Studentparlamentet_28.DAL
                     cell.BorderWidthLeft = 0;
                     cell.BorderWidthRight = 0;
 
-                    //table.AddCell(cell);
 
                     //Starter senere runder --KK
                     while (valgteKandidater.Count() <= antallRepresentanter && avsluttValg == false)
@@ -4228,9 +4223,8 @@ namespace Studentparlamentet_28.DAL
                                             }//if-seddelnavnet!=''
                                         }
                                     }
-                                }//If ekskludert kandidat hadde fått overført overskudd tidligere slutt------------------------------------
+                                }//If ekskludert kandidat hadde fått overført overskudd tidligere slutt
 
-                                //De stemmesedlene med vekt 1.0, ligger i stemmeseddel databasen, ekskludert stemme overføres
                                 for (int j = 0; j < listeEkskludert.Count(); j++)
                                 {
                                     string seddelNavnet = "";
@@ -4718,7 +4712,7 @@ namespace Studentparlamentet_28.DAL
                                     kandidatOverføresFra.stemmetall = valgtall;
                                 }
                             }//If- Fant overskudd
-                            else //Lage en av de med laveste stemmetallene ekskluderes - (Random)
+                            else 
                             {
                                 if (kvoteringsvalg == true)
                                 {
@@ -4879,7 +4873,7 @@ namespace Studentparlamentet_28.DAL
                                     }
                                 }
                                 else
-                                {//Uten kvotering
+                                {
                                  //Finner laveste stemmetall
                                     if (gjenståendeKandidater.Count() > 0)
                                     {
@@ -5101,9 +5095,7 @@ namespace Studentparlamentet_28.DAL
                         }
                         if (valgteKandidater.Count() == antallRepresentanter)
                         {
-                            //leggTilValgteKandidater(valgteKandidater);
-                            //return valgteKandidater;
-                            //table.AddCell(cell);
+                            
                             cell.AddElement(new Paragraph("  "));
                             Paragraph nyttParagraf = new Paragraph("Antall faste valgrepresentanter som skal velges er fylt, valget avsluttes.");
                             cell.AddElement(nyttParagraf);
@@ -5770,8 +5762,8 @@ namespace Studentparlamentet_28.DAL
             int antallStemmer = db.Stemmesedler.Where(s => s.ValgtypeID == valgtypeid).Count();
             var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
             int antallRepresentanter = preferansevalg.AntallRepresentanter;
-            //double divider = (double)antallStemmer / (double)antallRepresentanter;
-            double divider = antallStemmer / antallRepresentanter;
+            double divider = (double)antallStemmer / (double)antallRepresentanter;
+            //double divider = antallStemmer / antallRepresentanter;
             double valgtall = divider + 1 + 0.01;
 
             return valgtall;
@@ -5794,11 +5786,9 @@ namespace Studentparlamentet_28.DAL
         {
             var db = new BrukerContext();
             BeregnStemmetallFørsteRunde(valgtypeid); //Beregner stemmetallene og sorterer de for første runde
-            double valgtall = 0.5;
-            //double valgtall = BeregnValgtall(valgtypeid);
+            double valgtall = BeregnValgtall(valgtypeid);
             var preferansevalg = db.PreferanseValg.FirstOrDefault(p => p.ValgtypeID == valgtypeid);
-            //int antallRepresentanter = preferansevalg.AntallRepresentanter;
-            int antallRepresentanter = 2;
+            int antallRepresentanter = preferansevalg.AntallRepresentanter;
             int antallLedigeplasser = antallRepresentanter;
             int runde = 1;
             int høyesteEkskluderes = 0;
