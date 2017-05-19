@@ -346,7 +346,7 @@
         <br />
         <h2><b>Administrer preferansevalg</b></h2>
         <br />
-        <p class="text-info">For å starte et nytt preferansevalg nå, vennligst fyll ut skjema under.</p>
+        <p>For å starte et nytt preferansevalg nå, vennligst fyll ut skjema under.</p>
         <br />
         <div class="form-group form-inline">
             <div class="row col-sm-12">
@@ -394,7 +394,7 @@
             </div>
         </div>
 
-        <input type="button" name="btnLeggTilKlasser" id="btnKlasser" value="Legg til klasser" />
+        <input type="button"  class="btn btn-primary" name="btnLeggTilKlasser" id="btnKlasser" value="Legg til klasser" />
 
 
         <div class="col-sm-12"><hr id="hrSTV" /></div>
@@ -411,7 +411,7 @@
                         </select>
                     </div>
                     <div class="col-sm-2">
-                        <input type="button" value="Legg til kandidat" id="btnLeggTilKandidat" class="btn btn-info" />
+                        <input type="button" value="Legg til kandidat" id="btnLeggTilKandidat" class="btn btn-primary" />
                     </div>
                 </div>
             </div>
@@ -498,15 +498,15 @@
                 <div class="row">
                     <div class="col-sm-4"></div>
                     <div class="col-sm-4">
-                        <input type="button" id="btnStartSTV" value="Start nytt preferansevalg" class="btn btn-primary" />
+                        <input type="button" id="btnStartSTV" value="Start nytt preferansevalg" class="btn btn-success" />
                     </div>
                 </div>
                 <div class="col-sm-12"><hr id="hrSTV" /></div>
                 <br />
                 <div class="row col-sm-11">
                     <div class="col-sm-12">
-                        @Html.ActionLink("Lagrede preferansevalg", "ForhåndslagredePreferansevalg", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-2" })
-                        @Html.ActionLink("Vis utførte preferansevalg", "AlleUtfortePreferansevalg", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-1" })
+                        @Html.ActionLink("Lagrede preferansevalg", "ForhåndslagredePreferansevalg", new { tom = "" }, new { @class = "btn btn-default col-sm-4 col-sm-offset-2" })
+                        @Html.ActionLink("Vis utførte preferansevalg", "AlleUtfortePreferansevalg", new { tom = "" }, new { @class = "btn btn-default col-sm-4 col-sm-offset-1" })
                     </div>
                 </div>
             </div>

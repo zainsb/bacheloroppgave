@@ -1052,11 +1052,11 @@ namespace Studentparlamentet_28.DAL
         public List<PersonvalgStemmer> hentPersonvalg(int id)
         {
             using (var db = new BrukerContext())
-
             {
 
                     var personvalg = db.PersonvalgResultatStemmer.Select(k => new PersonvalgStemmer()
                     {
+                        id = k.ID,
                         valgtypeid = k.ValgtypeID,
                         fornavn = k.Fornavn,
                         etternavn = k.Etternavn

@@ -388,7 +388,7 @@
                 </div>
             </div>
 
-            <input type="button" name="btnLeggTilKlasser" id="btnKlasser" value="Add classes" />
+            <input type="button" class="btn btn-primary" name="btnLeggTilKlasser" id="btnKlasser" value="Add classes" />
 
 
             <div class="col-sm-12"><hr id="hrSTV" /></div>
@@ -405,7 +405,7 @@
                         </select>
                     </div>
                     <div class="col-sm-2">
-                        <input type="button" value="Add new candidate" id="btnLeggTilKandidat" class="btn btn-info" />
+                        <input type="button" value="Add new candidate" id="btnLeggTilKandidat" class="btn btn-primary" />
                     </div>
                 </div>
             </div>
@@ -490,15 +490,15 @@
                 <div class="row">
                     <div class="col-sm-4"></div>
                     <div class="col-sm-6 col-lg-offset-1">
-                        <input type="button" id="btnStartSTV" value="Start STV" class="btn btn-primary" />
+                        <input type="button" id="btnStartSTV" value="Start STV" class="btn btn-success" />
                     </div>
                 </div>
                 <div class="col-sm-12"><hr id="hrSTV" /></div>
                 <br />
                 <div class="row col-sm-11">
                     <div class="col-sm-12">
-                        @Html.ActionLink("Registered S.T.V", "ForhåndslagredePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-2" })
-                        @Html.ActionLink("Executed STV ", "AlleUtfortePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-info col-sm-4 col-sm-offset-1" })
+                        @Html.ActionLink("Registered S.T.V", "ForhåndslagredePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-default col-sm-4 col-sm-offset-2" })
+                        @Html.ActionLink("Executed STV ", "AlleUtfortePreferansevalgEng", new { tom = "" }, new { @class = "btn btn-default col-sm-4 col-sm-offset-1" })
                     </div>
                 </div>
             </div>
